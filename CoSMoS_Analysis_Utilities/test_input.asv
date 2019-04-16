@@ -1,0 +1,7 @@
+function pc=test_input(a,varargin)
+if exist(varargin{1})
+    sprintf('yes')
+else
+    pc=0
+end
+
