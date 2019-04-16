@@ -1,0 +1,55 @@
+function pc=Remove_Event(IntervalArray,BinaryInputTrace,Frame)
+%
+%   function Remove_Event(IntervalArray,BinaryInputTrace,Frame)
+%
+% Will remove one high event from the BinaryInputTrace and IntervalArray 
+% as specified by the 'Frame' input.  Will be called from the plotargouts.m
+% routine.
+%
+% IntervalArray == ['(low or high =0 or 1) (frame start) (frame end) (delta frames) (delta time (sec))']
+%             Used in the plotargouts routine to record high and low events
+%             in a record of integrated intensity.  This is contained in
+%             handles.IntervalDataStructure.PresentTraceCellArray{1,10}
+%
+% BinaryInputTrace ===['(low or high =0 or 1) InputTrace(:,1) InputTrace(:,2)'];
+%             Used in the plotargouts routine to mark high and low events
+%             in a record of integrated intensity.  This is contained in
+%             handles.IntervalDataStructure.PresentTraceCellArray{1,13}
+%
+% Frame == the frame number mouse clicked by the user as being nearest to the 
+%             high event the user wants removed from the lists.  Will be
+%             used to search through (frame start) and (frame end) in the
+%             IntervalArray to identify the undesired interval
+
+[IArose IAcol]=size(IntervalArray);
+                % Initialize our search variables
+MinDiff=abs(Frame-IntervalArray(1,2));
+IAindex=1;
+for indx=1:IArose
+                % Check each high interval frame boundary in the list for 
+                % proximity to the Frame
+    if IntervalArray(indx,1)==1
+                % Here if the row lists a high event
+        CurrentDiff=abs(Frame-IntervalArray(indx,2));   % lower boundary of high event
+        if CurrentDiff<MinDiff
+                                % Here if new closest frame is found
+            IAindex=indx;       % Replace the running row index
+            MinDiff=CurrentDiff; % Replace the running minimum frame difference
+        end
+        CurrentDiff=abs(Frame-IntervalArray(indx,3));   % upper boundary of high event
+        if CurrentDiff<MinDiff
+                                % Here if new closest frame is found
+            IAindex=indx;       % Replace the running row index
+            MinDiff=CurrentDiff; % Replace the running minimum frame difference
+        end
+    end
+end
+        % Now, the IAindex indicates the row of IntervalArray that contains
+        % the high event we wish to eliminate
+hiframe=IntervalArray(IAindex,3);
+loframe=IntervalArray(IAindex,2);
+        % Cycle through the BinaryInputTrace and zero the rows (1 -> 0 in the 
+        % first column) that specify the high event we eliminate
+[BITrose BITcol]=size(BinaryInputTrace);
+for BITindx=1:BITrose
+    if BinaryInputTrace(BITindx,2)<=

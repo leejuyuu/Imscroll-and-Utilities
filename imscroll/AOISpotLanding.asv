@@ -27,7 +27,7 @@ function pc=AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-%keyboard
+keyboard
 FrameRange=handles.AllSpots.FrameVector;       % Vector of frames for which spots were found
 [frmrose frmcol]=size(FrameRange);      % also, frmcol= #rows in AllSpots cell array
 [asrose ascol]=size(handles.AllSpots.AllSpotsCells);
