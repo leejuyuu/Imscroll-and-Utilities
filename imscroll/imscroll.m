@@ -567,7 +567,7 @@ else                                        %Here to plot mesh
     axes(handles.axes1);                            % active figure is now the in the gui 
     mesh(double(aoi));
 end
-
+set(handles.AOInum_Output,'String', int2str(maoi))
 
 % --------------------------------------------------------------------
 function varargout = ImageNumberValue_Callback(h, eventdata, handles, varargin)
