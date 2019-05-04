@@ -68,11 +68,11 @@ else
 end
 
 %BackgroundFirstFrame=rolling_ball(firstfrm,Radius,Height);
-[nfrms naois]=size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
+[nfrms, naois]=size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
                                     % Get the sigma value from the editable
                                     % text region for gaussina fit with
                                     % fixed sigma
-sigma=str2num(get(parenthandles.SigmaValueString,'String'));
+sigma=str2double(get(parenthandles.SigmaValueString,'String'));
                                       
 %****rowindex=0;                 % Initialize the row index for the pre allocated arrays
                             % pc.ImageData, and pc.BackgroundData
@@ -119,11 +119,11 @@ for aoiindx=1:naois
 aoiy=mapstruc_cell{1,aoiindx}.aoiinf(4);  % Y (row) Center of aoi
 aoix=mapstruc_cell{1,aoiindx}.aoiinf(3);  % X (col)center of aoifram
 pixnum=mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
-[xlow xhi ylow yhi]=AOI_Limits([aoix aoiy],pixnum/2);
+[xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
 LastxyLowHigh(aoiindx,:)=[xlow xhi ylow yhi];
         % Use the next AOI limits for integration of a small AOI when
         % fitting a gaussian (with fixed sigma) to the larger AOI
-[xlowsmall xhismall ylowsmall yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
+[xlowsmall, xhismall, ylowsmall, yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
 LastxyLowHighSmall(aoiindx,:)=[xlowsmall xhismall ylowsmall yhismall];
 %ylow=round(aoiy-pixnum/2);xlow=round(aoix-pixnum/2);
 %yhi=round(ylow+pixnum-1);xhi=round(xlow+pixnum-1);
@@ -166,7 +166,7 @@ firstaoismall=firstfrm(ylowsmall:yhismall,xlowsmall:xhismall);
       maxind=maxfind(firstaoi);
       maoix=maxind(2)+xlow-1;maoiy=maxind(1)+ylow-1;    % x and y for aoi maximum, with indices referenced 
                                                       % to the original image frame
-      [mxlow mxhi mylow myhi]=AOI_Limits([maoix maoiy],pixnum/2);
+      [mxlow, mxhi, mylow, myhi]=AOI_Limits([maoix maoiy],pixnum/2);
 %      mylow=round(maoiy-pixnum/2);mxlow=round(maoix-pixnum/2);
 %      myhi=round(mylow+pixnum-1);mxhi=round(mxlow+pixnum-1);
       mfirstaoi=firstfrm(mylow:myhi,mxlow:mxhi);
@@ -433,7 +433,7 @@ switchvalue=get(parenthandles.FitChoice,'Value');
          maxind=maxfind(currentaoi);
          maoix=maxind(2)+xlow-1;maoiy=maxind(1)+ylow-1;    % x and y for aoi maximum, with indices referenced 
                                                       % to the original image frame
-         [mxlow mxhi mylow myhi]=AOI_Limits([maoix maoiy],pixnum/2);
+         [mxlow, mxhi, mylow, myhi]=AOI_Limits([maoix maoiy],pixnum/2);
 %         mylow=round(maoiy-pixnum/2);mxlow=round(maoix-pixnum/2);
 %         myhi=round(mylow+pixnum-1);mxhi=round(mxlow+pixnum-1);
          mcurrentaoi=currentfrm(mylow:myhi,mxlow:mxhi);
@@ -560,9 +560,9 @@ if get(parenthandles.TrackAOIs,'Value')==1
      for aoiindx3=1:naois
         lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
         pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
-        [Txlow Txhi Tylow Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
+        [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
         LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
-       [Txlow Txhi Tylow Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],parenthandles.Pixnums(1)/2);
+       [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],parenthandles.Pixnums(1)/2);
         LastxyLowHighSmall(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
      end
 else
@@ -571,11 +571,11 @@ else
         aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
         aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
         pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
-        [xlow xhi ylow yhi]=AOI_Limits([aoix aoiy],pixnum/2);
+        [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
         LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
         % Use the next AOI limits for integration of a small AOI when
         % fitting a gaussian (with fixed sigma) to the larger AOI
-        [xlowsmall xhismall ylowsmall yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
+        [xlowsmall, xhismall, ylowsmall, yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
         LastxyLowHighSmall(aoiindx4,:)=[xlowsmall xhismall ylowsmall yhismall];
     end
 end

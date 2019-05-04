@@ -3363,8 +3363,8 @@ if get(handles.SpotsPopup,'Value')==8
         avefrm=avefrm-bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
     end
 end
-[frmrose frmcol]=size(avefrm);                  % [ysize xsize]
-xlow=1;xhigh=frmcol;ylow=1;yhigh=frmrose;         % Initialize frame limits
+[imageYsize, imageXsize]=size(avefrm);                  % [ysize xsize]
+xlow=1;xhigh=imageXsize;ylow=1;yhigh=imageYsize;         % Initialize frame limits
 if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)  
     limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
                                                    % [xlow xhi ylow yhi]
@@ -3378,14 +3378,14 @@ dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.Sp
 pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
 pk=cntrd(dat,pk,handles.SpotDiameter+2);
 
-[aoirose aoicol]=size(pk);
+[NumOfPeaks, ~]=size(pk);
                     % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
-if aoirose~=0       % If there are spots, put them into handles.FitData and draw them
+if NumOfPeaks~=0       % If there are spots, put them into handles.FitData and draw them
     pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
     pk(:,2)=pk(:,2)+ylow-1;
-    handles.FitData=[imagenum*ones(aoirose,1) ave*ones(aoirose,1) pk(:,1) pk(:,2) pixnum*ones(aoirose,1) [1:aoirose]'];
+    handles.FitData=[imagenum*ones(NumOfPeaks,1) ave*ones(NumOfPeaks,1) pk(:,1) pk(:,2) pixnum*ones(NumOfPeaks,1) [1:NumOfPeaks]'];
                     % Draw the aois
-    for indx=1:aoirose
+    for indx=1:NumOfPeaks
         draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
     end
 end
