@@ -1272,42 +1272,23 @@ function FitAOIs_Callback(hObject, eventdata, handles, varargin)
 folder=handles.TiffFolder;
     % next four lines because 'folder' cannot be empty, or we get an error
     % message when referencing folder(1,:) in build_mapstruc.m
-[aa bb]=size(folder);
-if (aa==0)&(bb==0);
+[aa, bb]=size(folder);
+if (aa==0)&&(bb==0);
     folder='folder not specified';
 end
 
 %folderpass=folder;
 pixnum=str2double(get(handles.PixelNumber,'String')); % Fetch the pixel number (aoi width)
-%frms=eval(get(handles.FrameRange,'String'));        % Fetch the frame range to fit
 
-eval([get(handles.FrameRange,'String') ';']);
-frms=ans;
-                %xypt=zeros(1,2);                                    
-                %xypt(1)=str2double(get(handles.Xspot,'String'));    % Fetch the center location for the AOI
-                %xypt(2)=str2double(get(handles.Yspot,'String'));    % (set earlier through ginput)
-
-                                                    % Fit the spot.  The
-                                                    % fits will use the
-                                                    % frame ave as
-                                                    % specified in the gui
-                              %  ***************************                        
-
-[mfrms nfrms]=size(frms);
-if mfrms ==1
-    frms=frms';                                 % frms now a column vector
-end
-[mfrms nfrms]=size(frms); 
 ave=round(str2double(get(handles.FrameAve,'String')));
-% aoiinf=[frms  ave*ones(mfrms,1) xypt(1)*ones(mfrms,1) xypt(2)*ones(mfrms,1) pixnum*ones(mfrms,1)];
+
 aoiinf=handles.FitData;                         % AOIs selected earlier (AOI button, tag=CollectAOI)
                                                 %[framenumber ave x y pixnum aoinumber];
-[maoi naoi]=size(aoiinf);
+
                                                 % Now successively fit each AOI over the
  
                                             % specified frame range
-argoutsImageData=[];
-argoutsBackgroundData=[];
+
 
                                             % Define most of the output structure
 aoifits.dataDescription='[aoinumber framenumber amplitude xcenter ycenter sigma offset integrated_aoi (integrated pixnum) (original aoi#)]';
@@ -1336,7 +1317,7 @@ outputName=get(handles.OutputFilename,'String');
 
 mapstruc2d=build_2d_mapstruc_aois_frms(handles);        % Build a 2D mapstruc to direct data processing  
 
-%DataOutput2d=gauss2d_mapstruc2d_v1(mapstruc2d,handles); % Process the data (integrate, fit etc)
+
 
 DataOutput2d=gauss2d_mapstruc2d_v2(mapstruc2d,handles); % Process the data (integrate, fit etc)
                                                    % V.2 is parallel processing  
@@ -1350,10 +1331,10 @@ argoutsBackgroundData=DataOutput2d.BackgroundData;
        % Save the data after each aoi is processed  
                 % First assign the ImageData
 
-%eval(['save p:\matlab12\larry\data\' outputName ' aoifits' ])
+
 aoifits.data=argoutsImageData;
 aoifits.BackgroundData=argoutsBackgroundData;
-eval(['save ' handles.FileLocations.data outputName ' aoifits']);
+save([handles.FileLocations.data, outputName],'aoifits')
 handles.aoifits1=aoifits;                        % store our structure in the handles structure
 handles.aoifits2=aoifits;
 if get(handles.BackgroundAOIs,'Value')==1
