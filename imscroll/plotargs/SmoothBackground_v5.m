@@ -135,10 +135,10 @@ for indxroot=AOInums'
         AveBkgndData=dat(:,:,1);       % Create data matrix containing list of frame numbers and data
                     % (# of rows)=# of frames of data in the sequence
       
-        stdDev=std(datonly);       % (1 x rosedat)=(1 x #of frms), std deviation of bkgnd AOIs for each frame
+        stdDev=std(datonly,1);       % (1 x rosedat)=(1 x #of frms), std deviation of bkgnd AOIs for each frame
                                     % Large deviations of baseline do not show up in these values of std,
                                     % just the noise of the pts in each frame
-        MedianFrm=median(datonly);  % (1 x rosedat)=(1 x #of frms), median of bkgnd AOIs computed for each frame
+        MedianFrm=median(datonly,1);  % (1 x rosedat)=(1 x #of frms), median of bkgnd AOIs computed for each frame
                                     % Large deviations of baseline do not show up in these values of median,
                                     % just the noise of the pts in each
                                     % frame.  Median is less subject to large deviations by a single bkgnd AOI  
