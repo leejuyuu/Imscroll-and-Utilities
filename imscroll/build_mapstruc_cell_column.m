@@ -41,7 +41,7 @@ function pc=build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse,handles
 % aoiinf will have as many rows as there are frames to
 % process i.e. maoi = number of frames to process
 
-[maoi naoi]=size(aoiinf);       % maoi is the number of aois= number of
+[maoi, ~]=size(aoiinf);       % maoi is the number of aois= number of
 % cell array entries
 
 % Initialize the structure
@@ -50,28 +50,25 @@ function pc=build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse,handles
 % because we initialize mapstruc(maoi) by
 % referencing the moai row
 
-if startparm ==2                % == 2 for moving aois, in which case
-    % we will shift the xy coordinates using
-    frmrange=aoiinf(:,1)';      % the handles.DriftList table
-    for indxx=frmrange          % First column of the aoiinf matrix lists the
-        % frames over which we will process the
-        % aois
-        %                     (aoi#)     (frm#) aoiinfo
-        %
-        % Pick out the correct line (frame) in the
-        % aoiinf table
-        logic=(indxx==aoiinf(:,1));
-        aoiinf(logic,3:4)=aoiinf(logic,3:4)+ShiftAOI(aoiinf(1,6),indxx,handles.FitData,handles.DriftList);
+if startparm == 2
+    % == 2 for moving aois, in which case we will shift the xy coordinates
+    % using the handles.DriftList table
+    frameRange = aoiinf(:,1)';
+    for iFrame = frameRange
+        
+        isEntryEqualiFrame=(iFrame==aoiinf(:,1));
+        aoiinf(isEntryEqualiFrame,3:4)=aoiinf(isEntryEqualiFrame,3:4)+...
+            ShiftAOI(aoiinf(1,6),iFrame,handles.FitData,handles.DriftList);
         
     end
 end
-mapstruc_cell_column=cell(maoi,1);
+mapstruc_cell_column = cell(maoi,1);
 
 
-
-[mstart nstart]=size(startparm);
-[mfold nfold]=size(folder);
-[mfolderuse nfolderuse]=size(folderuse);
+tic
+[mstart, ~] = size(startparm);
+[mfold, ~] = size(folder);
+[mfolderuse, ~] = size(folderuse);
 if mstart==1
     % Repeat startparm enough to fill structure
     startparm=repmat(startparm,maoi,1);
@@ -84,11 +81,11 @@ if mfolderuse == 1
     % Repeat folderuse enough to fill structure
     folderuse=repmat(folderuse,maoi,1);
 end
-[maoi naoi]=size(aoiinf);
-[mstart nstart]=size(startparm);
-[mfold nfold]=size(folder);
-[mfolderuse nfolderuse]=size(folderuse);
-if (mstart==maoi)&(mfold == maoi)&(mfolderuse==maoi)
+[maoi, ~]=size(aoiinf);
+[mstart, ~]=size(startparm);
+[mfold, ~]=size(folder);
+[mfolderuse, ~]=size(folderuse);
+if (mstart==maoi) && (mfold == maoi) && (mfolderuse==maoi)
     for indx=1:maoi
         mapstruc_cell_column{indx}= struct('aoiinf',aoiinf(indx,:),'startparm',startparm(indx,:),...
             'folder',folder(indx,:),'folderuse',folderuse(indx,:) );
@@ -101,5 +98,6 @@ else
     % 1 or maoi
     pc='error in build_mapstruc';
 end
+toc
+end
  
-     % 
