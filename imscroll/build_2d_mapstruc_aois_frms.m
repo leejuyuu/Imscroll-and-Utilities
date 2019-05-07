@@ -1,4 +1,4 @@
-function mapstruct_cell = build_2d_mapstruc_aois_frms(handles)
+function mapstruc_cell = build_2d_mapstruc_aois_frms(handles)
 %
 % function build_2d_mapstruc_aois_frms(folder,handles)
 %
@@ -46,23 +46,14 @@ if (aa==0) && (bb==0);
     folder = 'folder not specified';
 end
 
+% Fetch the pixel number (aoi width)
+pixnum = str2double(get(handles.PixelNumber,'String')); 
 
-pixnum = str2double(get(handles.PixelNumber,'String')); % Fetch the pixel number (aoi width)
-
-frms = eval([get(handles.FrameRange,'String') ';']);
+frameRange = eval([get(handles.FrameRange,'String') ';']');
 % Vector of frames that will be processed
+nFrames = length(frameRange);
 
-
-% Fit the spot.  The
-% fits will use the
-% frame ave as
-% specified in the gui
-%  ***************************
-
-nFrames = length(frms);
-frms = frms';
-
-ave = round(str2double(get(handles.FrameAve,'String')));  % Number of frames to average
+frameAverage = round(str2double(get(handles.FrameAve,'String')));  % Number of frames to average
 aoiinf = handles.FitData;                         % AOIs selected earlier (AOI button, tag=CollectAOI)
 %[framenumber ave x y pixnum aoinumber];
 [maoi, naoi] = size(aoiinf);                       % maoi is the number of aois
@@ -71,27 +62,24 @@ mapstruc_cell = cell(nFrames,maoi);                 % cell array of structures, 
 % specified frame range
 
 % Find out if user wants a fixed or moving aoi, startparm=1 for fixed, startparm=2 for moving
-    startparameter = get(handles.StartParameters,'Value');
-    switch startparameter                          % This switch is not necessary yet, but will be when
-        % more choises are added
-        case 1
-            inputstartparm = 1;                      % Fixed AOI
-        case 2
-            inputstartparm = 2;                      % Moving AOI
-        case 3
-            inputstartparm = 2;
-        case 4
-            inputstartparm = 2;
-    end
+startparameter = get(handles.StartParameters,'Value');
+switch startparameter                          % This switch is not necessary yet, but will be when
+    % more choises are added
+    case 1
+        inputstartparm = 1;                      % Fixed AOI
+    case 2
+        inputstartparm = 2;                      % Moving AOI
+    case 3
+        inputstartparm = 2;
+    case 4
+        inputstartparm = 2;
+end
 % Defines source of images (=1 for tiff folder, 2 for ram images, 3 for glimpse folder)
-    imageType = get(handles.ImageSource,'Value');
+imageType = get(handles.ImageSource,'Value');
 
+tempOnes = ones(nFrames,1);
 for iAOI = 1:maoi                                 % For loop over the different AOIs
-    
    
-    
-    
-    
     if naoi==7
         % naoi== # of columns in aoiinfo2
         % Here for Danny's case where we add an extra
@@ -102,17 +90,25 @@ for iAOI = 1:maoi                                 % For loop over the different 
         % intermediate and large AOIs were constructed to
         % surround.
         %[(frms columun vec)  ave         x                            y                           pixnum                       aoinum]
-        oneaoiinf=[frms  ave*ones(nFrames,1) aoiinf(iAOI,3)*ones(nFrames,1) aoiinf(iAOI,4)*ones(nFrames,1) aoiinf(iAOI,5)*ones(nFrames,1) aoiinf(iAOI,6)*ones(nFrames,1)];
+        aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), aoiinf(iAOI,5), aoiinf(iAOI,6)];
+        oneaoiinf = repmat(aaa,nFrames,1);
+        oneaoiinf(:,1) = frameRange;
+%         oneaoiinf=[frms  ave*tempOnes aoiinf(iAOI,3)*tempOnes aoiinf(iAOI,4)*tempOnes aoiinf(iAOI,5)*tempOnes aoiinf(iAOI,6)*tempOnes];
     else
-        oneaoiinf=[frms  ave*ones(nFrames,1) aoiinf(iAOI,3)*ones(nFrames,1) aoiinf(iAOI,4)*ones(nFrames,1) pixnum*ones(nFrames,1) aoiinf(iAOI,6)*ones(nFrames,1)];
+        
+        aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), pixnum, aoiinf(iAOI,6)];
+        oneaoiinf = repmat(aaa,nFrames,1);
+        oneaoiinf(:,1) = frameRange;
+        
+%         oneaoiinf=[frms  ave*tempOnes aoiinf(iAOI,3)*tempOnes aoiinf(iAOI,4)*tempOnes pixnum*tempOnes aoiinf(iAOI,6)*tempOnes];
+    
     end
     % build column of mapstruc_cell.  Column is an array of structures
     % for a single aoi, all frames
-    
+   
     mapstruc_cell(:,iAOI)=build_mapstruc_cell_column(oneaoiinf,inputstartparm,folder,imageType,handles);
+
 end
 
-mapstruct_cell = mapstruc_cell;       % Output the cell array containing information for
-% processing the aois and frames
 end
 
