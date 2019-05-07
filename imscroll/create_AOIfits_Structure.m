@@ -1,5 +1,6 @@
 function aoifits = create_AOIfits_Structure(handles)
-% Define the output structure of the AOIfits data
+% Define the output structure of the AOIfits data, called by
+% Imscroll/FitAOIs callback
 
 folder=handles.TiffFolder;
 % next four lines because 'folder' cannot be empty, or we get an error

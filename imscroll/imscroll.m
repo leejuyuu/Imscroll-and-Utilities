@@ -20,251 +20,251 @@ function varargout = imscroll(varargin)
 
 %keyboard
 if nargin <= 1  % LAUNCH GUI
-
-	fig = openfig(mfilename,'reuse');
-
-	% Generate a structure of handles to pass to callbacks, and store it.
-   
-	handles = guihandles(fig);
+    
+    fig = openfig(mfilename,'reuse');
+    
+    % Generate a structure of handles to pass to callbacks, and store it.
+    
+    handles = guihandles(fig);
     if nargin==1
         
         foldstruc=varargin{1};              % structure containing image folder(s)
-                                            % foldstruc.gfolder == glimse folder for image files
-                                            % folstruc.folder == folder for the *.tiff stacked tiff image file
+        % foldstruc.gfolder == glimse folder for image files
+        % folstruc.folder == folder for the *.tiff stacked tiff image file
     end
-       
-        
+    
+    
     handles.FitData=[];                     % LF: adding a handle that will contain fit data array
-                                            % [framenumber ave x y pixnum aoinumber];
+    % [framenumber ave x y pixnum aoinumber];
     handles.aoifits1=[];                     % LF: adding a handle that will contain the aoifits structure
-                                            %  (the same aoifits structure that we store as output)
+    %  (the same aoifits structure that we store as output)
     handles.aoifits2=[];
     handles.aoifits3=[];
     handles.FitParameters=[];               % Adding handles that will store the fit for mapping fields from
-                                            % images and images2
-                                            %                    Fitparameters =[mx21 bx21
-                                            %                                     my21 by21]
-                                            %                          where     x2= mx21*x1 + bx21
-                                            %                                    y2= my21*y1 + by21
-    handles.FieldFrames=[];                 % Will contain a cell array (alphanumerics) that list the frames belonging to 
-                              % to each field viewed in the sequence, e.g.
-                              % handles.FieldFrames{1}= '5:5:200'
-                              % handles.FieldFrames{2}= '6:5:200'  etc
-                              % (notice the quotes ' ' )
+    % images and images2
+    %                    Fitparameters =[mx21 bx21
+    %                                     my21 by21]
+    %                          where     x2= mx21*x1 + bx21
+    %                                    y2= my21*y1 + by21
+    handles.FieldFrames=[];                 % Will contain a cell array (alphanumerics) that list the frames belonging to
+    % to each field viewed in the sequence, e.g.
+    % handles.FieldFrames{1}= '5:5:200'
+    % handles.FieldFrames{2}= '6:5:200'  etc
+    % (notice the quotes ' ' )
     handles.CurrentFieldNumber=0;           % Initialize current field number viewed to zero
-    handles.CurrentField= [1:100000];        % Initialize list of frames in current field to be every frame 
-                                            % max frame number here is
-                                            % 100000 (should be enough)
-
+    handles.CurrentField= [1:100000];        % Initialize list of frames in current field to be every frame
+    % max frame number here is
+    % 100000 (should be enough)
     
-   
+    
+    
     if exist('foldstruc')                   % if foldstruc is defined, put its members into the handles structrue
         if isfield(foldstruc,'gfolder');
-          
-           handles.gfolder=foldstruc.gfolder;        % The path to the glimpse folder, (maybe) defined by user in command mode
-           handles.gfolder1=foldstruc.gfolder;      % Storing gfolder as gfolder1 so we can switch between gfolders
-           eval(['load ' foldstruc.gfolder 'header.mat'])     % loads the vid structure of the glimpse folder
-           handles.gheader=vid;
-           handles.gheader1=vid;
-           handles.MaxFrames=vid.nframes;               % Get number of frames in the file from vid structure
-           dum=uint32(glimpse_image(handles.gfolder,vid,1));
-           handles.DumGfolder=dum-dum;             % zeroed array the same size as the images
-           handles.DumGfolder1=dum-dum;
-           handles.GlimpseMax=1;
-           %handles.Dum=handles.DumGfolder;          % Will be used as replacement for 'dum' variable formerly 
-                                            % picked up from command mode
-           gname=handles.gfolder;
-           lengthgname=length(gname);
-           
-           set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
-        
+            
+            handles.gfolder=foldstruc.gfolder;        % The path to the glimpse folder, (maybe) defined by user in command mode
+            handles.gfolder1=foldstruc.gfolder;      % Storing gfolder as gfolder1 so we can switch between gfolders
+            eval(['load ' foldstruc.gfolder 'header.mat'])     % loads the vid structure of the glimpse folder
+            handles.gheader=vid;
+            handles.gheader1=vid;
+            handles.MaxFrames=vid.nframes;               % Get number of frames in the file from vid structure
+            dum=uint32(glimpse_image(handles.gfolder,vid,1));
+            handles.DumGfolder=dum-dum;             % zeroed array the same size as the images
+            handles.DumGfolder1=dum-dum;
+            handles.GlimpseMax=1;
+            %handles.Dum=handles.DumGfolder;          % Will be used as replacement for 'dum' variable formerly
+            % picked up from command mode
+            gname=handles.gfolder;
+            lengthgname=length(gname);
+            
+            set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
+            
         end
         if isfield(foldstruc,'gfolder2');
-           handles.gfolder2=foldstruc.gfolder2;        % The path to the second glimpse folder (for mapping, (maybe) defined by 
-           eval(['load ' foldstruc.gfolder2 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-           handles.gheader2=vid;
-           dum=uint32(glimpse_image(handles.gfolder2,vid,1));
-           handles.DumGfolder2=dum-dum;             % zeroed array the same size as the images
-           handles.GlimpseMax=2;
-        
-        end  
+            handles.gfolder2=foldstruc.gfolder2;        % The path to the second glimpse folder (for mapping, (maybe) defined by
+            eval(['load ' foldstruc.gfolder2 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
+            handles.gheader2=vid;
+            dum=uint32(glimpse_image(handles.gfolder2,vid,1));
+            handles.DumGfolder2=dum-dum;             % zeroed array the same size as the images
+            handles.GlimpseMax=2;
+            
+        end
         if isfield(foldstruc,'gfolder3');
-           handles.gfolder3=foldstruc.gfolder3;        % The path to the second glimpse folder (for mapping, (maybe) defined by 
-           eval(['load ' foldstruc.gfolder3 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-           handles.gheader3=vid;
-           dum=uint32(glimpse_image(handles.gfolder3,vid,1));
-           handles.DumGfolder3=dum-dum;             % zeroed array the same size as the images
-           handles.GlimpseMax=3;
+            handles.gfolder3=foldstruc.gfolder3;        % The path to the second glimpse folder (for mapping, (maybe) defined by
+            eval(['load ' foldstruc.gfolder3 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
+            handles.gheader3=vid;
+            dum=uint32(glimpse_image(handles.gfolder3,vid,1));
+            handles.DumGfolder3=dum-dum;             % zeroed array the same size as the images
+            handles.GlimpseMax=3;
         end
         if isfield(foldstruc,'gfolder4');
-           handles.gfolder4=foldstruc.gfolder4;        % The path to the second glimpse folder (for mapping, (maybe) defined by 
-           eval(['load ' foldstruc.gfolder4 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-           handles.gheader4=vid;
-           dum=uint32(glimpse_image(handles.gfolder4,vid,1));
-           handles.DumGfolder4=dum-dum;             % zeroed array the same size as the images
-           handles.GlimpseMax=4;
+            handles.gfolder4=foldstruc.gfolder4;        % The path to the second glimpse folder (for mapping, (maybe) defined by
+            eval(['load ' foldstruc.gfolder4 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
+            handles.gheader4=vid;
+            dum=uint32(glimpse_image(handles.gfolder4,vid,1));
+            handles.DumGfolder4=dum-dum;             % zeroed array the same size as the images
+            handles.GlimpseMax=4;
         end
         if isfield(foldstruc,'gfolder5');
-           handles.gfolder5=foldstruc.gfolder5;        % The path to the second glimpse folder (for mapping, (maybe) defined by 
-           eval(['load ' foldstruc.gfolder5 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-           handles.gheader5=vid;
-           dum=uint32(glimpse_image(handles.gfolder5,vid,1));
-           handles.DumGfolder5=dum-dum;             % zeroed array the same size as the images
-           handles.GlimpseMax=5;
+            handles.gfolder5=foldstruc.gfolder5;        % The path to the second glimpse folder (for mapping, (maybe) defined by
+            eval(['load ' foldstruc.gfolder5 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
+            handles.gheader5=vid;
+            dum=uint32(glimpse_image(handles.gfolder5,vid,1));
+            handles.DumGfolder5=dum-dum;             % zeroed array the same size as the images
+            handles.GlimpseMax=5;
         end
-
+        
         
         if isfield(foldstruc,'folder')
-           handles.TiffMax=1;
-           handles.TiffFolder=foldstruc.folder;      % Will replace the 'folder' arguement formerly picked up from command mode
-           handles.TiffFolder1=foldstruc.folder;   % The path to the tiff file, (maybe) defined by user in command mode
-           dum=uint32(imread(handles.TiffFolder, 'tif', 1));
-           handles.DumTiffFolder=dum-dum;             % zeroed array the same size as the images
-        
-           handles.DumTiffFolder1=dum-dum;
-                
+            handles.TiffMax=1;
+            handles.TiffFolder=foldstruc.folder;      % Will replace the 'folder' arguement formerly picked up from command mode
+            handles.TiffFolder1=foldstruc.folder;   % The path to the tiff file, (maybe) defined by user in command mode
+            dum=uint32(imread(handles.TiffFolder, 'tif', 1));
+            handles.DumTiffFolder=dum-dum;             % zeroed array the same size as the images
+            
+            handles.DumTiffFolder1=dum-dum;
+            
         else
             handles.TiffFolder=[];                  % We will have a handles.TiffFolder regardless of whether the user
-                                 % inputs a foldstruc.folder arguement (formerly picked up from command mode)
+            % inputs a foldstruc.folder arguement (formerly picked up from command mode)
         end
         if isfield(foldstruc,'folder2')
-           handles.TiffMax=2;
-           handles.TiffFolder2=foldstruc.folder2;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode    
-           dum=uint32(imread(handles.TiffFolder2, 'tif', 1));
-           handles.DumTiffFolder2=dum-dum;              % zeroed array the same size as the images
-        
+            handles.TiffMax=2;
+            handles.TiffFolder2=foldstruc.folder2;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
+            dum=uint32(imread(handles.TiffFolder2, 'tif', 1));
+            handles.DumTiffFolder2=dum-dum;              % zeroed array the same size as the images
+            
         else
             handles.TiffFolder2=[];                 % We will always have a handles.TiffFolder2 regardless of input, use as folder2 replacement
-                                                    % formerly picked up from command mode
+            % formerly picked up from command mode
         end
         if isfield(foldstruc,'folder3')
-           handles.TiffMax=3;
-           handles.TiffFolder3=foldstruc.folder3;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode    
-           dum=uint32(imread(handles.TiffFolder3, 'tif', 1));
-           handles.DumTiffFolder3=dum-dum;              % zeroed array the same size as the images
+            handles.TiffMax=3;
+            handles.TiffFolder3=foldstruc.folder3;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
+            dum=uint32(imread(handles.TiffFolder3, 'tif', 1));
+            handles.DumTiffFolder3=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'folder4')
-           handles.TiffMax=4;
-           handles.TiffFolder4=foldstruc.folder4;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode    
-           dum=uint32(imread(handles.TiffFolder4, 'tif', 1));
-           handles.DumTiffFolder4=dum-dum;              % zeroed array the same size as the images
+            handles.TiffMax=4;
+            handles.TiffFolder4=foldstruc.folder4;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
+            dum=uint32(imread(handles.TiffFolder4, 'tif', 1));
+            handles.DumTiffFolder4=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'folder5')
-           handles.TiffMax=5;
-           handles.TiffFolder5=foldstruc.folder5;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode    
-           dum=uint32(imread(handles.TiffFolder5, 'tif', 1));
-           handles.DumTiffFolder5=dum-dum;              % zeroed array the same size as the images
+            handles.TiffMax=5;
+            handles.TiffFolder5=foldstruc.folder5;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
+            dum=uint32(imread(handles.TiffFolder5, 'tif', 1));
+            handles.DumTiffFolder5=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'images')
-           handles.images=foldstruc.images;        % array of images already stored in RAM
-           dum=uint32(handles.images(:,:,1));
-           handles.DumImages=dum-dum;               % zeroed array the same size as the images
-           handles.Dum=handles.DumImages;           % Will be used as replacement for 'dum' variable formerly picked up
-                                            % from command mode
+            handles.images=foldstruc.images;        % array of images already stored in RAM
+            dum=uint32(handles.images(:,:,1));
+            handles.DumImages=dum-dum;               % zeroed array the same size as the images
+            handles.Dum=handles.DumImages;           % Will be used as replacement for 'dum' variable formerly picked up
+            % from command mode
         else
             handles.images=[];                  % We will have a handles.images even if the user does NOT input a foldstruc.images arguement
             handles.Dum=[];                         % We also have a handles.Dum from above
-          
+            
         end
         if isfield(foldstruc,'images2')
-           handles.images2=foldstruc.images2;        % array of images already stored in RAM
-           dum2=uint32(handles.images2(:,:,1));
-           handles.DumImages2=dum2-dum2;               % zeroed array the same size as the images2
-           handles.Dum2=handles.DumImages2;           % Will be used as replacement for 'dum2' variable formerly picked up
-                                            % from command mode
+            handles.images2=foldstruc.images2;        % array of images already stored in RAM
+            dum2=uint32(handles.images2(:,:,1));
+            handles.DumImages2=dum2-dum2;               % zeroed array the same size as the images2
+            handles.Dum2=handles.DumImages2;           % Will be used as replacement for 'dum2' variable formerly picked up
+            % from command mode
         else
             handles.images2=[];                  % We will have a handles.images2 even if the user does NOT input a foldstruc.images arguement
-            handles.Dum2=[];                                     % We also always have a handles.Dum2 from above (from foldstruc.gfolder2 above) 
-                                                
-          
+            handles.Dum2=[];                                     % We also always have a handles.Dum2 from above (from foldstruc.gfolder2 above)
+            
+            
         end
         if isfield(foldstruc,'DriftList')
-           handles.DriftList=foldstruc.DriftList;    % List of xy shifts to account for drift 
-                                            % see ShiftAOI.m.  This
-                                            % driftlist is activelly
-                                            % accessed by the program in
-                                            % compensating drift
-                                                    
-           handles.DriftListInput=foldstruc.DriftList;  %  This variable stores the driftlist input by the user
-                                        % We will be transforming this
-                                        % depending on whether the aoi
-                                        % movement we compensate is in the
-                                        % field where the driftlist was
-                                        % made (long or short) or the
-                                        % opposite field (short 
-                                        % or long wavelength fields)
-          handles.DriftListStored=foldstruc.DriftList;  % Need this extra storage when the user later inputs 
-                                        % a cell array of driftlists that
-                                        % can at times replace the one
-                                        % input by foldstruc.DriftList
-          handles.DriftListCell=[]; % Will hold cell array of driftlists
-                                        % corresponding to cell arrays in
-                                        % handles.FieldFrames
-          handles.DriftFlagg=0;         % Driftflagg will =1 if user later inputs a 
-                                        % cell array of driftlists
+            handles.DriftList=foldstruc.DriftList;    % List of xy shifts to account for drift
+            % see ShiftAOI.m.  This
+            % driftlist is activelly
+            % accessed by the program in
+            % compensating drift
+            
+            handles.DriftListInput=foldstruc.DriftList;  %  This variable stores the driftlist input by the user
+            % We will be transforming this
+            % depending on whether the aoi
+            % movement we compensate is in the
+            % field where the driftlist was
+            % made (long or short) or the
+            % opposite field (short
+            % or long wavelength fields)
+            handles.DriftListStored=foldstruc.DriftList;  % Need this extra storage when the user later inputs
+            % a cell array of driftlists that
+            % can at times replace the one
+            % input by foldstruc.DriftList
+            handles.DriftListCell=[]; % Will hold cell array of driftlists
+            % corresponding to cell arrays in
+            % handles.FieldFrames
+            handles.DriftFlagg=0;         % Driftflagg will =1 if user later inputs a
+            % cell array of driftlists
         else
-           handles.DriftList=[];        % Actively used
-           handles.DriftListCell=[];    % Cell array later input by user
-           handles.DriftListInput=[];   % Needed to compensate drift in both fields 1 and 2 (see 'StartParameters')
-           handles.DriftListStored=[];  % Extra storage of driftlist input through foldstruc.DriftList
-           handles.DriftFlagg=0;        % Driftflagg will =1 if user later inputs a cell array of driftlists 
+            handles.DriftList=[];        % Actively used
+            handles.DriftListCell=[];    % Cell array later input by user
+            handles.DriftListInput=[];   % Needed to compensate drift in both fields 1 and 2 (see 'StartParameters')
+            handles.DriftListStored=[];  % Extra storage of driftlist input through foldstruc.DriftList
+            handles.DriftFlagg=0;        % Driftflagg will =1 if user later inputs a cell array of driftlists
         end
         if isfield(foldstruc,'MaxFrames')
-           handles.MaxFrames=foldstruc.MaxFrames;        % Number of frames in file (only need this if using a tiff file array
-                        % If using glimpse, get MaxFrames from vid (above)
-                                                        
+            handles.MaxFrames=foldstruc.MaxFrames;        % Number of frames in file (only need this if using a tiff file array
+            % If using glimpse, get MaxFrames from vid (above)
+            
         end
         if isfield(foldstruc,'Pixnums')   % [pixnum0 pixnum1 pixnum2]
-                        % pixnum0== width of aoi used for spot integration
-                        % pixnum1== larger aoi width that contains all the
-                        %             spot intensity
-                        % pixnum2== larger still aoi width used for background
-                        %                subtraction
+            % pixnum0== width of aoi used for spot integration
+            % pixnum1== larger aoi width that contains all the
+            %             spot intensity
+            % pixnum2== larger still aoi width used for background
+            %                subtraction
             handles.Pixnums=foldstruc.Pixnums;          % pixnum values that enter into background subtraction used
-                                                        % by e.g. Danny in his FRET routines, or anyone else that
-                                                        % needs just the spot intensity minus the background
+            % by e.g. Danny in his FRET routines, or anyone else that
+            % needs just the spot intensity minus the background
         end
-   
-                                                    
+        
+        
     end
-                    % 12/15/2009:  We have replaced dum, folder and images variables
-                    % with handles.Dum, handles.TiffFolder and
-                    % handles.images repsectively
-                     % 3/20/2010:  We have replaced dum2, folder2 and images2 variables
-                    % with handles.Dum2, handles.TiffFolder2 and
-                    % handles.images2 repsectively
-                   % Using handles.DumGFolder1,2,3,4,5, handles.DumTiffFolder1,2,3,4,5, and handles.Dum1,2
+    % 12/15/2009:  We have replaced dum, folder and images variables
+    % with handles.Dum, handles.TiffFolder and
+    % handles.images repsectively
+    % 3/20/2010:  We have replaced dum2, folder2 and images2 variables
+    % with handles.Dum2, handles.TiffFolder2 and
+    % handles.images2 repsectively
+    % Using handles.DumGFolder1,2,3,4,5, handles.DumTiffFolder1,2,3,4,5, and handles.Dum1,2
     load filelocations.dat -mat;                % Load the FileLocations stucture whose members list
-                                                % file locations to place
-                                                % and retrieve files
-                                            % FileLocations.data
-                                            % FileLocations.avis 
-                                            %FileLocations.mapping
-                                            %FileLocations.imscroll
-                                                %FileLocations = 
-                                                %     data: 'p:\matlab12\larry\data'
-                                                %     avis: 'p:\matlab12\larry\avis'
-                                                %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
-                                                %     mapping:'p:\matlab12\larry\fig-files\imscroll'
+    % file locations to place
+    % and retrieve files
+    % FileLocations.data
+    % FileLocations.avis
+    %FileLocations.mapping
+    %FileLocations.imscroll
+    %FileLocations =
+    %     data: 'p:\matlab12\larry\data'
+    %     avis: 'p:\matlab12\larry\avis'
+    %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
+    %     mapping:'p:\matlab12\larry\fig-files\imscroll'
     handles.FileLocations=FileLocations;
-                                                % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings  
+    % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings
     load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat')
     set(handles.MagChoice,'UserData',MagxyCoord);
     set(handles.MagRangeYX,'String',['[' num2str(MagxyCoord(1,:)) ']' ]);
-                        % Load presets for the XY regions of 
-                        % 'Remove SpotXY AOIs', and 'Remove MTXY AOIs' 
+    % Load presets for the XY regions of
+    % 'Remove SpotXY AOIs', and 'Remove MTXY AOIs'
     
     load([handles.FileLocations.gui_files,'XYRegionPreset.dat'], '-mat')
-    handles.XYRegionPreset=XYRegionPreset;       % 9 Cell array of structures 
-                                   % with presets values (members)for:
-                                   % EditUniqueRadiusX, EditUniqueRadius, SignX, SignY
-                                   % EditUniqueRadiusXLo, EditUniqueRadiusLo, MappingMenu 
+    handles.XYRegionPreset=XYRegionPreset;       % 9 Cell array of structures
+    % with presets values (members)for:
+    % EditUniqueRadiusX, EditUniqueRadius, SignX, SignY
+    % EditUniqueRadiusXLo, EditUniqueRadiusLo, MappingMenu
     eval(['load ' handles.FileLocations.gui_files 'FramePresetMatrix.dat -mat'])   % Load FramePresetChoice matrix
     handles.FramePresetMatrix=FramePresetMatrix;      % Rows contain set of preset frame values
-                                                        % Different set of presets in each row 
+    % Different set of presets in each row
     eval(['load ' handles.FileLocations.gui_files 'FilterListCell.dat -mat'])   % Load list of filter names in a cell array
     handles.FilterListCell=FilterListCell;      % e.g. handles.FilterListCell{4}='633 LP'
-                                                        % Different set of presets in each row 
+    % Different set of presets in each row
     handles.aoiinfo2Cell=aoiinfo2Cell;
     handles.FitData=aoiinfo2Cell{1};
     set(handles.PresetGo1,'String',num2str(FramePresetMatrix(1,1)));   % Loading frames preset buttons
@@ -275,7 +275,7 @@ if nargin <= 1  % LAUNCH GUI
     set(handles.PresetGo6,'String',num2str(FramePresetMatrix(1,6)));
     set(handles.PresetGo7,'String',num2str(FramePresetMatrix(1,7)));
     handles.MappingPoints=[];                % Points used to map the two fields (gathered in 'mapping' gui)
-                    % =[framenumber1 ave1 x1pt y1pt pixnum1 aoinumber framenumber2 ave2 x2pt y2pt pixnum2 aoinumber]
+    % =[framenumber1 ave1 x1pt y1pt pixnum1 aoinumber framenumber2 ave2 x2pt y2pt pixnum2 aoinumber]
     handles.Time1=[];
     handles.Time2=[];
     handles.DriftCorrectxy=[];              % xy list collected in DriftInfo.dat routine
@@ -285,56 +285,56 @@ if nargin <= 1  % LAUNCH GUI
     handles.SpotDiameter=5;                 % For spot picking, starting default value, input to bpass(),pkfnd(), cntrd()
     handles.SpotBrightness=50;              % For spot picking, starting default value, input to pkfnd( )
     handles.AllSpots.AllSpotsCells=cell(3,3);  % Will be a cell array {N,4} N=# of frames computed, and
-                                            % AllSpots{m,1}= [x y] list of spots, {m,2}= # of spots in list, {m,3}= frame#
-                                            % {1,4}=vector of all frame numbers stored in this cell array
-                                            % Holds the AllSpots with a high threshold for spot detection 
+    % AllSpots{m,1}= [x y] list of spots, {m,2}= # of spots in list, {m,3}= frame#
+    % {1,4}=vector of all frame numbers stored in this cell array
+    % Holds the AllSpots with a high threshold for spot detection
     handles.AllSpots.AllSpotsCellsDescription='{m,1}= [x y] list of spots in frm m, {m,2}= # of spots in list, {m,3}= frame#]';
     handles.AllSpots.FrameVector=[];         % Vector of frames whose spots are stored in AllSpotsCells
     handles.AllSpots.Parameters=[ 1 5 50];  % [NoiseDiameter  SpotDiameter  SpotBrightness] used for picking spots
     handles.AllSpots.ParametersDescripton='[NoiseDiameter  SpotDiameter  SpotBrightness] used for picking spots';
-    handles.AllSpots.aoiinfo2=[];       
+    handles.AllSpots.aoiinfo2=[];
     handles.AllSpots.aoiinfo2Description='[frm#  ave  x  y  pixnum  aoi#]';
     handles.AllSpotsLow=handles.AllSpots;   % Will hold the AllSpots with a low threshold for spot detection
     handles.Field1=[];                      % Will hold aois for field1 for mapping
     handles.Field2=[];                      % Will hold aois for field2 for mapping
-    handles.PreAddition=[];                 % Will hold the smaller aoi list (aoiinfo2) that was present just prior  
-                                            % to adding another aoi list during the process of constructing a map 
+    handles.PreAddition=[];                 % Will hold the smaller aoi list (aoiinfo2) that was present just prior
+    % to adding another aoi list during the process of constructing a map
     handles.FarPixelDistance=[];            % See MapButton callback
     handles.NearPixelDistance=[];           % case 20 and case 21
     handles.Refaoiinfo2=[];                 % to clarify what these
     handles.RefAOINearLogik=[];             % are for. (part of background subtraction method)
     handles.NearFarFlagg=0;                 % NearFarFlagg=0 prevents user from performing 'Retain AOIs Near AOIs' until
-                                            % the user has first performed
-                                            % 'Remove AOIs Near AOIs                                      
-                                            
+    % the user has first performed
+    % 'Remove AOIs Near AOIs
+    
     guidata(fig, handles);
-
-	if nargout > 0
-		varargout{1} = fig;
-	end
-
+    
+    if nargout > 0
+        varargout{1} = fig;
+    end
+    
 elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
-
-	try
-		[varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
-	catch
-		disp(lasterr);
-	end
-
+    
+    try
+        [varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
+    catch
+        disp(lasterr);
+    end
+    
 end
 
 
 
 
 %| ABOUT CALLBACKS:
-%| GUIDE automatically appends subfunction prototypes to this file, and 
-%| sets objects' callback properties to call them through the FEVAL 
+%| GUIDE automatically appends subfunction prototypes to this file, and
+%| sets objects' callback properties to call them through the FEVAL
 %| switchyard above. This comment describes that mechanism.
 %|
 %| Each callback subfunction declaration has the following form:
 %| <SUBFUNCTION_NAME>(H, EVENTDATA, HANDLES, VARARGIN)
 %|
-%| The subfunction name is composed using the object's Tag and the 
+%| The subfunction name is composed using the object's Tag and the
 %| callback type separated by '_', e.g. 'MaxIntensity_Callback',
 %| 'figure1_CloseRequestFcn', 'axis1_ButtondownFcn'.
 %|
@@ -377,43 +377,43 @@ imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the sl
 val= round(imagenum);
 
 userdat=get(handles.ImageNumber,'UserData');      % userdata contains last value of slider
-                   
-                        % Ilast will be the element index of
-                        % handles.CurrentField that corresponds to the last
-                        % value of the slider,  Icurrent the index of the
-                        % current frame value of the slider
-    [Ylast Ilast]=min(abs(handles.CurrentField-userdat));
-    [Ycurrent Icurrent]=min(abs(handles.CurrentField-val));
+
+% Ilast will be the element index of
+% handles.CurrentField that corresponds to the last
+% value of the slider,  Icurrent the index of the
+% current frame value of the slider
+[Ylast Ilast]=min(abs(handles.CurrentField-userdat));
+[Ycurrent Icurrent]=min(abs(handles.CurrentField-val));
 
 if imagenum>userdat                                      % userdata contains last value of slider
-                      
+    
     
     if Icurrent-Ilast <1
         Icurrent=Icurrent+1;                              % Must increment frame index by at least 1
-                                        % Check for max limit
-        Icurrent=min(Icurrent,length(handles.CurrentField));    
-        val=handles.CurrentField(Icurrent);       
-     end
-elseif imagenum < userdat 
+        % Check for max limit
+        Icurrent=min(Icurrent,length(handles.CurrentField));
+        val=handles.CurrentField(Icurrent);
+    end
+elseif imagenum < userdat
     
     if Ilast-Icurrent <1
         Icurrent=Icurrent-1;                              % Must decrement frame index by at least 1
         Icurrent=max(Icurrent,1);       % Check for min limit
         val=handles.CurrentField(Icurrent);
-     end
+    end
 end
 
 %val=round(val);
 [Y I]=min(abs(handles.CurrentField-val));       % Find the index I of the element of handles.CurrentField
-                                                % that is closest to the frame number 
+% that is closest to the frame number
 val=handles.CurrentField(I);            % Current slider value will now be an element of the restrictive
-                                        % set of frames listed in
-                                        % handles.CurrentField
+% set of frames listed in
+% handles.CurrentField
 set(handles.ImageNumber,'UserData',val) % Reset UserData to reflect newest value
 set(handles.ImageNumber,'value',val)    % Force slider value to reflect current frame#
 
- 
-set(handles.ImageNumberValue,'String',num2str(val ) ); 
+
+set(handles.ImageNumberValue,'String',num2str(val ) );
 axes(handles.axes1);
 %imagesc(images(:,:,val));colormap(gray)
 %dum=imread([folder tiff_name(val)],'tiff');
@@ -433,7 +433,7 @@ elseif get(handles.BackgroundChoice,'Value')==3
     avefrm=double(avefrm)-double(rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
 elseif get(handles.BackgroundChoice,'Value')==4
                             % Here to display background with Danny's
-                            % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2  
+                            % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2
     
      avefrm=bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
      
@@ -447,126 +447,126 @@ end
 switch get(handles.BackgroundChoice,'Value')
     case 1
     case 2
-                                    % Here to display background
+        % Here to display background
         avefrm=rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
     case 3
-                                 % Here to display image-background
+        % Here to display image-background
         avefrm=double(avefrm)-double(rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
     case 4
-         % Here to display background with Danny's
-                            % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2  
-    
-         avefrm=bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
+        % Here to display background with Danny's
+        % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2
+        
+        avefrm=bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
     case 5
         
-         avefrm=double(avefrm)-double(bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
+        avefrm=double(avefrm)-double(bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
 end
-        
 
-                    %dum=imread([folder],'tiff',val);                    %*** NEED TO CHANGE IMREAD
-                    %[drow dcol]=size(dum);
-                    %ave=str2double(get(handles.FrameAve,'String'));     % Fetch the number of frames to ave
-                    %dum=zeros(drow,dcol);                              % for display purposes
-                    %for aveindx=val:val+ave-1                          % Grab the frames
-                    %dum=dum+double(imread([folder],'tiff',aveindx));    % ***NEED TO CHANGE IMREAD
+
+%dum=imread([folder],'tiff',val);                    %*** NEED TO CHANGE IMREAD
+%[drow dcol]=size(dum);
+%ave=str2double(get(handles.FrameAve,'String'));     % Fetch the number of frames to ave
+%dum=zeros(drow,dcol);                              % for display purposes
+%for aveindx=val:val+ave-1                          % Grab the frames
+%dum=dum+double(imread([folder],'tiff',aveindx));    % ***NEED TO CHANGE IMREAD
 %dum=dum+double( imread([folder tiff_name(aveindx)],'tiff') );
 %dum=dum+double( imread([folder cook_name(aveindx)],'tiff') );
 %end
-                    %dum=dum/ave;                                        % Normalize the frames
+%dum=dum/ave;                                        % Normalize the frames
 
 clowval=round(double(min(min(avefrm))));chival=round(double(max(max(avefrm))));     % Frame max and min values,
-                               % same as auto values for scaling image
+% same as auto values for scaling image
 
-                                    % Now test whether to manually scale images
+% Now test whether to manually scale images
 if get(handles.ImageScale,'Value')==1          % =1 for manual scale
     clowval=round(get(handles.MinIntensity,'Value'));  % set minimum display intensity
     chival=round(get(handles.MaxIntensity,'Value'));   % set maximum display intensity
 else
-                                      % If auto scaling is on, label the
-                                      % Maxscale and MinScale text
-                                      % with the auto values
-                                                
+    % If auto scaling is on, label the
+    % Maxscale and MinScale text
+    % with the auto values
+    
     set(handles.MaxScale,'String',num2str(chival));
     set(handles.MinScale,'String',num2str(clowval));
-   
+    
 end
 
-                    %[mrow ncol]=size(dum);
-     % ******* lines to update quickly:
-                    %h=get(handles.axes1,'children')
-                    %set(h(end),'cdata',round(rand(200,330)*255))
+%[mrow ncol]=size(dum);
+% ******* lines to update quickly:
+%h=get(handles.axes1,'children')
+%set(h(end),'cdata',round(rand(200,330)*255))
 if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or mesh (0)
     
     if get(handles.Magnify,'Value')==0      % check whether to plot full screen (0) or mag (1)
         if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
             figure(23);imagesc(avefrm,[clowval chival] );colormap(gray(256));axis('equal');axis('off');
         end
-    axes(handles.axes1);                        % sets the active figure to bthe gui
-    imagesc(avefrm,[clowval chival] );colormap(gray(256));axis('equal')
+        axes(handles.axes1);                        % sets the active figure to bthe gui
+        imagesc(avefrm,[clowval chival] );colormap(gray(256));axis('equal')
     else                                    % Here to magnify image
-    %imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256))
-    %eval( ['rangeyx=' get(handles.MagRangeYX,'String') ])
-    %ymin=rangeyx
-    
-                    % ALSO SEE AOINumberDisplay CALLBACK FOR DISPLAY OF aoiImageSet 
-    limitsxy=eval( get(handles.MagRangeYX,'String') );                 % Will be axis limits of magnified FOV
+        %imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256))
+        %eval( ['rangeyx=' get(handles.MagRangeYX,'String') ])
+        %ymin=rangeyx
+        
+        % ALSO SEE AOINumberDisplay CALLBACK FOR DISPLAY OF aoiImageSet
+        limitsxy=eval( get(handles.MagRangeYX,'String') );                 % Will be axis limits of magnified FOV
         if get(handles.ImageFigure,'Value')==1       % =1 if we should make an separate figure
             figure(23);imagesc(avefrm,[clowval chival] );axis('equal');axis('off');colormap(gray(256));axis(limitsxy)
         end
-    axes(handles.axes1);                            % active figure is now the in the gui
-    imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256));axis(limitsxy)
-%    eval(['imagesc(avefrm' get(handles.MagRangeYX,'String') ',[' num2str(clowval) ' ' num2str(chival) '])' ]);axis('equal');colormap(gray(256))
+        axes(handles.axes1);                            % active figure is now the in the gui
+        imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256));axis(limitsxy)
+        %    eval(['imagesc(avefrm' get(handles.MagRangeYX,'String') ',[' num2str(clowval) ' ' num2str(chival) '])' ]);axis('equal');colormap(gray(256))
     end
-   pixnum=str2double(get(handles.PixelNumber,'String'));
-
-%draw_diamond(str2double(get(handles.Xspot,'String')),str2double(get(handles.Yspot,'String')),2,.5,[0 0 1]);   
- %draw_box([str2double(get(handles.Xspot,'String')) str2double(get(handles.Yspot,'String'))],(pixnum-1)/2,...
-%                              (pixnum-1)/2,'b')
+    pixnum=str2double(get(handles.PixelNumber,'String'));
+    
+    %draw_diamond(str2double(get(handles.Xspot,'String')),str2double(get(handles.Yspot,'String')),2,.5,[0 0 1]);
+    %draw_box([str2double(get(handles.Xspot,'String')) str2double(get(handles.Yspot,'String'))],(pixnum-1)/2,...
+    %                              (pixnum-1)/2,'b')
     aoiinfo=handles.FitData;            % [frm#  ave  X   Y   pixnum   AOI#]
-    [maoi naoi]=size(aoiinfo);          % handles.FitData contains the aoiinfo collected 
-                                                % with the 'AOI' button
-                                                % (tag = CollectAOI)
-       
+    [maoi naoi]=size(aoiinfo);          % handles.FitData contains the aoiinfo collected
+    % with the 'AOI' button
+    % (tag = CollectAOI)
+    
     for indx=1:maoi
         XYshift=[0 0];                  % initialize aoi shift due to drift
         if any(get(handles.StartParameters,'Value')==[2 3 4])
-                                    % here to move the aois in order to follow drift
+            % here to move the aois in order to follow drift
             XYshift=ShiftAOI(indx,val,aoiinfo,handles.DriftList);
         end
-        if any(get(handles.FitChoice,'Value')==[5 6]) 
-                    % == 5 or 6 if we are set to do linear interpolation with 
-                    % repsect to integrating partial overlap of AOIs and
-                    % pixels
-                    % draw boxes around all the aois, adding the XYshift to
-                    % account for possible drift
-                    % Here to draw boxes that fractionally overlaps pixels
+        if any(get(handles.FitChoice,'Value')==[5 6])
+            % == 5 or 6 if we are set to do linear interpolation with
+            % repsect to integrating partial overlap of AOIs and
+            % pixels
+            % draw boxes around all the aois, adding the XYshift to
+            % account for possible drift
+            % Here to draw boxes that fractionally overlaps pixels
             draw_box(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
-                              (pixnum)/2,'b');
+                (pixnum)/2,'b');
         else
-                    % Here to draw aoi boxes only at pixel boundaries
+            % Here to draw aoi boxes only at pixel boundaries
             draw_box_v1(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
-                               (pixnum)/2,'b');
+                (pixnum)/2,'b');
         end
     end
     if get(handles.MarkFolder2SpotsToggle,'Value')==1   % Test if toggle is depressed
-    
+        
         MarkFolder2Spots_v1(handles);          % Here to mark the spots that appeared in the
-                                            % InputParms editable text
-                                            % region
-    end    
-
+        % InputParms editable text
+        % region
+    end
+    
 else                                        %Here to plot mesh
     pixnum=str2double(get(handles.PixelNumber,'String'));
     xypt(1)=str2double(get(handles.Xspot,'String'));
     xypt(2)=str2double(get(handles.Yspot,'String'));
-
+    
     xlow=round(xypt(1)-pixnum/2);xhi=xlow+pixnum-1;
     ylow=round(xypt(2)-pixnum/2);yhi=ylow+pixnum-1;
     aoi=avefrm(ylow:yhi,xlow:xhi);
-     if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
-         figure(23);mesh(double(aoi));
-     end
-    axes(handles.axes1);                            % active figure is now the in the gui 
+    if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
+        figure(23);mesh(double(aoi));
+    end
+    axes(handles.axes1);                            % active figure is now the in the gui
     mesh(double(aoi));
 end
 set(handles.AOInum_Output,'String', int2str(maoi))
@@ -579,8 +579,8 @@ function varargout = ImageNumberValue_Callback(h, eventdata, handles, varargin)
 inval=get(handles.ImageNumberValue,'String');
 axes(handles.axes1);title(['input value=' inval]);
 %if inval>get(handles.ImageNumber,'Max')
-    set(handles.ImageNumber,'Max',str2num(inval))    % User can set maximum frame number here
-    %end
+set(handles.ImageNumber,'Max',str2num(inval))    % User can set maximum frame number here
+%end
 
 
 % --------------------------------------------------------------------
@@ -600,15 +600,15 @@ function varargout = ginput_spot_Callback(h, eventdata, handles, varargin)
 % Stub for Callback of the uicontrol handles.ginput_spot.
 flag=0;
 while flag==0
-[a b but]=ginput(1);
-axes(handles.axes1)
-xlabel(['coordinates are x=' num2str(a) 'y=' num2str(b)])
-if but ==3
-    flag=1;
-else
-    set(handles.Xspot,'String',num2str(a));         % Store the last clicked point
-    set(handles.Yspot,'String',num2str(b));
-end
+    [a b but]=ginput(1);
+    axes(handles.axes1)
+    xlabel(['coordinates are x=' num2str(a) 'y=' num2str(b)])
+    if but ==3
+        flag=1;
+    else
+        set(handles.Xspot,'String',num2str(a));         % Store the last clicked point
+        set(handles.Yspot,'String',num2str(b));
+    end
 end
 
 
@@ -766,11 +766,11 @@ folder=varargin{1}
 pixnum=str2double(get(handles.PixelNumber,'String')); % Fetch the pixel number (aoi width)
 frms=eval(get(handles.FrameRange,'String')); % Fetch the frame range to fit
 
-xypt=zeros(1,2);                                    
+xypt=zeros(1,2);
 xypt(1)=str2double(get(handles.Xspot,'String'));    % Fetch the center location for the AOI
 xypt(2)=str2double(get(handles.Yspot,'String'));    % (set earlier through ginput)
 argouts=gauss2dxy_seq(folder,frms,xypt,pixnum);        % Fit the spot
-                                                    % Save the data
+% Save the data
 %save p:\matlab12\larry\data\argout.dat argouts
 eval(['save ' handles.FileLocations.data 'argout.dat argouts']);
 axes(handles.axes2);
@@ -831,30 +831,30 @@ function MagRangeYX_Callback(hObject, eventdata, handles)
 MagRangeString=get(handles.MagRangeYX,'String');
 MagRangeNum=str2num(MagRangeString);
 xpts=MagRangeNum(1:2); ypts=MagRangeNum(3:4);
-            % Following copied from MagRange to insure that a manual input
-            % of the range will be placed in the correct locations
+% Following copied from MagRange to insure that a manual input
+% of the range will be placed in the correct locations
 xpts=round(xpts);ypts=round(ypts);
-xpts=sort(xpts);ypts=sort(ypts);            % Place in order of [low high] so the 
-                                            % orientation of points entered does not
-                                            % matter
+xpts=sort(xpts);ypts=sort(ypts);            % Place in order of [low high] so the
+% orientation of points entered does not
+% matter
 xpts(1)=max(xpts(1),1);     % Error check on values
-% xpts(2)=min(xpts(2),1024); % Remove error check so we can view Alex's gallery images 
+% xpts(2)=min(xpts(2),1024); % Remove error check so we can view Alex's gallery images
 ypts(1)=max(ypts(1),1);
 %ypts(2)=min(ypts(2),1024);   % Remove error check so we can view Alex's gallery images
 val=[xpts(1) xpts(2) ypts(1) ypts(2)];      % Place in row vector so we can
-                                            % store the points in 'Value'
+% store the points in 'Value'
 set(handles.MouseRange,'Value',val);        % Store points in 'Value'
-                                            % Now write the string into the
-                                            % MagRange editable box
+% Now write the string into the
+% MagRange editable box
 magrange_string=['[' num2str(xpts(1)) ' ' num2str(xpts(2)) ' ' num2str(ypts(1)) ' ' num2str(ypts(2)) ']'];
 set(handles.MagRangeYX,'String',magrange_string);
 MagxyCoord=get(handles.MagChoice,'UserData');   % Fetch current MagxyCoord matrix of [x1 x2 y1 y2] values
 MagValue=get(handles.MagChoice,'Value');        % Fetch current value of popup menu (1-12)
 MagxyCoord(MagValue,:)=[xpts(1) xpts(2) ypts(1) ypts(2)];   % Replace numerical value for this value of MagxyCoord
 set(handles.MagChoice,'UserData',MagxyCoord);               % Update the MagxyCoord matrix
-                               % Save the updated matrix 
+% Save the updated matrix
 eval(['save ' handles.FileLocations.gui_files 'MagxyCoord.dat MagxyCoord'])
-           % Make the display reflect the new magnification setting
+% Make the display reflect the new magnification setting
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -898,13 +898,13 @@ function ImageScale_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of ImageScale
 if get(handles.ImageScale,'Value')==0
     set(handles.ImageScale,'String','Auto Scale')
-     set(handles.MinIntensity,'Visible','off')
-     set(handles.MaxIntensity,'Visible','off')
-   
+    set(handles.MinIntensity,'Visible','off')
+    set(handles.MaxIntensity,'Visible','off')
+    
 else
     set(handles.ImageScale,'String','Manual Scale')
-     set(handles.MinIntensity,'Visible','on')
-     set(handles.MaxIntensity,'Visible','on')
+    set(handles.MinIntensity,'Visible','on')
+    set(handles.MaxIntensity,'Visible','on')
 end
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
@@ -952,17 +952,17 @@ function MaxIntensity_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-                                % Get the value of slider, and print it in
-                                % MaxScale box
+% Get the value of slider, and print it in
+% MaxScale box
 mxval=get(handles.MaxIntensity,'Value');
 set(handles.MaxScale,'String',num2str(round(mxval)));
-                                % Now update the display
+% Now update the display
 clowval=round(get(handles.MinIntensity,'Value'));  % set minimum display intensity
 chival=round(get(handles.MaxIntensity,'Value'));   % set maximum display intensity
 axes(handles.axes1);
 caxis([clowval chival]);                            % changes the current display to match
-                                       % the new hi/lo intensity settings
-                                                    
+% the new hi/lo intensity settings
+
 % --- Executes during object creation, after setting all properties.
 function MaxScale_CreateFcn(hObject, eventdata, handles)
 %EDITABLE TEXT;  Value of the highest intensity displayed
@@ -988,19 +988,19 @@ function MaxScale_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of MaxScale as text
 %        str2double(get(hObject,'String')) returns contents of MaxScale as a double
-                                    %Check to see if entered value exceeds
-                                    % current maximum.  If so, change value
-                                    % of allowed maximum.
- mxx=str2double(get(handles.MaxScale,'String'));                                                           
+%Check to see if entered value exceeds
+% current maximum.  If so, change value
+% of allowed maximum.
+mxx=str2double(get(handles.MaxScale,'String'));
 %if get(handles.MaxIntensity,'Max') < mxx
-                                    % Use the manual input in order to set
-                                    % the slider switch maximum for both
-                                    % the Min and Max slider swiches
-    set(handles.MaxIntensity,'Max',mxx); 
-    set(handles.MinIntensity,'Max',mxx);
+% Use the manual input in order to set
+% the slider switch maximum for both
+% the Min and Max slider swiches
+set(handles.MaxIntensity,'Max',mxx);
+set(handles.MinIntensity,'Max',mxx);
 %end
 
-    
+
 % --- Executes during object creation, after setting all properties.
 function MinScale_CreateFcn(hObject, eventdata, handles)
 %EDITABLE TEXT;  Value of the lowest intensity displayed
@@ -1057,26 +1057,26 @@ function MinIntensity_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
-                                % Check that value is below that of the
-                                % MaxInitensity slider switch
- mxx=get(handles.MaxIntensity,'Value');                               
+% Check that value is below that of the
+% MaxInitensity slider switch
+mxx=get(handles.MaxIntensity,'Value');
 if get(handles.MinIntensity,'Value') > mxx
     set(handles.MinIntensity,'Value',mxx-1);
 end
 
 
 
-                                % Get the value of slider, and print it in
-                                % MinScale box
+% Get the value of slider, and print it in
+% MinScale box
 
 mxval=get(handles.MinIntensity,'Value');
 set(handles.MinScale,'String',num2str(round(mxval)));
-                                % Now update the display
+% Now update the display
 clowval=round(get(handles.MinIntensity,'Value'));  % set minimum display intensity
 chival=round(get(handles.MaxIntensity,'Value'));   % set maximum display intensity
 axes(handles.axes1);
 caxis([clowval chival]);                            % changes the current display to match
-                                       % the new hi/lo intensity settings
+% the new hi/lo intensity settings
 
 
 % --- Executes on button press in MouseRange.
@@ -1087,37 +1087,37 @@ function MouseRange_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [xpts ypts]=ginput(2);                      % Get two points via mouse clicks.
-                                            % These will define our region
-                                            % for magnification
+% These will define our region
+% for magnification
 
 xpts=round(xpts);ypts=round(ypts);
-xpts=sort(xpts);ypts=sort(ypts);            % Place in order of [low high] so the 
-                                            % orientation of points entered does not
-                                            % matter
+xpts=sort(xpts);ypts=sort(ypts);            % Place in order of [low high] so the
+% orientation of points entered does not
+% matter
 xpts(1)=max(xpts(1),1);     % Error check on values
 %xpts(2)=min(xpts(2),1024); % Remove upper error check so we can see Alex's
-                            % gallery images
+% gallery images
 ypts(1)=max(ypts(1),1);
 %ypts(2)=min(ypts(2),1024); % Remove upper error check so we can see Alex's
-                            % gallery images
+% gallery images
 val=[xpts(1) xpts(2) ypts(1) ypts(2)];      % Place in row vector so we can
-                                            % store the points in 'Value'
+% store the points in 'Value'
 set(handles.MouseRange,'Value',val);        % Store points in 'Value'
-                                            % Now write the string into the
-                                            % MagRange editable box
+% Now write the string into the
+% MagRange editable box
 magrange_string=['[' num2str(xpts(1)) ' ' num2str(xpts(2)) ' ' num2str(ypts(1)) ' ' num2str(ypts(2)) ']'];
 set(handles.MagRangeYX,'String',magrange_string);
 MagxyCoord=get(handles.MagChoice,'UserData');   % Fetch current MagxyCoord matrix of [x1 x2 y1 y2] values
 MagValue=get(handles.MagChoice,'Value');        % Fetch current value of popup menu (1-12)
 MagxyCoord(MagValue,:)=[xpts(1) xpts(2) ypts(1) ypts(2)];   % Replace numerical value for this value of MagxyCoord
 set(handles.MagChoice,'UserData',MagxyCoord);               % Update the MagxyCoord matrix
-                               % Save the updated matrix 
+% Save the updated matrix
 eval(['save ' handles.FileLocations.gui_files 'MagxyCoord.dat MagxyCoord'])
-           % Make the display reflect the new magnification setting
+% Make the display reflect the new magnification setting
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
- 
- 
+
+
 
 
 
@@ -1152,15 +1152,15 @@ function ImageSource_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of ImageSource
 
 if get(handles.ImageSource,'Value')==4
-        % Here if source is aoiImageSet
-   if ~isfield(handles,'aoiImageSet')
+    % Here if source is aoiImageSet
+    if ~isfield(handles,'aoiImageSet')
         % Here is the aoiImageSet field does not exist (not yet defined)
-      set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
-   elseif isempty(handles.aoiImageSet)
+        set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
+    elseif isempty(handles.aoiImageSet)
         % Here if the aoiImageSet field exists but is nonetheless empty
-       set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
-   end
-       
+        set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
+    end
+    
 end
 
 
@@ -1231,24 +1231,24 @@ while flag==0
         axes(handles.axes1);
         hold on
         [maoi naoi]=size(aoiinfo);
-        for indx=maoi:maoi                        
+        for indx=maoi:maoi
             if get(handles.FitChoice,'Value')==5
-                    % == 5 if we are set to do linear interpolation with 
-                    % repsect to integrating partial overlap of AOIs and
-                    % pixels
-                    % draw boxes around all the aois, adding the XYshift to
-                    % account for possible drift
-                    % Here to draw boxes that fractionally overlaps pixels
-            draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
-                              (pixnum)/2,'b');
-        else
-                    % Here to draw aoi boxes only at pixel boundaries
-            draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-                               (pixnum)/2,'b');
-        end
-                    % draw boxes around all the aois
+                % == 5 if we are set to do linear interpolation with
+                % repsect to integrating partial overlap of AOIs and
+                % pixels
+                % draw boxes around all the aois, adding the XYshift to
+                % account for possible drift
+                % Here to draw boxes that fractionally overlaps pixels
+                draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
+                    (pixnum)/2,'b');
+            else
+                % Here to draw aoi boxes only at pixel boundaries
+                draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
+                    (pixnum)/2,'b');
+            end
+            % draw boxes around all the aois
             %draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-             %                 (pixnum)/2,'b');
+            %                 (pixnum)/2,'b');
         end
         hold off
     end
@@ -1265,8 +1265,8 @@ function FitAOIs_Callback(hObject, eventdata, handles, varargin)
 %global argouts imageset folderpass %parenthandles
 aoifits = create_AOIfits_Structure(handles);
 outputName = get(handles.OutputFilename,'String');
- % Build a 2D mapstruc to direct data processing
-mapstruc2d = build_2d_mapstruc_aois_frms(handles);       
+% Build a 2D mapstruc to direct data processing
+mapstruc2d = build_2d_mapstruc_aois_frms(handles);
 DataOutput2d=gauss2d_mapstruc2d_v2(mapstruc2d,handles); % Process the data (integrate, fit etc)
 % V.2 is parallel processing
 
@@ -1356,54 +1356,54 @@ function StartParameters_Callback(hObject, eventdata, handles,varargin)
 argnum=get(handles.StartParameters,'Value');
 switch argnum
     case 1
-                % Here if we are not using drift correction
+        % Here if we are not using drift correction
         %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 2
-                % Here if we measured the drift in field # 1 or # 2 and we
-                % are now wanting to track aois  in the same field where
-                % the drift was measured
+        % Here if we measured the drift in field # 1 or # 2 and we
+        % are now wanting to track aois  in the same field where
+        % the drift was measured
         handles.DriftList=handles.DriftListInput;
         guidata(gcbo,handles);
-       % slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+        % slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 3
-                % Here if we measured the drift in field # 1 but we are now
-                % wanting to track aois moving in field #2.  See notes in
-                % file and B22p148,149
-                % Get the mapping parameters [f11 f12 f13;  f21 f22 f23]
-                % where x2=f11*x1 + f12*y1  +f13
-                %       y2=f21*x1  +f22*y1  +f23
+        % Here if we measured the drift in field # 1 but we are now
+        % wanting to track aois moving in field #2.  See notes in
+        % file and B22p148,149
+        % Get the mapping parameters [f11 f12 f13;  f21 f22 f23]
+        % where x2=f11*x1 + f12*y1  +f13
+        %       y2=f21*x1  +f22*y1  +f23
         fitparmvector=get(handles.FitDisplay,'UserData');
         f11=fitparmvector(1,1);  f12=fitparmvector(1,2) ;  f13=fitparmvector(1,3);
         f21=fitparmvector(2,1);  f22=fitparmvector(2,2) ;  f23=fitparmvector(2,3);
-                % Now fetch the input driftlist that was measured in
-                % field #1
+        % Now fetch the input driftlist that was measured in
+        % field #1
         dx1=handles.DriftListInput(:,2);
         dy1=handles.DriftListInput(:,3);
         dx2=f11*dx1 + f12*dy1;      % Transform driftlist to field #2
         dy2=f21*dx1 + f22*dy1;
         handles.DriftList=[handles.DriftListInput(:,1) dx2 dy2];
         guidata(gcbo,handles);
-%        slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+        %        slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
-     case 4
-                % Here if we measured the drift in field # 2 but we are now
-                % wanting to track aois moving in field #1.  See notes in
-                % file and B22p148,149
-                % Get the mapping parameters [f11 f12 f13;  f21 f22 f23]
-                % where x2=f11*x1 + f12*y1  +f13
-                %       y2=f21*x1  +f22*y1  +f23
-                % and inverse with denom=1/(f11*f22-f12*f21)
-              %x1=denom*f22*x2 + denom*(-f12)*y2+ (f12*f23-f13*f22)*denom
-              %y1=denom*(-f21)*x2 + denom*f11*y2+ (f21*f13-f23*f11)*denom
-
+    case 4
+        % Here if we measured the drift in field # 2 but we are now
+        % wanting to track aois moving in field #1.  See notes in
+        % file and B22p148,149
+        % Get the mapping parameters [f11 f12 f13;  f21 f22 f23]
+        % where x2=f11*x1 + f12*y1  +f13
+        %       y2=f21*x1  +f22*y1  +f23
+        % and inverse with denom=1/(f11*f22-f12*f21)
+        %x1=denom*f22*x2 + denom*(-f12)*y2+ (f12*f23-f13*f22)*denom
+        %y1=denom*(-f21)*x2 + denom*f11*y2+ (f21*f13-f23*f11)*denom
+        
         fitparmvector=get(handles.FitDisplay,'UserData');
         f11=fitparmvector(1,1);  f12=fitparmvector(1,2) ;  f13=fitparmvector(1,3);
         f21=fitparmvector(2,1);  f22=fitparmvector(2,2) ;  f23=fitparmvector(2,3);
         denom=(1/(f11*f22-f12*f21));
-                % Now fetch the input driftlist that was measured in
-                % field #2
+        % Now fetch the input driftlist that was measured in
+        % field #2
         dx2=handles.DriftListInput(:,2);
         dy2=handles.DriftListInput(:,3);
         dx1=denom*f22*dx2 + denom*(-f12)*dy2;      % Transform driftlist to field #1
@@ -1413,8 +1413,8 @@ switch argnum
         %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
 end
-    
-             
+
+
 
 
 % --- Executes on button press in ImageFigure.
@@ -1450,13 +1450,13 @@ dispscale=[ round(str2num(Min_Display_String)) round(str2num(Max_Display_String)
 %avifolder=[handles.FileLocations.avis '\guiavi.avi'];
 avifolder=[handles.FileLocations.avis 'guiavi.avi'];
 frms=eval(get(handles.FrameRange,'String'));        % Range of frames for which aois are
-                                                    % fit.  Here we use them to define
-                                                    % the avi frame limits
+% fit.  Here we use them to define
+% the avi frame limits
 
 loindx=min(frms);
 hiindx=max(frms);
-frmave=str2double(get(handles.FrameAve,'String'));     % Number of frames in running ave to use in 
-                                                    %display, here we use as running ave in avi
+frmave=str2double(get(handles.FrameAve,'String'));     % Number of frames in running ave to use in
+%display, here we use as running ave in avi
 guimacavi(images,loindx,hiindx,dispscale,avifolder,frmave,handles);
 set(handles.MakeAVI,'String','avi')
 
@@ -1469,9 +1469,9 @@ function Mapping_Callback(hObject, eventdata, handles, varargin)
 
 handles.Mapping_fig=mapping(handles.figure1);            % Output should be figure from Mapping gui
 guidata(hObject,handles);                                % Place Mapping Figure into handles structure
-                                                         %  Retrieve the Mapping handle structure using 
-                                                          %  MappingHandles=guidata(handles.Mapping_fig)
-                                                         %  
+%  Retrieve the Mapping handle structure using
+%  MappingHandles=guidata(handles.Mapping_fig)
+%
 
 % --- Executes on button press in GoButton.
 function GoButton_Callback(hObject, eventdata, handles,varargin)
@@ -1483,178 +1483,178 @@ argnum=get(handles.ButtonChoice,'Value');
 %images=varargin{2};
 %folder=varargin{3};
 if argnum ==1                                           % load the Fit Parameters for mapping
-
+    
     filestring=get(handles.InputParms,'String');
-
+    
     eval(['load ' handles.FileLocations.mapping filestring ' -mat'])                        % loads 'fitparmvector', 2x3
-                                                              % [mxx21 mxy21 bx21; myx21 myy21 by21]'
-       % and mappingpoints = 
-       % [frm#1   ave1  x1  y1  pixnum1  aoinum1   frm#2  ave2 x2 y2 pixnum2 aoinum2] 
+    % [mxx21 mxy21 bx21; myx21 myy21 by21]'
+    % and mappingpoints =
+    % [frm#1   ave1  x1  y1  pixnum1  aoinum1   frm#2  ave2 x2 y2 pixnum2 aoinum2]
     set(handles.FitDisplay,'UserData',fitparmvector)    %
-    set(handles.FitDisplay,'String',[ num2str(fitparmvector(1,:)) '  ' num2str(fitparmvector(2,:))]); 
+    set(handles.FitDisplay,'String',[ num2str(fitparmvector(1,:)) '  ' num2str(fitparmvector(2,:))]);
     handles.MappingPoints=mappingpoints;
-     guidata(gcbo,handles)
+    guidata(gcbo,handles)
 elseif argnum==2                                        % load an AOI set
     filestring=get(handles.OutputFilename,'String');
-     eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads 'aoifits' structure from a prior
-                                                        % fit to aois
+    eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads 'aoifits' structure from a prior
+    % fit to aois
     
-                                                     % Reset filename where we store or retrieve the 'aoifits' structure 
-
-     set(handles.OutputFilename,'String','default.dat');
-     
-     [aoirows aoicol]=size(aoifits.centers);
-     onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
-                                                        % Now substitute the AOIs into the present field 
-                           %[frm#       ave                 x     y             pixnum                aoinum   ]  
-     handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
-     
-     if isfield(aoifits,'aoiinfo2')
-         handles.FitData=aoifits.aoiinfo2;
-     end
-  
-     set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
-     guidata(gcbo,handles)
-     
-elseif argnum==3                                        % map the present AOI set to 
-                                                        % field #2 e.g. x1
-                                                        % -> x2
-                                                        % (output is x2y2  coordinates)
-                        % Save the current AOI locations before mapping
-     aoiinfo2=handles.FitData;
-     eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
-     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
-                                                           % Stored as [mxx21 mxy21 bx; 
-                                                           %            myx21 myy21 by]
-                % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
-
-     nowpts=[handles.FitData(:,3) handles.FitData(:,4)];
-                % Now map to the x2 
-       
-     handles.FitData(:,3)=mappingfunc(fitparmvector(1,:),nowpts);
- %handles.FitData(:,3)=handles.FitData(:,3)*fitparmvector(1) + fitparmvector(2);
-                % Now map to the y2 
-     handles.FitData(:,4)=mappingfunc(fitparmvector(2,:),nowpts);
- %handles.FitData(:,4)=handles.FitData(:,4)*fitparmvector(3) + fitparmvector(4);
-         if get(handles.ProximityMappingToggle,'Value')==1
-                    % Here to instead use proximity mapping method
-             [rosenow colnow]=size(nowpts);
-             mappednow=zeros(rosenow,2);
-             for indx=1:rosenow
-                            % Use 15 nearest points for mapping to field2
-             mappednow(indx,:)=proximity_mapping_v1(handles.MappingPoints,nowpts(indx,:),15,fitparmvector,2);
-             end
-             handles.FitData(:,3:4)=mappednow;
-         end
-     
-
-                                % only keep points with pixel indices >=1
-      log=(handles.FitData(:,3)>=1 ) & (handles.FitData(:,4) >=1) & (handles.FitData(:,3) <=1024) & (handles.FitData(:,4) <=1024);
-      handles.FitData=handles.FitData(log,:);
-      handles.FitData=update_FitData_aoinum(handles.FitData);
-     guidata(gcbo,handles)
-                             % Save the current AOI locations after mapping
-     aoiinfo2=handles.FitData;
-     eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
-     set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
-     set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text field (ready to re-load)
-   
+    % Reset filename where we store or retrieve the 'aoifits' structure
+    
+    set(handles.OutputFilename,'String','default.dat');
+    
+    [aoirows aoicol]=size(aoifits.centers);
+    onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
+    % Now substitute the AOIs into the present field
+    %[frm#       ave                 x     y             pixnum                aoinum   ]
+    handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
+    
+    if isfield(aoifits,'aoiinfo2')
+        handles.FitData=aoifits.aoiinfo2;
+    end
+    
+    set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
+    guidata(gcbo,handles)
+    
+elseif argnum==3                                        % map the present AOI set to
+    % field #2 e.g. x1
+    % -> x2
+    % (output is x2y2  coordinates)
+    % Save the current AOI locations before mapping
+    aoiinfo2=handles.FitData;
+    eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
+    fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
+    % Stored as [mxx21 mxy21 bx;
+    %            myx21 myy21 by]
+    % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
+    
+    nowpts=[handles.FitData(:,3) handles.FitData(:,4)];
+    % Now map to the x2
+    
+    handles.FitData(:,3)=mappingfunc(fitparmvector(1,:),nowpts);
+    %handles.FitData(:,3)=handles.FitData(:,3)*fitparmvector(1) + fitparmvector(2);
+    % Now map to the y2
+    handles.FitData(:,4)=mappingfunc(fitparmvector(2,:),nowpts);
+    %handles.FitData(:,4)=handles.FitData(:,4)*fitparmvector(3) + fitparmvector(4);
+    if get(handles.ProximityMappingToggle,'Value')==1
+        % Here to instead use proximity mapping method
+        [rosenow colnow]=size(nowpts);
+        mappednow=zeros(rosenow,2);
+        for indx=1:rosenow
+            % Use 15 nearest points for mapping to field2
+            mappednow(indx,:)=proximity_mapping_v1(handles.MappingPoints,nowpts(indx,:),15,fitparmvector,2);
+        end
+        handles.FitData(:,3:4)=mappednow;
+    end
+    
+    
+    % only keep points with pixel indices >=1
+    log=(handles.FitData(:,3)>=1 ) & (handles.FitData(:,4) >=1) & (handles.FitData(:,3) <=1024) & (handles.FitData(:,4) <=1024);
+    handles.FitData=handles.FitData(log,:);
+    handles.FitData=update_FitData_aoinum(handles.FitData);
+    guidata(gcbo,handles)
+    % Save the current AOI locations after mapping
+    aoiinfo2=handles.FitData;
+    eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
+    set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
+    set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text field (ready to re-load)
+    
     
 elseif argnum==4                                        % Invert the map: go from e.g. x2 -> x1
-                                                        % output is x1y1 coordinates
-                                                        % B9p148
-                                                        %
-                        % Save the current AOI locations before mapping
-     aoiinfo2=handles.FitData;
-     eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
-     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
-                                                           % Stored as [mxx21 mxy21 bx; 
-                                                           %            myx21 myy21 by]
-     za=fitparmvector(1,1);zb=fitparmvector(1,2);zc=fitparmvector(1,3);
-     zd=fitparmvector(2,1);ze=fitparmvector(2,2);zf=fitparmvector(2,3);
-     denom=1/(za*ze-zb*zd);
-     invmapmat=denom*[ze -zb (zb*zf-zc*ze) ; -zd za (zd*zc-zf*za)]; % b9p148 inverse matrix
-
-                % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
-     nowpts=[handles.FitData(:,3) handles.FitData(:,4)]; 
-                % Now map to the x1
-     handles.FitData(:,3)=mappingfunc(invmapmat(1,:),nowpts);
-                % Now map to the y1
-     handles.FitData(:,4)=mappingfunc(invmapmat(2,:),nowpts);
-
-     if get(handles.ProximityMappingToggle,'Value')==1
-                    % Here to instead use proximity mapping method
-             [rosenow colnow]=size(nowpts);
-             mappednow=zeros(rosenow,2);
-             for indx=1:rosenow
-                            % Use 15 nearest points for mapping to field1
-             mappednow(indx,:)=proximity_mapping_v1(handles.MappingPoints,nowpts(indx,:),15,fitparmvector,1);
-             end
-             handles.FitData(:,3:4)=mappednow;
-         end
-      
-
-                                % only keep points with pixel indices >=1
-      log=(handles.FitData(:,3)>=1 ) & (handles.FitData(:,4) >=1) & (handles.FitData(:,3) <=1024) & (handles.FitData(:,4) <=1024);
-      handles.FitData=handles.FitData(log,:);
-      handles.FitData=update_FitData_aoinum(handles.FitData);
-     guidata(gcbo,handles)
-                             % Save the current AOI locations after mapping
-     aoiinfo2=handles.FitData;
-     eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
-     set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
-     set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text fi  
-
+    % output is x1y1 coordinates
+    % B9p148
+    %
+    % Save the current AOI locations before mapping
+    aoiinfo2=handles.FitData;
+    eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
+    fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
+    % Stored as [mxx21 mxy21 bx;
+    %            myx21 myy21 by]
+    za=fitparmvector(1,1);zb=fitparmvector(1,2);zc=fitparmvector(1,3);
+    zd=fitparmvector(2,1);ze=fitparmvector(2,2);zf=fitparmvector(2,3);
+    denom=1/(za*ze-zb*zd);
+    invmapmat=denom*[ze -zb (zb*zf-zc*ze) ; -zd za (zd*zc-zf*za)]; % b9p148 inverse matrix
+    
+    % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
+    nowpts=[handles.FitData(:,3) handles.FitData(:,4)];
+    % Now map to the x1
+    handles.FitData(:,3)=mappingfunc(invmapmat(1,:),nowpts);
+    % Now map to the y1
+    handles.FitData(:,4)=mappingfunc(invmapmat(2,:),nowpts);
+    
+    if get(handles.ProximityMappingToggle,'Value')==1
+        % Here to instead use proximity mapping method
+        [rosenow colnow]=size(nowpts);
+        mappednow=zeros(rosenow,2);
+        for indx=1:rosenow
+            % Use 15 nearest points for mapping to field1
+            mappednow(indx,:)=proximity_mapping_v1(handles.MappingPoints,nowpts(indx,:),15,fitparmvector,1);
+        end
+        handles.FitData(:,3:4)=mappednow;
+    end
+    
+    
+    % only keep points with pixel indices >=1
+    log=(handles.FitData(:,3)>=1 ) & (handles.FitData(:,4) >=1) & (handles.FitData(:,3) <=1024) & (handles.FitData(:,4) <=1024);
+    handles.FitData=handles.FitData(log,:);
+    handles.FitData=update_FitData_aoinum(handles.FitData);
+    guidata(gcbo,handles)
+    % Save the current AOI locations after mapping
+    aoiinfo2=handles.FitData;
+    eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
+    set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
+    set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text fi
+    
 elseif argnum==5
     filestring='Fitparms.dat';
     eval(['load ' filestring ' -mat'])          % Loads 'mappingpoints' mx12 stored by 'mapping' routine
-    %[aoirows aoicol]=size(mappingpoints);       % aoirows gives number of aois 
+    %[aoirows aoicol]=size(mappingpoints);       % aoirows gives number of aois
     %onecol=ones(aoirows,1);                     % column of ones (length = # aois)
-                                                 % Now substitute the AOIs
-                                                 % into the present field
+    % Now substitute the AOIs
+    % into the present field
     handles.FitData=mappingpoints(:,7:12);      % Place the AOIs (from field 2 of the mapping routine)
-                                                % into the present Fitdata variable
+    % into the present Fitdata variable
     set(handles.PixelNumber,'String',num2str(mappingpoints(1,11)));
     guidata(gcbo,handles)
 elseif argnum==6
     
     
     aoiinfo2=handles.FitData                     % Saving the aoiinfo array so that user may see
-                                                % the framenumber where each aoi
-                                                % was clicked (e.g for oligo binding and such
+    % the framenumber where each aoi
+    % was clicked (e.g for oligo binding and such
     filestring=get(handles.OutputFilename,'String');
-     %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-     %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
+    %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
+    %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
     eval(['save ' handles.FileLocations.data filestring ' aoiinfo2']);
-   
+    
     set(handles.OutputFilename,'String','default.dat');
 elseif argnum==7
-        filestring=get(handles.InputParms,'String');    % Get filename from editable text region
-
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])        % Load the aoiinfo2 variable from a prior instance
-                                                  % where the user marked the frm #
-                                                  % at which spots appeared.  This allows a user to
-                                                  % continue marking spots in a sequence that was
-                                                  % being processed previously
-        handles.FitData=aoiinfo2;                 % Put the aoi information into present handles.FitData
-        guidata(gcbo,handles);
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % Make the new AOIs appear
-elseif argnum==8    
-                                                 % Here for Drift
-                                                 % correction DriftInfo.dat
-   %eval(['load ' handles.FileLocations.imscroll '\DriftInfo.dat -mat']);
-   %eval(['load ' handles.FileLocations.imscroll 'DriftInfo.dat -mat']);
-   eval(['load ' handles.FileLocations.gui_files 'DriftInfo.dat -mat']);
-                                          % Load file in 'imscroll' directory containing parameters
-                                   %DriftInfo.MaxFrames         == largest frame number in the image sequence
-                                   %DriftInfo.SpotNumber2Track == number of spots we will track for drifting
-                                   %DriftInfo.InputFrames     ==  vector listing frame numbers we will use for tracking
-                                   %DriftInfo.PolyOrderx     ==  Order of the polynomial we will use for
-                                   %                            fitting x drift (=1 or 2 typically)
-                                   %DriftInfo.PolyOrdery     ==  Order of the polynomial we will use for
-                                   %                            fitting  y drift (=1 or 2 typically)
-
-                                   % see b18p11 for reference
+    filestring=get(handles.InputParms,'String');    % Get filename from editable text region
+    
+    eval(['load ' handles.FileLocations.data filestring ' -mat'])        % Load the aoiinfo2 variable from a prior instance
+    % where the user marked the frm #
+    % at which spots appeared.  This allows a user to
+    % continue marking spots in a sequence that was
+    % being processed previously
+    handles.FitData=aoiinfo2;                 % Put the aoi information into present handles.FitData
+    guidata(gcbo,handles);
+    slider1_Callback(handles.ImageNumber, eventdata, handles)   % Make the new AOIs appear
+elseif argnum==8
+    % Here for Drift
+    % correction DriftInfo.dat
+    %eval(['load ' handles.FileLocations.imscroll '\DriftInfo.dat -mat']);
+    %eval(['load ' handles.FileLocations.imscroll 'DriftInfo.dat -mat']);
+    eval(['load ' handles.FileLocations.gui_files 'DriftInfo.dat -mat']);
+    % Load file in 'imscroll' directory containing parameters
+    %DriftInfo.MaxFrames         == largest frame number in the image sequence
+    %DriftInfo.SpotNumber2Track == number of spots we will track for drifting
+    %DriftInfo.InputFrames     ==  vector listing frame numbers we will use for tracking
+    %DriftInfo.PolyOrderx     ==  Order of the polynomial we will use for
+    %                            fitting x drift (=1 or 2 typically)
+    %DriftInfo.PolyOrdery     ==  Order of the polynomial we will use for
+    %                            fitting  y drift (=1 or 2 typically)
+    
+    % see b18p11 for reference
     
     %dum=varargin{1};                             % Need dum, images, folder  to
     %images=varargin{2};                          % pass to the slider1 routine
@@ -1664,317 +1664,317 @@ elseif argnum==8
     maxfrm=DriftInfo.MaxFrames;
     datt=[];                                    % Will contain the list of drifting tracked coordinates
     for frmindxx=1:length(inputfrms)            %Loop to track spots as they drift
-                                                %Set the frame number to a
-                                                %frame number in the list
+        %Set the frame number to a
+        %frame number in the list
         set(handles.ImageNumber,'Value',inputfrms(frmindxx));
-                                          % Change the gui image displayed
+        % Change the gui image displayed
         %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
-                                          % Click on a number of reference spots
+        % Click on a number of reference spots
         [xcoord ycoord]=ginput(spotnumber);
-                                          % Accumulate the xy coordinate of the average
-                                          % of all the reference spots
+        % Accumulate the xy coordinate of the average
+        % of all the reference spots
         datt=[datt; inputfrms(frmindxx) sum(xcoord)/spotnumber sum(ycoord)/spotnumber];
     end
-                                    % Now fit the drifting coordinates to a
-                                    % quadratic polynomial
+    % Now fit the drifting coordinates to a
+    % quadratic polynomial
     fitx=polyfit(datt(:,1),datt(:,2),DriftInfo.PolyOrderX);
     fity=polyfit(datt(:,1),datt(:,3),DriftInfo.PolyOrderY);
-                                    % Generate points for each frame that
-                                    % fit the average reference spot
-                                    % location
+    % Generate points for each frame that
+    % fit the average reference spot
+    % location
     handles.DriftCorrectxy=datt;    % Place the collected xy points into handles
     valuex=polyval(fitx,1:maxfrm);
     valuey=polyval(fity,1:maxfrm);
-                                    % Take slope of this curve to get
-                                    % changes in the spot locations for
-                                    % each frame
+    % Take slope of this curve to get
+    % changes in the spot locations for
+    % each frame
     diffx=diff(valuex);
     diffy=diff(valuey);
     figure(24);hold off;plot(datt(:,1),datt(:,2),'o',1:maxfrm,valuex,'r');shg
     figure(25);hold off;plot(datt(:,1),datt(:,3),'o',1:maxfrm,valuey,'r');shg
-                                    % Generate driftlist that will correct
-                                    % drifts for all spot in the images
- 
+    % Generate driftlist that will correct
+    % drifts for all spot in the images
+    
     driftlist=[1 0 0
         [2:maxfrm]' diffx' diffy'];
     handles.DriftList=driftlist;
     handles.DriftListInput=driftlist;
     handles.DriftListStored=driftlist;
-     
+    
     guidata(gcbo,handles);           % Place our new driftlist into handles
-                                    % Save our driftlist into a file
-   % eval(['save ' handles.FileLocations.imscroll '\DriftList.dat driftlist']);
-   % eval(['save ' handles.FileLocations.imscroll '\DriftListIntermediates.dat datt']);
-     % eval(['save ' handles.FileLocations.imscroll 'DriftList.dat driftlist']);
-     %eval(['save ' handles.FileLocations.imscroll 'DriftListIntermediates.dat datt']);
-     eval(['save ' handles.FileLocations.gui_files 'DriftList.dat driftlist']);
-     eval(['save ' handles.FileLocations.gui_files 'DriftListIntermediates.dat datt']);
-
+    % Save our driftlist into a file
+    % eval(['save ' handles.FileLocations.imscroll '\DriftList.dat driftlist']);
+    % eval(['save ' handles.FileLocations.imscroll '\DriftListIntermediates.dat datt']);
+    % eval(['save ' handles.FileLocations.imscroll 'DriftList.dat driftlist']);
+    %eval(['save ' handles.FileLocations.imscroll 'DriftListIntermediates.dat datt']);
+    eval(['save ' handles.FileLocations.gui_files 'DriftList.dat driftlist']);
+    eval(['save ' handles.FileLocations.gui_files 'DriftListIntermediates.dat datt']);
+    
 elseif argnum==9
-                % Here to change the jump value of the jumpVary button
-                % We will take the new value of jumpVary from the editable
-                % text written in the FrameAve editable text region
-     new_jumpVary_string=get(handles.FrameAve,'String');
-     set(handles.FrameAve,'String','1');
-                % Change the string written on the jumpVary button
-     set(handles.jumpVary,'String',new_jumpVary_string);
-                % Change the value of jumpVary so the jump will now match
-                % the value written on the button
-     new_jumpVary_value=round(str2num(new_jumpVary_string));
-     set(handles.jumpVary,'Value',new_jumpVary_value);
-     set(handles.jumpVary,'UserData',new_jumpVary_value);
-     guidata(gcbo,handles);
+    % Here to change the jump value of the jumpVary button
+    % We will take the new value of jumpVary from the editable
+    % text written in the FrameAve editable text region
+    new_jumpVary_string=get(handles.FrameAve,'String');
+    set(handles.FrameAve,'String','1');
+    % Change the string written on the jumpVary button
+    set(handles.jumpVary,'String',new_jumpVary_string);
+    % Change the value of jumpVary so the jump will now match
+    % the value written on the button
+    new_jumpVary_value=round(str2num(new_jumpVary_string));
+    set(handles.jumpVary,'Value',new_jumpVary_value);
+    set(handles.jumpVary,'UserData',new_jumpVary_value);
+    guidata(gcbo,handles);
 elseif argnum==10
-                % Generate the background AOIs
-                % Get the image on which to base the AOI placement
+    % Generate the background AOIs
+    % Get the image on which to base the AOI placement
     %avefrm=getframes(dum,images,folder,handles);
     avefrm=getframes_v1(handles);
-                % handles.FitData=[framenumber ave x y pixnum aoinumber];
+    % handles.FitData=[framenumber ave x y pixnum aoinumber];
     [aoinumber argnumber]=size(handles.FitData);
-                % Generate large aoi for each existing AOI
-        pixnum1=handles.Pixnums(2); % Width of intermediate AOI
-        pixnum2=handles.Pixnums(3); % Width of large AOI
-                                    % Add column 7 to FitData (aoiinfo2) to
-                                    % identify which of the three aois we
-                                    % are dealing with
-        
-        handles.FitData=[handles.FitData(:,1:6) zeros(aoinumber,1)];
-        
-                                    % Create a matrix to temporarily hold 
-                                    % new aois of
-                                    % size pixnum1 and pixnum2
-        aoiinfo2extra=[];
-        for indxaoi=1:aoinumber
-            aoix=handles.FitData(indxaoi,3);    % aoi x and y coord
-            aoiy=handles.FitData(indxaoi,4);
-                     % Vary center of large AOI, compute its integral
-            intlist=integration_list(aoix,aoiy,pixnum1,pixnum2,avefrm);
-                     % Pick the location with minimum integral
-           logik=intlist(:,3)==min(intlist(:,3));
-                     % Pick median in the list
-            
-            %intlistlength=length(intlist(:,3));
-            %[Y I]=sort(intlist(:,3));
-            %logik=intlist(:,3)==intlist(I(round(intlistlength/2)),3);
+    % Generate large aoi for each existing AOI
+    pixnum1=handles.Pixnums(2); % Width of intermediate AOI
+    pixnum2=handles.Pixnums(3); % Width of large AOI
+    % Add column 7 to FitData (aoiinfo2) to
+    % identify which of the three aois we
+    % are dealing with
     
-                     % Move the AOI to new location x y
-            %**handles.FitData(indxaoi,3:4)=intlist(logik,1:2);
-                     % Set size of AOI to match Pixnum2 value for large aoi
-            %**handles.FitData(indxaoi,5)=pixnum2;
-                %
-            
-                                % Make entry for aoi of size pixnum2
-            pixnum2Entry=handles.FitData(indxaoi,:);
-                                % Column 7 will contain the original aoi#
-            pixnum2Entry(1,7)=pixnum2Entry(1,6);
-                                % AOI size will equal pixnum2=Pixnums(3)
-            pixnum2Entry(1,5)=pixnum2;
-                                % Place the aoi according to th above
-                                % minimization protocol (median, or min)
-            Ix=find(logik,1);   % The 'logik' is true for the xy position with minimum integral, but
-                                % it is possible to get more than one
-                                % locaion with the same integral.
-                                % Since we only want one location, we just grab the first xy location
-                                % in the list having the minimum integral.
-            pixnum2Entry(3:4)=intlist(Ix,1:2);
-            %pixnum2Entry(3:4)=intlist(logik,1:2);
-                  
-                                % Make entry for aoi of size pixnum1
-            pixnum1Entry=handles.FitData(indxaoi,:);
-                                % column 7 will contain the original aoi #
-            pixnum1Entry(1,7)=pixnum1Entry(1,6);
-                                % AOI size will equal pixnum1=Pixnums(2);
-          
-                                % Make entry for original aoi
-            pixnumOrigEntry=handles.FitData(indxaoi,:);
-                                % Column 7 will contain the original aoi #
-            pixnumOrigEntry(1,7)=pixnumOrigEntry(1,6);
-                                % AOI size will equal Pixnums(1)
-            pixnumOrigEntry(1,5)=handles.Pixnums(1);
-                                % Now add the extra AOIs to our list
-             pixnum1Entry(1,5)=pixnum1;
-            
-            aoiinfo2extra=[aoiinfo2extra
-                           pixnumOrigEntry
-                           pixnum1Entry
-                           pixnum2Entry];
-            
-                          
-            
-        end
-                            % update the list of AOIs to include all three
-                            % sizes
-     
-        handles.FitData=aoiinfo2extra;
-                            % update the aoi numbers in the list (column 6) 
-        handles.FitData=update_FitData_aoinum(handles.FitData);
+    handles.FitData=[handles.FitData(:,1:6) zeros(aoinumber,1)];
+    
+    % Create a matrix to temporarily hold
+    % new aois of
+    % size pixnum1 and pixnum2
+    aoiinfo2extra=[];
+    for indxaoi=1:aoinumber
+        aoix=handles.FitData(indxaoi,3);    % aoi x and y coord
+        aoiy=handles.FitData(indxaoi,4);
+        % Vary center of large AOI, compute its integral
+        intlist=integration_list(aoix,aoiy,pixnum1,pixnum2,avefrm);
+        % Pick the location with minimum integral
+        logik=intlist(:,3)==min(intlist(:,3));
+        % Pick median in the list
         
-         % Write AOI width in pixnum field of gui
-        set(handles.PixelNumber,'String',num2str(pixnum2));
-                    % Once all aois are generated, rewrite field of aois
-         guidata(gcbo,handles);
-        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        %intlistlength=length(intlist(:,3));
+        %[Y I]=sort(intlist(:,3));
+        %logik=intlist(:,3)==intlist(I(round(intlistlength/2)),3);
+        
+        % Move the AOI to new location x y
+        %**handles.FitData(indxaoi,3:4)=intlist(logik,1:2);
+        % Set size of AOI to match Pixnum2 value for large aoi
+        %**handles.FitData(indxaoi,5)=pixnum2;
+        %
+        
+        % Make entry for aoi of size pixnum2
+        pixnum2Entry=handles.FitData(indxaoi,:);
+        % Column 7 will contain the original aoi#
+        pixnum2Entry(1,7)=pixnum2Entry(1,6);
+        % AOI size will equal pixnum2=Pixnums(3)
+        pixnum2Entry(1,5)=pixnum2;
+        % Place the aoi according to th above
+        % minimization protocol (median, or min)
+        Ix=find(logik,1);   % The 'logik' is true for the xy position with minimum integral, but
+        % it is possible to get more than one
+        % locaion with the same integral.
+        % Since we only want one location, we just grab the first xy location
+        % in the list having the minimum integral.
+        pixnum2Entry(3:4)=intlist(Ix,1:2);
+        %pixnum2Entry(3:4)=intlist(logik,1:2);
+        
+        % Make entry for aoi of size pixnum1
+        pixnum1Entry=handles.FitData(indxaoi,:);
+        % column 7 will contain the original aoi #
+        pixnum1Entry(1,7)=pixnum1Entry(1,6);
+        % AOI size will equal pixnum1=Pixnums(2);
+        
+        % Make entry for original aoi
+        pixnumOrigEntry=handles.FitData(indxaoi,:);
+        % Column 7 will contain the original aoi #
+        pixnumOrigEntry(1,7)=pixnumOrigEntry(1,6);
+        % AOI size will equal Pixnums(1)
+        pixnumOrigEntry(1,5)=handles.Pixnums(1);
+        % Now add the extra AOIs to our list
+        pixnum1Entry(1,5)=pixnum1;
+        
+        aoiinfo2extra=[aoiinfo2extra
+            pixnumOrigEntry
+            pixnum1Entry
+            pixnum2Entry];
+        
+        
+        
+    end
+    % update the list of AOIs to include all three
+    % sizes
+    
+    handles.FitData=aoiinfo2extra;
+    % update the aoi numbers in the list (column 6)
+    handles.FitData=update_FitData_aoinum(handles.FitData);
+    
+    % Write AOI width in pixnum field of gui
+    set(handles.PixelNumber,'String',num2str(pixnum2));
+    % Once all aois are generated, rewrite field of aois
+    guidata(gcbo,handles);
+    %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+    slider1_Callback(handles.ImageNumber, eventdata, handles)
 elseif argnum==11                                        % load an AOI set
-                                  % and recenter the aois with the gaussian
-                                  % fit centers from a single frame fit
+    % and recenter the aois with the gaussian
+    % fit centers from a single frame fit
     filestring=get(handles.OutputFilename,'String');
-                                 % Load aoifits from same directory where
-                                 % we store it
+    % Load aoifits from same directory where
+    % we store it
     eval(['load ' handles.FileLocations.data filestring ' -mat']);
-     %eval(['load ' filestring ' -mat'])              % loads 'aoifits' structure from a prior
-                                                        % fit to aois
-                                                     % Reset filename where we store or retrieve the 'aoifits' structure 
-%keyboard
-     set(handles.OutputFilename,'String','default.dat');
-     
-     %[aoirows aoicol]=size(aoifits.centers);
-     %onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
-                                                        % Now substitute the AOIs into the present field 
-                           %[frm#       ave                 x     y             pixnum                aoinum   ]  
-     %handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
-     handles.FitData=aoifits.aoiinfo2;                  % Replace the current aoiinfo2
-                                          % data set with that from aoifits
-                                          % (they are likely the same)
+    %eval(['load ' filestring ' -mat'])              % loads 'aoifits' structure from a prior
+    % fit to aois
+    % Reset filename where we store or retrieve the 'aoifits' structure
+    %keyboard
+    set(handles.OutputFilename,'String','default.dat');
     
-     %handles.FitData(:,3:4)=aoifits.data(:,4:5)+1;   % Replace the center positions
-                                          % with the gaussian fit centers
-     [AOInum col]=size(handles.FitData);    % AOInum will be the number of AOIs
-     handles.FitData(:,3:4)=aoifits.data(1:AOInum,4:5);    % Drop the +1 after our change in
-                                % gauss2d_mapstruc_v2.m line 64 for the
-                                % pc.ImageData= definition
-                                % Also save the frame number from the Gaussian fit
-     handles.FitData(:,1)=aoifits.data(1,2);
-     handles.FitData(:,2)=aoifits.parameter(1);     % match 'ave' with Gaussian fit data 
-     set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
-     guidata(gcbo,handles)
-      %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder
-      slider1_Callback(handles.ImageNumber, eventdata, handles)
+    %[aoirows aoicol]=size(aoifits.centers);
+    %onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
+    % Now substitute the AOIs into the present field
+    %[frm#       ave                 x     y             pixnum                aoinum   ]
+    %handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
+    handles.FitData=aoifits.aoiinfo2;                  % Replace the current aoiinfo2
+    % data set with that from aoifits
+    % (they are likely the same)
+    
+    %handles.FitData(:,3:4)=aoifits.data(:,4:5)+1;   % Replace the center positions
+    % with the gaussian fit centers
+    [AOInum col]=size(handles.FitData);    % AOInum will be the number of AOIs
+    handles.FitData(:,3:4)=aoifits.data(1:AOInum,4:5);    % Drop the +1 after our change in
+    % gauss2d_mapstruc_v2.m line 64 for the
+    % pc.ImageData= definition
+    % Also save the frame number from the Gaussian fit
+    handles.FitData(:,1)=aoifits.data(1,2);
+    handles.FitData(:,2)=aoifits.parameter(1);     % match 'ave' with Gaussian fit data
+    set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
+    guidata(gcbo,handles)
+    %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder
+    slider1_Callback(handles.ImageNumber, eventdata, handles)
 elseif argnum==12
-            % Here to shadow map the aois from field 1 to field 2
-            % This will place just a visual copy (not added to aoi list)of
-            % the aoi set (from field 1) into field 2
+    % Here to shadow map the aois from field 1 to field 2
+    % This will place just a visual copy (not added to aoi list)of
+    % the aoi set (from field 1) into field 2
     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
-                                                           % Stored as [mxx21 mxy21 bx; 
-                                                           %            myx
-                                                           %            21 myy21 by]
+    % Stored as [mxx21 mxy21 bx;
+    %            myx
+    %            21 myy21 by]
     aoiinfo=handles.FitData;                  % [framenumber ave a b pixnum aoinumber]
     [maoi naoi]=size(aoiinfo);                % maoi=number of aois
     imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
     for indxx=1:maoi
-       XYshift=[0 0];                  % initialize aoi shift due to drift
+        XYshift=[0 0];                  % initialize aoi shift due to drift
         if get(handles.StartParameters,'Value')==2
-                                    % here to move the aois in order to follow drift
+            % here to move the aois in order to follow drift
             XYshift=ShiftAOI(indxx,imagenum,aoiinfo,handles.DriftList);
         end
         aoiinfo(indxx,3)=aoiinfo(indxx,3)+XYshift(1);
         aoiinfo(indxx,4)=aoiinfo(indxx,4)+XYshift(2);
     end
-                %The xy coordinates in aoiinfo now reflect the actual (i.e.
-                %shifted due to drift, if appropriate) positions of the
-                %aois
-        
-        
-                   % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
+    %The xy coordinates in aoiinfo now reflect the actual (i.e.
+    %shifted due to drift, if appropriate) positions of the
+    %aois
+    
+    
+    % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
     nowpts=[aoiinfo(:,3) aoiinfo(:,4)];
-       % Now map to the x2
+    % Now map to the x2
     shadowx_vec=mappingfunc(fitparmvector(1,:),nowpts);
-                   % Now map to the y2 
+    % Now map to the y2
     shadowy_vec=mappingfunc(fitparmvector(2,:),nowpts);
-                  % Remove points that map to indices less than 1
+    % Remove points that map to indices less than 1
     logik=(shadowx_vec>=1 ) & (shadowy_vec >=1);
     shadowx_vec=shadowx_vec(logik,1);
     shadowy_vec=shadowy_vec(logik,1);
-            %Now we are ready to write the aoi boxes in field 2
+    %Now we are ready to write the aoi boxes in field 2
     pixnum=str2double(get(handles.PixelNumber,'String'));
     shadownum=length(shadowy_vec);        % Number of aoi boxes to write
-      
- 
+    
+    
     for indx=1:shadownum
         
         if get(handles.FitChoice,'Value')==5
-                    % == 5 if we are set to do linear interpolation with 
-                    % repsect to integrating partial overlap of AOIs and
-                    % pixels
-                    % draw boxes around all the aois, adding the XYshift to
-                    % account for possible drift
-                    % Here to draw boxes that fractionally overlaps pixels
+            % == 5 if we are set to do linear interpolation with
+            % repsect to integrating partial overlap of AOIs and
+            % pixels
+            % draw boxes around all the aois, adding the XYshift to
+            % account for possible drift
+            % Here to draw boxes that fractionally overlaps pixels
             draw_box([shadowx_vec(indx) shadowy_vec(indx)],(pixnum)/2,...
-                              (pixnum)/2,'y');
+                (pixnum)/2,'y');
         else
-                    % Here to draw aoi boxes only at pixel boundaries
+            % Here to draw aoi boxes only at pixel boundaries
             draw_box_v1([shadowx_vec(indx) shadowy_vec(indx)],(pixnum)/2,...
-                               (pixnum)/2,'y');
+                (pixnum)/2,'y');
         end
-    end  
+    end
 elseif argnum==13
-                % Here to shadow map from field 2 to field 1
-                % This will place just a visual copy (not added to aoi list)of
-            % the aoi set (from field 2) into field 1
-                                           % Invert the map: go from e.g. x2 -> x1
-                                                        % output is x1y1 coordinates
-                                                        % B9p148
+    % Here to shadow map from field 2 to field 1
+    % This will place just a visual copy (not added to aoi list)of
+    % the aoi set (from field 2) into field 1
+    % Invert the map: go from e.g. x2 -> x1
+    % output is x1y1 coordinates
+    % B9p148
     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
-                                                           % Stored as [mxx21 mxy21 bx; 
-                                                           %            myx21 myy21 by]
+    % Stored as [mxx21 mxy21 bx;
+    %            myx21 myy21 by]
     za=fitparmvector(1,1);zb=fitparmvector(1,2);zc=fitparmvector(1,3);
     zd=fitparmvector(2,1);ze=fitparmvector(2,2);zf=fitparmvector(2,3);
     denom=1/(za*ze-zb*zd);
     invmapmat=denom*[ze -zb (zb*zf-zc*ze) ; -zd za (zd*zc-zf*za)]; % b9p148 inverse matrix
-
+    
     aoiinfo=handles.FitData;                  % [framenumber ave a b pixnum aoinumber]
     [maoi naoi]=size(aoiinfo);                % maoi=number of aois
     imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
     for indxx=1:maoi
-       XYshift=[0 0];                  % initialize aoi shift due to drift
+        XYshift=[0 0];                  % initialize aoi shift due to drift
         if get(handles.StartParameters,'Value')==2
-                                    % here to move the aois in order to follow drift
+            % here to move the aois in order to follow drift
             XYshift=ShiftAOI(indxx,imagenum,aoiinfo,handles.DriftList);
         end
         aoiinfo(indxx,3)=aoiinfo(indxx,3)+XYshift(1);
         aoiinfo(indxx,4)=aoiinfo(indxx,4)+XYshift(2);
     end
-                %The xy coordinates in aoiinfo now reflect the actual (i.e.
-                %shifted due to drift, if appropriate) positions of the
-                %aois
-        
-        
-                   % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
+    %The xy coordinates in aoiinfo now reflect the actual (i.e.
+    %shifted due to drift, if appropriate) positions of the
+    %aois
+    
+    
+    % handles.Fitdata=[ frm# ave AOIx  AOIy pixnum aoinum]
     nowpts=[aoiinfo(:,3) aoiinfo(:,4)];
-       % Now map to the x1
+    % Now map to the x1
     shadowx_vec=mappingfunc(invmapmat(1,:),nowpts);
-                   % Now map to the y1 
+    % Now map to the y1
     shadowy_vec=mappingfunc(invmapmat(2,:),nowpts);
-                % Remove points that map to indices less than 1
+    % Remove points that map to indices less than 1
     logik=(shadowx_vec>=1 ) & (shadowy_vec >=1);
     shadowx_vec=shadowx_vec(logik,1);
     shadowy_vec=shadowy_vec(logik,1);
-            %Now we are ready to write the aoi boxes in field 1
+    %Now we are ready to write the aoi boxes in field 1
     pixnum=str2double(get(handles.PixelNumber,'String'));
     shadownum=length(shadowy_vec);        % Number of aoi boxes to write
-      
- 
+    
+    
     for indx=1:shadownum
         
         if get(handles.FitChoice,'Value')==5
-                    % == 5 if we are set to do linear interpolation with 
-                    % repsect to integrating partial overlap of AOIs and
-                    % pixels
-                    % draw boxes around all the aois, adding the XYshift to
-                    % account for possible drift
-                    % Here to draw boxes that fractionally overlaps pixels
+            % == 5 if we are set to do linear interpolation with
+            % repsect to integrating partial overlap of AOIs and
+            % pixels
+            % draw boxes around all the aois, adding the XYshift to
+            % account for possible drift
+            % Here to draw boxes that fractionally overlaps pixels
             draw_box([shadowx_vec(indx) shadowy_vec(indx)],(pixnum)/2,...
-                              (pixnum)/2,'y');
+                (pixnum)/2,'y');
         else
-                    % Here to draw aoi boxes only at pixel boundaries
+            % Here to draw aoi boxes only at pixel boundaries
             draw_box_v1([shadowx_vec(indx) shadowy_vec(indx)],(pixnum)/2,...
-                               (pixnum)/2,'y');
+                (pixnum)/2,'y');
         end
     end
-    elseif argnum==14
-        
-
+elseif argnum==14
+    
+    
 end
 
 
@@ -1987,8 +1987,8 @@ function FitDisplay_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of FitDisplay as text
 %        str2double(get(hObject,'String')) returns contents of FitDisplay as a double
 
-            % Take the input string and place it also in the 'Value' field
-           
+% Take the input string and place it also in the 'Value' field
+
 %display_fitparms=eval( ['[ ' get(handles.FitDisplay,'String') ' ]' ]);
 display_fitparms=( ['[ ' get(handles.FitDisplay,'String') ' ]' ]);
 
@@ -2070,8 +2070,8 @@ ave=round(str2double(get(handles.FrameAve,'String')));
 pixnum=str2double(get(handles.PixelNumber,'String'));
 flag=0;
 axes(handles.axes1)
-                                             % Get the last aoi number,
-                                             % add one to assign next aoi number 
+% Get the last aoi number,
+% add one to assign next aoi number
 aoinumber=1+max(handles.FitData(:,6));
 while flag==0
     [a b but]=ginput(1);
@@ -2083,30 +2083,30 @@ while flag==0
         axes(handles.axes1);
         hold on
         [maoi naoi]=size(aoiinfo);
-        for indx=maoi:maoi 
+        for indx=maoi:maoi
             if get(handles.FitChoice,'Value')==5
-                    % == 5 if we are set to do linear interpolation with 
-                    % repsect to integrating partial overlap of AOIs and
-                    % pixels
-                    % draw boxes around all the aois, adding the XYshift to
-                    % account for possible drift
-                    % Here to draw boxes that fractionally overlaps pixels
-            draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
-                              (pixnum)/2,'b');
+                % == 5 if we are set to do linear interpolation with
+                % repsect to integrating partial overlap of AOIs and
+                % pixels
+                % draw boxes around all the aois, adding the XYshift to
+                % account for possible drift
+                % Here to draw boxes that fractionally overlaps pixels
+                draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
+                    (pixnum)/2,'b');
             else
-                    % Here to draw aoi boxes only at pixel boundaries
-            draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-                               (pixnum)/2,'b');
+                % Here to draw aoi boxes only at pixel boundaries
+                draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
+                    (pixnum)/2,'b');
             end
-                    % draw boxes around all the aois
+            % draw boxes around all the aois
             %draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-                            %  (pixnum)/2,'b');
+            %  (pixnum)/2,'b');
         end
         hold off
     end
 end
 handles.FitData=[handles.FitData; aoiinfo];        % Add the new list onto the enc of the existing
-                                                   %in the handles structure
+%in the handles structure
 guidata(gcbo,handles) ;
 
 
@@ -2133,13 +2133,13 @@ if get(handles.MarkFolder2SpotsToggle,'Value')==1
     handles.Folder1=folder1;
     handles.Folder2=folder2;
     handles.Flag=0;                 % Flag used to mark that timing and aoiinfo spots
-                                % from the folder2 have already been loaded
-                                % (they will be loaded on next call to
-                                % 'MarkFolder2Spots()' function )
-                                %
-                                % Make place for timebase of Folder1,
-                                % Folder2 and the aoiinfo file from the
-                                % Folder2 sequence
+    % from the folder2 have already been loaded
+    % (they will be loaded on next call to
+    % 'MarkFolder2Spots()' function )
+    %
+    % Make place for timebase of Folder1,
+    % Folder2 and the aoiinfo file from the
+    % Folder2 sequence
     handles.Time1=[];
     handles.Time2=[];
     handles.Folder2aoiinfo=[];
@@ -2148,9 +2148,9 @@ if get(handles.MarkFolder2SpotsToggle,'Value')==1
 else
     set(handles.MarkFolder2SpotsToggle,'String','No Spots')
 end
-                    % Next two lines are needed to prevent the frame number
-                    % from jumping in the display (I do not know why this
-                    % occurs)
+% Next two lines are needed to prevent the frame number
+% from jumping in the display (I do not know why this
+% occurs)
 userdat=get(handles.ImageNumber,'UserData');
 set(handles.ImageNumber,'value',userdat);
 
@@ -2166,70 +2166,70 @@ function RemoveAois_Callback(hObject, eventdata, handles,varargin)
 %images=varargin{2};
 %folder=varargin{3};
 if get(handles.ImageSource,'Value')==4
-            % Here to remove AOI from aoiImageSet
-            % Get the current AOI number 
+    % Here to remove AOI from aoiImageSet
+    % Get the current AOI number
     AOINumber=str2num(get(handles.AOINumberDisplay,'String'));
-            % Now remove that number from the aoiImageSet
+    % Now remove that number from the aoiImageSet
     
     aoiImageSet=Remove_aoiImageSet(handles,AOINumber);
-   
+    
     handles.aoiImageSet=aoiImageSet;
     aoiinfo2=handles.FitData;
     
     aoiinfo2=handles.aoiImageSet.aoiinfoTotx(:,1:6);
     handles.FitData=handles.aoiImageSet.aoiinfoTotx(:,1:6);
     outputName=get(handles.OutputFilename,'String');            % Get the name of the output file
-    eval(['save ' handles.FileLocations.data outputName ' aoiinfo2 aoiImageSet']);      % Save the current parameters in data directory   
-            % Then update the image display showing an AOI from the aoiImageSet
+    eval(['save ' handles.FileLocations.data outputName ' aoiinfo2 aoiImageSet']);      % Save the current parameters in data directory
+    % Then update the image display showing an AOI from the aoiImageSet
     guidata(gcbo,handles)
     AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
     
 else
-        % Here to have user click on AOIs shown in Glimpse or Tiff image 
+    % Here to have user click on AOIs shown in Glimpse or Tiff image
     aoiinfo=[];
     framenumber=str2num(get(handles.ImageNumberValue,'String'));
     ave=round(str2double(get(handles.FrameAve,'String')));
     pixnum=str2double(get(handles.PixelNumber,'String'));
     flag=0;
-   axes(handles.axes1)
-
- 
+    axes(handles.axes1)
+    
+    
     while flag==0
-                    % User picking and removing spots until user right clicks 
+        % User picking and removing spots until user right clicks
         [a b but]=ginput(1);
         if but==3
             flag=1;
         else
-                                            % Get the aoi number for the
-                                            % aoi closest to where user
-                                            % clicked
-       
+            % Get the aoi number for the
+            % aoi closest to where user
+            % clicked
+            
             num_closest=aoicompare([a b],handles);
-       
-       
-                                            % logical array, =1 when it
-                                            % matches the aoi number
-       
+            
+            
+            % logical array, =1 when it
+            % matches the aoi number
+            
             logik=(handles.FitData(:,6)==num_closest);
-       
+            
             handles.FitData(logik,:)=[];          % remove information for that aoi
-                                            % Refresh display
-      
+            % Refresh display
+            
             handles.FitData=update_FitData_aoinum(handles.FitData);
             guidata(gcbo,handles) ;
             %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
             slider1_Callback(handles.ImageNumber, eventdata, handles)
-        
+            
         end
-   
-    handles.FitData=[handles.FitData; aoiinfo];        % Update the existin list of aoi
-                                                  % information so that no
-                                                  % aoi numbers are skipped
-
-    handles.FitData=update_FitData_aoinum(handles.FitData);
-
-    guidata(gcbo,handles);
-
+        
+        handles.FitData=[handles.FitData; aoiinfo];        % Update the existin list of aoi
+        % information so that no
+        % aoi numbers are skipped
+        
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        
+        guidata(gcbo,handles);
+        
     end                 % end of while
 end
 
@@ -2245,46 +2245,46 @@ function MagChoice_Callback(hObject, eventdata, handles)
 
 
 MagxyCoord=get(handles.MagChoice,'UserData');          % Retrieve the UserData matrix containing the sets of xy limits
-                                                    % userdat = [xpts(1) xpts(2) ypts(1) ypts(2)]
-MagValue=get(handles.MagChoice,'Value');            % Retrieve the value of the popup menu                                                    
+% userdat = [xpts(1) xpts(2) ypts(1) ypts(2)]
+MagValue=get(handles.MagChoice,'Value');            % Retrieve the value of the popup menu
 if (get(handles.ImageSource,'Value')==4)
     % Here if we are to display the handles.aoiImageSet
     % The fact that ImageSource is 4 means that aoiImageSet exists (and is not empty)
     % **** write in  the  MagRangeYX the class, startfrm, ave, x and y values
     
 elseif (MagValue==13)
-            % Here to see expanded view of AOIs
-            % Fetch number from the AOI number display
-             
-   AOINumber=str2num(get(handles.AOINumberDisplay,'String'));
-   logik=handles.FitData(:,6)==AOINumber;       % Pick out proper line from handles.FitData=aoiinfo2
-   val=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
-   if get(handles.StartParameters,'Value')==2
+    % Here to see expanded view of AOIs
+    % Fetch number from the AOI number display
+    
+    AOINumber=str2num(get(handles.AOINumberDisplay,'String'));
+    logik=handles.FitData(:,6)==AOINumber;       % Pick out proper line from handles.FitData=aoiinfo2
+    val=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
+    if get(handles.StartParameters,'Value')==2
         % Here if moving AOI is set
-       XYshift=ShiftAOI(AOINumber,val,handles.FitData,handles.DriftList);
-   else
-       XYshift=[0 0];
-   end
-   
-   XY=handles.FitData(logik,3:4)+XYshift;       % AOI (x y) coordinates
-  
-                    % Image region is value =8 on XYRegionPresetMenu popup  
-                    % Get coord surrounding AOI image region  for current AOI 
-   x2=XY(1)+str2num(handles.XYRegionPreset{8}.EditUniqueRadiusX);
-   y2=XY(2)+str2num(handles.XYRegionPreset{8}.EditUniqueRadius);
-   x1=XY(1)-str2num(handles.XYRegionPreset{8}.EditUniqueRadiusXLo);
-   y1=XY(2)-str2num(handles.XYRegionPreset{8}.EditUniqueRadiusLo);
-                    % Place AOI image region coord into text region
-   set(handles.MagRangeYX,'String',['[ ' num2str([x1 x2 y1 y2]) ' ]'])
+        XYshift=ShiftAOI(AOINumber,val,handles.FitData,handles.DriftList);
+    else
+        XYshift=[0 0];
+    end
+    
+    XY=handles.FitData(logik,3:4)+XYshift;       % AOI (x y) coordinates
+    
+    % Image region is value =8 on XYRegionPresetMenu popup
+    % Get coord surrounding AOI image region  for current AOI
+    x2=XY(1)+str2num(handles.XYRegionPreset{8}.EditUniqueRadiusX);
+    y2=XY(2)+str2num(handles.XYRegionPreset{8}.EditUniqueRadius);
+    x1=XY(1)-str2num(handles.XYRegionPreset{8}.EditUniqueRadiusXLo);
+    y1=XY(2)-str2num(handles.XYRegionPreset{8}.EditUniqueRadiusLo);
+    % Place AOI image region coord into text region
+    set(handles.MagRangeYX,'String',['[ ' num2str([x1 x2 y1 y2]) ' ]'])
 else
-                    % Here for settings other than AOI image region
-   
-   
-   
-   
-        % Make the editable text MagRangeYX region reflect the proper magnification setting 
-   set(handles.MagRangeYX,'String',['[' num2str(MagxyCoord(MagValue,:)) ']' ]);
-           % Make the display reflect the new magnification setting
+    % Here for settings other than AOI image region
+    
+    
+    
+    
+    % Make the editable text MagRangeYX region reflect the proper magnification setting
+    set(handles.MagRangeYX,'String',['[' num2str(MagxyCoord(MagValue,:)) ']' ]);
+    % Make the display reflect the new magnification setting
 end
 guidata(gcbo,handles)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
@@ -2309,8 +2309,8 @@ function DecreaseFrameAve_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 frmave=str2double(get(handles.FrameAve,'String'));
 if frmave>=2
-frmave=frmave-1;
-set(handles.FrameAve,'String',num2str(frmave));
+    frmave=frmave-1;
+    set(handles.FrameAve,'String',num2str(frmave));
 end
 
 
@@ -2333,13 +2333,13 @@ function jump1000_Callback(hObject, eventdata, handles,varargin)
 %folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
-   set(handles.ImageNumber,'Value',valnow+1000);
+    set(handles.ImageNumber,'Value',valnow+1000);
 elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-1000);
 end
 
-   %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-   slider1_Callback(handles.ImageNumber, eventdata, handles)
+%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes on button press in PlusMinus.
@@ -2366,14 +2366,14 @@ function jump100_Callback(hObject, eventdata, handles,varargin)
 %folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
-   set(handles.ImageNumber,'Value',valnow+100);
+    set(handles.ImageNumber,'Value',valnow+100);
 elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-100);
 end
 
 %   slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-    slider1_Callback(handles.ImageNumber, eventdata, handles)
-   
+slider1_Callback(handles.ImageNumber, eventdata, handles)
+
 
 
 % --- Executes on button press in jump10.
@@ -2386,13 +2386,13 @@ function jump10_Callback(hObject, eventdata, handles,varargin)
 %folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
-   set(handles.ImageNumber,'Value',valnow+10);
+    set(handles.ImageNumber,'Value',valnow+10);
 elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-10);
 end
 
-   %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-   slider1_Callback(handles.ImageNumber, eventdata, handles)
+%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes on button press in jump1.
@@ -2405,13 +2405,13 @@ function jump1_Callback(hObject, eventdata, handles,varargin)
 %folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
-   set(handles.ImageNumber,'Value',valnow+1);
+    set(handles.ImageNumber,'Value',valnow+1);
 elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-1);
 end
 
-  %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-  slider1_Callback(handles.ImageNumber, eventdata, handles)
+%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes on button press in jumpVary.
@@ -2425,16 +2425,16 @@ function jumpVary_Callback(hObject, eventdata, handles,varargin)
 
 valnow=get(handles.ImageNumber,'Value');    % Present value of the frame index
 jumpVary_value=get(handles.jumpVary,'UserData');
-                                            % Change the value of the frame
-                                            % index by jumpVary_value
+% Change the value of the frame
+% index by jumpVary_value
 if get(handles.PlusMinus,'Value')==0
-   set(handles.ImageNumber,'Value',valnow+jumpVary_value);
+    set(handles.ImageNumber,'Value',valnow+jumpVary_value);
 elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-jumpVary_value);
 end
-          % Call the slider subroutine that will alter the frame index
-  %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-  slider1_Callback(handles.ImageNumber, eventdata, handles)
+% Call the slider subroutine that will alter the frame index
+%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
 
@@ -2445,25 +2445,25 @@ function GlimpseNumber_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of GlimpseNumber as text
 %        str2double(get(hObject,'String')) returns contents of GlimpseNumber as a double
-                % First check the range limits of glimpse folder number to
-                % insure that a folder exists for the number entered
+% First check the range limits of glimpse folder number to
+% insure that a folder exists for the number entered
 sourcenum=get(handles.ImageSource,'Value');
 
 if (sourcenum==4)&(get(handles.MagChoice,'Value')==13)
-     % Here if ImageSource value is 4, so the aoiImageSet must exist
+    % Here if ImageSource value is 4, so the aoiImageSet must exist
     % Also MagChoice is 13 so we display only calibration images
     % near to the chosen AOI.  We use the AOI displayed in the
     % AOINumberDisplay text region, the nearby calibration image number
     % from the GlimpseNumber text region and the Class ID from the
     % ImageClass popup menu.
-            % Call the AOINumberDisplay callback to display calibration
-            % AOIs near to the present AOI,-->eventually leads to call of
-            % the slider1 callback and invoking getframes_v1.m
-            
-   AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles) 
+    % Call the AOINumberDisplay callback to display calibration
+    % AOIs near to the present AOI,-->eventually leads to call of
+    % the slider1 callback and invoking getframes_v1.m
+    
+    AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
 end
 if sourcenum==3
-                        % here for glimpse files
+    % here for glimpse files
     presentnum=str2num(get(handles.GlimpseNumber,'String'));
     if presentnum>handles.GlimpseMax
         presentnum=handles.GlimpseMax;
@@ -2504,7 +2504,7 @@ if sourcenum==3
     guidata(gcbo,handles);
 end
 if sourcenum==1
-                        % here for using tiff files
+    % here for using tiff files
     presentnum=str2num(get(handles.GlimpseNumber,'String'));
     if presentnum>handles.TiffMax
         presentnum=handles.TiffMax;
@@ -2561,44 +2561,44 @@ function IncreaseGlimpseNumber_Callback(hObject, eventdata, handles)
 % hObject    handle to IncreaseGlimpseNumber (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-                            % Get the current glimpse folder number
+% Get the current glimpse folder number
 sourcenum=get(handles.ImageSource,'Value');
 if sourcenum==3
     % here for using glimpse file
     presentnum=str2num(get(handles.GlimpseNumber,'String'));
     if presentnum < handles.GlimpseMax
-                            % If we are not at the max glimpse folder
-                            % number, then increase it
+        % If we are not at the max glimpse folder
+        % number, then increase it
         presentnum=presentnum+1;
-                            % Update the text showing glimpse folder #
+        % Update the text showing glimpse folder #
         set(handles.GlimpseNumber,'String',num2str(presentnum));
     end
-                        % Invoke callback to update the glimpse folder 
-                        % number used in displaying the images
+    % Invoke callback to update the glimpse folder
+    % number used in displaying the images
     GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 end
 if sourcenum==1
     % here for using tiff file
     presentnum=str2num(get(handles.GlimpseNumber,'String'));
     if presentnum < handles.TiffMax
-                            % If we are not at the max glimpse folder
-                            % number, then increase it
+        % If we are not at the max glimpse folder
+        % number, then increase it
         presentnum=presentnum+1;
-                            % Update the text showing glimpse folder #
+        % Update the text showing glimpse folder #
         set(handles.GlimpseNumber,'String',num2str(presentnum));
     end
-                        % Invoke callback to update the glimpse folder 
-                        % number used in displaying the images
+    % Invoke callback to update the glimpse folder
+    % number used in displaying the images
     GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 end
 if sourcenum==4
-     presentnum=str2num(get(handles.GlimpseNumber,'String'));
-     presentnum=presentnum+1;
-                            % Update the text showing number (in this case
-                            % the nearest calibration image number)
-     set(handles.GlimpseNumber,'String',num2str(presentnum));
-                    % Invoke callback to display nearest calibration image
-     GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
+    presentnum=str2num(get(handles.GlimpseNumber,'String'));
+    presentnum=presentnum+1;
+    % Update the text showing number (in this case
+    % the nearest calibration image number)
+    set(handles.GlimpseNumber,'String',num2str(presentnum));
+    % Invoke callback to display nearest calibration image
+    GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 end
 
 % --- Executes on button press in DecreaseGlimpseNumber.
@@ -2607,17 +2607,17 @@ function DecreaseGlimpseNumber_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
-    if presentnum > 1
-                            % If we are not at the min glimpse folder
-                            % number, then decrease it
-        presentnum=presentnum-1;
-                            % Update the text showing glimpse folder #
-        set(handles.GlimpseNumber,'String',num2str(presentnum));
-    end
-                        % Invoke callback to update the glimpse folder 
-                        % number used in displaying the images
-    GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
+presentnum=str2num(get(handles.GlimpseNumber,'String'));
+if presentnum > 1
+    % If we are not at the min glimpse folder
+    % number, then decrease it
+    presentnum=presentnum-1;
+    % Update the text showing glimpse folder #
+    set(handles.GlimpseNumber,'String',num2str(presentnum));
+end
+% Invoke callback to update the glimpse folder
+% number used in displaying the images
+GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 
 
 
@@ -2659,42 +2659,42 @@ ave=round(str2double(get(handles.FrameAve,'String')));
 pixnum=str2double(get(handles.PixelNumber,'String'));
 flag=0;
 axes(handles.axes1)
-while flag==0 
+while flag==0
     [a b but]=ginput(1);
     if but==3
-       flag=1;
+        flag=1;
     else
-
-    %[a1 b1]=ginput(1);
-    
-                                            % Get the aoi number for the
-                                            % aoi closest to where user
-                                            % clicked
+        
+        %[a1 b1]=ginput(1);
+        
+        % Get the aoi number for the
+        % aoi closest to where user
+        % clicked
         if col_danny==7
-                        % Here is we have generated extra aois using 
-                        % handles.Pixnums (foldstruc.Pixnums)
-                        % Only accept an aoi with size matching Pixnums(3)
-                        % because we only want to move the largest aoi
+            % Here is we have generated extra aois using
+            % handles.Pixnums (foldstruc.Pixnums)
+            % Only accept an aoi with size matching Pixnums(3)
+            % because we only want to move the largest aoi
             %num_closest=aoicompare_v1([a1 b1],handles,handles.Pixnums(3));
             num_closest=aoicompare_v1([a b],handles,handles.Pixnums(3));
         else
             %num_closest=aoicompare_v1([a1 b1],handles);
             num_closest=aoicompare_v1([a b],handles);
         end
-                                            % logical array, =1 when it
-                                            % matches the aoi number
-                                            % FitData=[framenumber ave x y pixnum aoinumber];
-     
+        % logical array, =1 when it
+        % matches the aoi number
+        % FitData=[framenumber ave x y pixnum aoinumber];
+        
         logik=(handles.FitData(:,6)==num_closest);
-    %[a2 b2]=ginput(1);
+        %[a2 b2]=ginput(1);
         %handles.FitData(logik,3:4)=[a2 b2];          % replace information for that aoi
         handles.FitData(logik,3:4)=[a b];          % replace information for that aoi
-
-                                            % Update the handles structure 
-
-     guidata(gcbo,handles);
-     %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-     slider1_Callback(handles.ImageNumber, eventdata, handles)
+        
+        % Update the handles structure
+        
+        guidata(gcbo,handles);
+        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
     end
 end
 
@@ -2721,125 +2721,125 @@ function AOINumberDisplay_Callback(hObject, eventdata, handles)
 aoiinfo=(handles.FitData);       % [framenumber ave x y pixnum aoinumber]
 aoinumber=str2num(get(handles.AOINumberDisplay,'String'));
 set(handles.AOINumberDisplay,'UserData',aoinumber); % Store the aoinumber prior to any rounding
-                        % so we can use it as sub-pixel AOI displacement
-                        % using the MoveAOIs buttons u/d/r/l
-                        % Fractional numbers will only be effecitve when
-                        % we write them manually (not when using the + or -
-                        % buttons to increment - - in that instance the
-                        % number we will be incrementing from the editable
-                        % text region will already have been rounded
+% so we can use it as sub-pixel AOI displacement
+% using the MoveAOIs buttons u/d/r/l
+% Fractional numbers will only be effecitve when
+% we write them manually (not when using the + or -
+% buttons to increment - - in that instance the
+% number we will be incrementing from the editable
+% text region will already have been rounded
 aoinumber=round(aoinumber);     % Now round the aoinumber to nearest integer
-                                % and write it in the display area
+% and write it in the display area
 set(handles.AOINumberDisplay,'String',num2str(aoinumber));
 if (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')~=13)
     % If ImageSource value is 4, then the aoiImageSet must exist
     % Since MagChoice is not eq 13 we are NOT displaying calibration images
     % near to the chosen AOI, we are instead displaying the entire set of
     % calibration images
-    %  
-    % Here if displaying aoiImageSet => use max and min AOI # from aoiImageSet 
+    %
+    % Here if displaying aoiImageSet => use max and min AOI # from aoiImageSet
     % We will (1) error check the AOI limits of aoiImageSet for the AOINumberDisplay,
     % (2) update the image shown from the aoiImageSet, and (3) write AOI information
     % on the display
-                % Error check the AOI limits
+    % Error check the AOI limits
     maxaoinum=max( handles.aoiImageSet.aoiinfoTotx(:,6));
     minaoinum=min( handles.aoiImageSet.aoiinfoTotx(:,6));
     if aoinumber>maxaoinum
-                % Periodic boundry conditions on the AOI number
+        % Periodic boundry conditions on the AOI number
         aoinumber=minaoinum;
         set(handles.AOINumberDisplay,'String',num2str(aoinumber));
     elseif aoinumber<minaoinum
         aoinumber=maxaoinum;
         set(handles.AOINumberDisplay,'String',num2str(aoinumber));
     end
-                % Update the image shown
-     slider1_Callback(handles.ImageNumber, eventdata, handles)
-                     % Write AOI information on image
-     cl={'ROG' 'RO' 'RG' 'OG' 'R' 'O' 'G' 'Z'};     % image Classes
-     ClassN= cl{handles.aoiImageSet.ClassNumber(aoinumber)};    % Class name for this AOI in the aoiImageSet
-     StFrame = num2str(handles.aoiImageSet.ImageFrameStart(aoinumber)); % Starting frame for these images
-     FrmAve=num2str(handles.aoiImageSet.aoiinfoTotx(aoinumber,9));      % Number of frames averaged for this image
-     XYSite=['  (x,y)= ' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,3))) ',' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,4)))];
-     ImageDescription=[ClassN '  frm/ave: ' StFrame '/' FrmAve XYSite];
-     IPNum=handles.aoiImageSet.centeredImage{aoinumber}.Properties;     %[   Xmean Ymean X2moment Y2moment (background intensity)]
-     % BkInt=num2str(round(IPNum(1)*10)/10);                  % Keep just one digit beyond decimal point
-     Xmean=num2str(round(IPNum(1)*10)/10);
-     Ymean=num2str(round(IPNum(2)*10)/10);
-     X2mom=num2str(round(IPNum(3)*10)/10);
-     Y2mom=num2str(round(IPNum(4)*10)/10);
-     FullFileName=handles.aoiImageSet.filepath{aoinumber};
-     LF=length(FullFileName);
-     FileName=FullFileName(LF-15:LF);
-     FileName=regexprep(FileName,'\\','\\\');                   % Replace each \ with \\ so it will print properly on screen w/o warning
-     FileName=regexprep(FileName,'_','-');
-     Num_mxNum=[num2str(aoinumber) '/' num2str(maxaoinum)];
-     text(1,1,[ FileName '  aoi:' Num_mxNum] ,'Color','y')
-     text(1,2,ImageDescription,'Color','y')
-                    % Write the Image Properties as well: Bkgnd Xmean Ymean X2moment Y2moment 
-     %text(1,3,['bk/xy/x2y2:' BkInt '  ' Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
-     text(1,3,['xy/x2y2:   '  Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
-      %{M}.aoiinfo2_output =[frm#  1  newx  newy  pixnum  aoi#] provides the
-      aoicoordinates=handles.aoiImageSet.centeredImage{aoinumber}.aoiinfo2_output(3:4);
-     text(aoicoordinates(1),aoicoordinates(2),'x','Color','y')
+    % Update the image shown
+    slider1_Callback(handles.ImageNumber, eventdata, handles)
+    % Write AOI information on image
+    cl={'ROG' 'RO' 'RG' 'OG' 'R' 'O' 'G' 'Z'};     % image Classes
+    ClassN= cl{handles.aoiImageSet.ClassNumber(aoinumber)};    % Class name for this AOI in the aoiImageSet
+    StFrame = num2str(handles.aoiImageSet.ImageFrameStart(aoinumber)); % Starting frame for these images
+    FrmAve=num2str(handles.aoiImageSet.aoiinfoTotx(aoinumber,9));      % Number of frames averaged for this image
+    XYSite=['  (x,y)= ' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,3))) ',' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,4)))];
+    ImageDescription=[ClassN '  frm/ave: ' StFrame '/' FrmAve XYSite];
+    IPNum=handles.aoiImageSet.centeredImage{aoinumber}.Properties;     %[   Xmean Ymean X2moment Y2moment (background intensity)]
+    % BkInt=num2str(round(IPNum(1)*10)/10);                  % Keep just one digit beyond decimal point
+    Xmean=num2str(round(IPNum(1)*10)/10);
+    Ymean=num2str(round(IPNum(2)*10)/10);
+    X2mom=num2str(round(IPNum(3)*10)/10);
+    Y2mom=num2str(round(IPNum(4)*10)/10);
+    FullFileName=handles.aoiImageSet.filepath{aoinumber};
+    LF=length(FullFileName);
+    FileName=FullFileName(LF-15:LF);
+    FileName=regexprep(FileName,'\\','\\\');                   % Replace each \ with \\ so it will print properly on screen w/o warning
+    FileName=regexprep(FileName,'_','-');
+    Num_mxNum=[num2str(aoinumber) '/' num2str(maxaoinum)];
+    text(1,1,[ FileName '  aoi:' Num_mxNum] ,'Color','y')
+    text(1,2,ImageDescription,'Color','y')
+    % Write the Image Properties as well: Bkgnd Xmean Ymean X2moment Y2moment
+    %text(1,3,['bk/xy/x2y2:' BkInt '  ' Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
+    text(1,3,['xy/x2y2:   '  Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
+    %{M}.aoiinfo2_output =[frm#  1  newx  newy  pixnum  aoi#] provides the
+    aoicoordinates=handles.aoiImageSet.centeredImage{aoinumber}.aoiinfo2_output(3:4);
+    text(aoicoordinates(1),aoicoordinates(2),'x','Color','y')
 elseif   (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')==13)
-     % Here if ImageSource value is 4, so the aoiImageSet must exist
+    % Here if ImageSource value is 4, so the aoiImageSet must exist
     % Also MagChoice is 13 so we display only calibration images
     % near to the chosen AOI.  We use the AOI displayed in the
     % AOINumberDisplay text region, the nearby calibration image number
     % from the GlimpseNumber text region and the Class ID from the
     % ImageClass popup menu.
-      % Error check the AOI limits
-   
-   maxaoinum=max( handles.aoiImageSet.aoiinfoTotx(:,6));
-   minaoinum=min( handles.aoiImageSet.aoiinfoTotx(:,6));
-   if aoinumber<minaoinum
+    % Error check the AOI limits
+    
+    maxaoinum=max( handles.aoiImageSet.aoiinfoTotx(:,6));
+    minaoinum=min( handles.aoiImageSet.aoiinfoTotx(:,6));
+    if aoinumber<minaoinum
         set(handles.AOINumberDisplay,'String',num2str(minaoinum-1))
     end
     if aoinumber>maxaoinum
         set(handles.AOINumberDisplay,'String',num2str(maxaoinum+1))
     end
-                 % Update the image shown:  the ImageSource and Magchoice
-                 % settings will result in the nearby calibration images
-                 % being displayed see getframes_v1.m
-                
-     slider1_Callback(handles.ImageNumber, eventdata, handles)
-                     % Write AOI information on image
-     
+    % Update the image shown:  the ImageSource and Magchoice
+    % settings will result in the nearby calibration images
+    % being displayed see getframes_v1.m
+    
+    slider1_Callback(handles.ImageNumber, eventdata, handles)
+    % Write AOI information on image
+    
     NearNumber=str2num(get(handles.GlimpseNumber,'String'));    % =1 for nearest calibration image, =2 for next nearest,etc
     ClassNumber=get(handles.ImageClass,'Value');         % 1:8=[ROG RO RG OG R O G Z]
     aoiNum=str2num(get(handles.AOINumberDisplay,'String'));    % AOI # from the AOINumberDisplay
     aoiXY=handles.FitData(aoiNum,3:4);                  % (x y) of AOI# in AOINumberDisplay
     NI=Nearest_Images(aoiXY, ClassNumber, handles.aoiImageSet,NearNumber);
-                % Output.xycoords=[ x y newx newy distance]
-    aoiImageSetNumber=NI.indices(NearNumber);           % Index w/in the aoiImageSet for the calibration image 
-                                                        % we are now displaying  
+    % Output.xycoords=[ x y newx newy distance]
+    aoiImageSetNumber=NI.indices(NearNumber);           % Index w/in the aoiImageSet for the calibration image
+    % we are now displaying
     NearX=round(NI.xycoords(NearNumber,1)*10)/10;
     NearY=round(NI.xycoords(NearNumber,2)*10)/10;
     NearDistance=round(NI.xycoords(NearNumber,5)*10)/10;
     text(1,1,['x/y/distance:   '  num2str(NearX) '  ' num2str(NearY) '  ' num2str(NearDistance)  '  '],'Color','y');
     text(1,2,['aoiImageSet index:  ' num2str(aoiImageSetNumber) '  '],'Color','y');
 else
-            % Here to either show magnified AOIs (MagChoice value=13), or
-            % just number the AOIs shown in the image
+    % Here to either show magnified AOIs (MagChoice value=13), or
+    % just number the AOIs shown in the image
     maxaoinum=max(aoiinfo(:,6));
     minaoinum=min(aoiinfo(:,6));
-
-
-
+    
+    
+    
     if (get(handles.MagChoice,'Value')==13) & (aoinumber<=maxaoinum) & (aoinumber>=minaoinum)
-        % Here to display AOI image region based on AOINumberDisplay 
-        % Following call will update the MagRangeYX text based on AOINumberDisplay 
-      
+        % Here to display AOI image region based on AOINumberDisplay
+        % Following call will update the MagRangeYX text based on AOINumberDisplay
+        
         MagChoice_Callback(handles.MagChoice, eventdata, handles)
-  
+        
     end
-
+    
     XYshift=[0 0];                  % Shift related to drifting
-
+    
     imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
     
-
-
+    
+    
     if aoinumber<minaoinum
         set(handles.AOINumberDisplay,'String',num2str(minaoinum-1))
     end
@@ -2847,24 +2847,24 @@ else
         set(handles.AOINumberDisplay,'String',num2str(maxaoinum+1))
     end
     if (aoinumber>maxaoinum) | (aoinumber<minaoinum)
-                                % Here if aoinumber input is greater than
-                                % the number of aois or less than 1 
-                                % => print all the #s
-   
-       for indx=1:maxaoinum
-          if get(handles.StartParameters,'Value')==2
-                    % Here if moving AOI  => compensate for drift
-             XYshift=ShiftAOI(indx,imagenum,aoiinfo,handles.DriftList);
-          end
-       
-       text(aoiinfo(indx,3)+XYshift(1),aoiinfo(indx,4)+XYshift(2),num2str(aoiinfo(indx,6)),'Color','y')
-       end
+        % Here if aoinumber input is greater than
+        % the number of aois or less than 1
+        % => print all the #s
+        
+        for indx=1:maxaoinum
+            if get(handles.StartParameters,'Value')==2
+                % Here if moving AOI  => compensate for drift
+                XYshift=ShiftAOI(indx,imagenum,aoiinfo,handles.DriftList);
+            end
+            
+            text(aoiinfo(indx,3)+XYshift(1),aoiinfo(indx,4)+XYshift(2),num2str(aoiinfo(indx,6)),'Color','y')
+        end
     else
-       if get(handles.StartParameters,'Value')==2
-                    % Here if moving AOI  => there should be a driftlist
-           XYshift=ShiftAOI(aoinumber,imagenum,aoiinfo,handles.DriftList);
-       end
-    text(aoiinfo(aoinumber,3)+XYshift(1),aoiinfo(aoinumber,4)+XYshift(2),num2str(aoinumber),'Color','y')
+        if get(handles.StartParameters,'Value')==2
+            % Here if moving AOI  => there should be a driftlist
+            XYshift=ShiftAOI(aoinumber,imagenum,aoiinfo,handles.DriftList);
+        end
+        text(aoiinfo(aoinumber,3)+XYshift(1),aoiinfo(aoinumber,4)+XYshift(2),num2str(aoinumber),'Color','y')
     end
 end     % end of if get(handles.ImageSource,'Value')==4
 function AOINumberDisplay_CreateFcn(hObject, eventdata, handles)
@@ -2884,7 +2884,7 @@ function IncreaseAOINumberDisplay_Callback(hObject, eventdata, handles)
 % hObject    handle to IncreaseAOINumberDisplay (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-                % Increment AOI number we use for display purposes
+% Increment AOI number we use for display purposes
 aoinumber=str2num(get(handles.AOINumberDisplay,'String'));
 
 set(handles.AOINumberDisplay,'String',num2str(aoinumber+1))
@@ -2908,26 +2908,26 @@ function LoadFieldFrames_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
- [fn fp]=uigetfile('*.*','Load Field Frames Cell Array'); 
-    eval( ['load ' [fp fn] ' -mat' ] );                    % Load the FieldFrames{ }
-                                     % cell array containing lists of
-                                     % frames pertinent for each field
-                                     % The file should contain a cell array
-                                     % called 'FieldFrames'
- 
-    handles.FieldFrames=FieldFrames;
-    if exist('DriftList','var')
-                                % DriftList is a cell array of driftlists
-                                % Here if we have loaded separate driftlist
-                                % tables for each of the cells in
-                                % FieldFrames
-        handles.DriftFlagg=1;   % Set flag to indicate user input the cell array of driftlists
-        handles.DriftListCell=DriftList;
-        
-    end
+[fn fp]=uigetfile('*.*','Load Field Frames Cell Array');
+eval( ['load ' [fp fn] ' -mat' ] );                    % Load the FieldFrames{ }
+% cell array containing lists of
+% frames pertinent for each field
+% The file should contain a cell array
+% called 'FieldFrames'
+
+handles.FieldFrames=FieldFrames;
+if exist('DriftList','var')
+    % DriftList is a cell array of driftlists
+    % Here if we have loaded separate driftlist
+    % tables for each of the cells in
+    % FieldFrames
+    handles.DriftFlagg=1;   % Set flag to indicate user input the cell array of driftlists
+    handles.DriftListCell=DriftList;
     
-                            
-    guidata(gcbo,handles);                  % Update the handles structure 
+end
+
+
+guidata(gcbo,handles);                  % Update the handles structure
 
 function FieldFrameText_Callback(hObject, eventdata, handles)
 % hObject    handle to FieldFrameText (see GCBO)
@@ -2963,21 +2963,21 @@ presentnum=str2num(get(handles.FieldNumber,'String'));
 [a b]=size(handles.FieldFrames);      % dimensions of cell array
 maxnumber=max([a b]);
 
-                                % Test limits of field number
-if (presentnum<=maxnumber) & (presentnum>=0)  
+% Test limits of field number
+if (presentnum<=maxnumber) & (presentnum>=0)
     handles.CurrentFieldNumber=presentnum;
 else
     handles.CurrentFieldNumber=0;
 end
-                               % Write current field number in text region
+% Write current field number in text region
 set(handles.FieldNumber,'String',num2str(handles.CurrentFieldNumber));
-                % Update the current field (list of frames to be shown)
+% Update the current field (list of frames to be shown)
 if handles.CurrentFieldNumber>0
     handles.CurrentField=eval( handles.FieldFrames{handles.CurrentFieldNumber});
     set(handles.FieldFrameText,'String',handles.FieldFrames{handles.CurrentFieldNumber})
     if handles.DriftFlagg==1;
-                          %Here if user input a cell array of driftlists along
-                          %with the FieldFrames cell array
+        %Here if user input a cell array of driftlists along
+        %with the FieldFrames cell array
         handles.DriftList=handles.DriftListCell{ handles.CurrentFieldNumber};
         handles.DriftListInput=handles.DriftListCell{ handles.CurrentFieldNumber};
     end
@@ -2985,25 +2985,25 @@ else
     handles.CurrentField=[1:100000];
     set(handles.FieldFrameText,'String','all frames')
     if handles.DriftFlagg==1
-                          %Here if user input a cell array of driftlists along
-                          %with the FieldFrames cell array
+        %Here if user input a cell array of driftlists along
+        %with the FieldFrames cell array
         if max(size(handles.DriftListStored))==0
-                          % No driftlist input via foldstruc.DriftList
-                          % Just construct a driftlist with all zeros
+            % No driftlist input via foldstruc.DriftList
+            % Just construct a driftlist with all zeros
             handles.DriftList=[handles.DriftListCell{1}(:,1) zeros(size(handles.DriftListCell{1}(:,2:3) ))];
             handles.DriftListInput=[handles.DriftListCell{1}(:,1) zeros(size(handles.DriftListCell{1}(:,2:3) ))];
             handles.DriftListStored=[handles.DriftListCell{1}(:,1) zeros(size(handles.DriftListCell{1}(:,2:3) ))];
         else
-        handles.DriftList=handles.DriftListStored;   % See callback for LoadFieldFrames
-                                           % This driftlist will be 
-                                           % the driftlist put in using
-                                           % foldstrucDriftList, or the one
-                                           % made above with all zeros
-        handles.DriftListInput=handles.DriftListStored;
+            handles.DriftList=handles.DriftListStored;   % See callback for LoadFieldFrames
+            % This driftlist will be
+            % the driftlist put in using
+            % foldstrucDriftList, or the one
+            % made above with all zeros
+            handles.DriftListInput=handles.DriftListStored;
         end
     end
 end
-guidata(gcbo,handles);    
+guidata(gcbo,handles);
 
 % --- Executes during object creation, after setting all properties.
 function FieldNumber_CreateFcn(hObject, eventdata, handles)
@@ -3023,22 +3023,22 @@ function IncreaseFieldFrames_Callback(hObject, eventdata, handles)
 % hObject    handle to IncreaseFieldFrames (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-  [a b]=size(handles.FieldFrames);      % dimensions of cell array
-  maxnumber=max([a b]);
-  presentnum=str2num(get(handles.FieldNumber,'String'));
-    if presentnum < maxnumber
-                            % If we are not at the highes field 
-                            % number, then increase it
-        presentnum=presentnum+1;
-                            % Update the text showing glimpse folder #
-        set(handles.FieldNumber,'String',num2str(presentnum));
+[a b]=size(handles.FieldFrames);      % dimensions of cell array
+maxnumber=max([a b]);
+presentnum=str2num(get(handles.FieldNumber,'String'));
+if presentnum < maxnumber
+    % If we are not at the highes field
+    % number, then increase it
+    presentnum=presentnum+1;
+    % Update the text showing glimpse folder #
+    set(handles.FieldNumber,'String',num2str(presentnum));
+    
+    
+end
+guidata(gcbo,handles);
 
-
-    end
-guidata(gcbo,handles);    
- 
-                        % Invoke callback to update the field folder
-                        % number used in displaying the images
+% Invoke callback to update the field folder
+% number used in displaying the images
 FieldNumber_Callback(handles.FieldNumber, eventdata, handles)
 
 % --- Executes on button press in DecreaseFieldFrames.
@@ -3047,20 +3047,20 @@ function DecreaseFieldFrames_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
- 
-  presentnum=str2num(get(handles.FieldNumber,'String'));
-    if presentnum >0
-                            % If we are not at the lowest field 
-                            % number, then decrease it
-        presentnum=presentnum-1;
-                            % Update the text showing glimpse folder #
-        set(handles.FieldNumber,'String',num2str(presentnum));
 
-    end
-guidata(gcbo,handles);    
- 
-                        % Invoke callback to update the field folder
-                        % number used in displaying the images
+presentnum=str2num(get(handles.FieldNumber,'String'));
+if presentnum >0
+    % If we are not at the lowest field
+    % number, then decrease it
+    presentnum=presentnum-1;
+    % Update the text showing glimpse folder #
+    set(handles.FieldNumber,'String',num2str(presentnum));
+    
+end
+guidata(gcbo,handles);
+
+% Invoke callback to update the field folder
+% number used in displaying the images
 FieldNumber_Callback(handles.FieldNumber, eventdata, handles)
 
 
@@ -3074,45 +3074,45 @@ function BackgroundChoice_Callback(hObject, eventdata, handles,varargin)
 %dum=varargin{1};
 %images=varargin{2};
 %folder=varargin{3};
-                    % Make + and - controls visible for Radius if we
-                    % are looking at background
+% Make + and - controls visible for Radius if we
+% are looking at background
 if any(get(handles.BackgroundChoice,'Value')==[2 3])
     set(handles.EditRollingBallRadius,'Visible','on')
     set(handles.IncrementRollingBallRadius,'Visible','on')
     set(handles.DecrementRollingBallRadius,'Visible','on')
-     set(handles.EditRollingBallHeight,'Visible','on')
+    set(handles.EditRollingBallHeight,'Visible','on')
     set(handles.IncrementRollingBallHeight,'Visible','on')
     set(handles.DecrementRollingBallHeight,'Visible','on')
-     set(handles.EditRollingBallRadius,'String',15);
-     handles.RollingBallRadius=5;
-     set(handles.EditRollingBallHeight,'String',5);
-     handles.RollingBallHeight=2;
-
+    set(handles.EditRollingBallRadius,'String',15);
+    handles.RollingBallRadius=5;
+    set(handles.EditRollingBallHeight,'String',5);
+    handles.RollingBallHeight=2;
+    
 elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
     set(handles.EditRollingBallRadius,'Visible','on')
     set(handles.IncrementRollingBallRadius,'Visible','on')
     set(handles.DecrementRollingBallRadius,'Visible','on')
-     set(handles.EditRollingBallHeight,'Visible','on')
+    set(handles.EditRollingBallHeight,'Visible','on')
     set(handles.IncrementRollingBallHeight,'Visible','on')
     set(handles.DecrementRollingBallHeight,'Visible','on')
     
-     set(handles.EditRollingBallRadius,'String',5);
-     handles.RollingBallRadius=5;
-     set(handles.EditRollingBallHeight,'String',2);
-     handles.RollingBallHeight=2;
-     guidata(gcbo,handles) ;
+    set(handles.EditRollingBallRadius,'String',5);
+    handles.RollingBallRadius=5;
+    set(handles.EditRollingBallHeight,'String',2);
+    handles.RollingBallHeight=2;
+    guidata(gcbo,handles) ;
 else
     set(handles.EditRollingBallRadius,'String',5);
-     handles.RollingBallRadius=5; 
-     set(handles.EditRollingBallHeight,'String',2);
-     handles.RollingBallHeight=2;
+    handles.RollingBallRadius=5;
+    set(handles.EditRollingBallHeight,'String',2);
+    handles.RollingBallHeight=2;
     set(handles.EditRollingBallRadius,'Visible','off')
     set(handles.IncrementRollingBallRadius,'Visible','off')
     set(handles.DecrementRollingBallRadius,'Visible','off')
     set(handles.EditRollingBallHeight,'Visible','off')
     set(handles.IncrementRollingBallHeight,'Visible','off')
     set(handles.DecrementRollingBallHeight,'Visible','off')
-     guidata(gcbo,handles) ;
+    guidata(gcbo,handles) ;
 end
 guidata(gcbo,handles);
 
@@ -3162,7 +3162,7 @@ function IncrementRollingBallRadius_Callback(hObject, eventdata, handles,varargi
 %folder=varargin{3};
 handles.RollingBallRadius=round(handles.RollingBallRadius+1);
 set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
-guidata(gcbo,handles);  
+guidata(gcbo,handles);
 
 %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
@@ -3179,7 +3179,7 @@ if handles.RollingBallRadius<1
     handles.RollingBallRadius=1;
 end
 set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
-guidata(gcbo,handles);  
+guidata(gcbo,handles);
 %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
@@ -3225,7 +3225,7 @@ function IncrementRollingBallHeight_Callback(hObject, eventdata, handles,varargi
 %folder=varargin{3};
 handles.RollingBallHeight=round(handles.RollingBallHeight+1);
 set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
-guidata(gcbo,handles); 
+guidata(gcbo,handles);
 %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
@@ -3242,7 +3242,7 @@ if handles.RollingBallHeight<1
     handles.RollingBallHeight=1;
 end
 set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
-guidata(gcbo,handles);  
+guidata(gcbo,handles);
 %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
@@ -3252,8 +3252,8 @@ function PickSpotsButton_Callback(hObject, eventdata, handles)
 % hObject    handle to PickSpotsButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-                                    % Check ranges of NoiseDiameter,
-                                    % SpotDiameter and SpotBrightness
+% Check ranges of NoiseDiameter,
+% SpotDiameter and SpotBrightness
 
 if handles.NoiseDiameter<=0
     handles.NoiseDiameter=1;
@@ -3272,7 +3272,7 @@ handles.FitData=[];                 % Clear the screen of AOIs by setting handle
 guidata(gcbo,handles)               % and showing the image
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
-                                    % the proper AOIs
+% the proper AOIs
 guidata(gcbo,handles)
 
 ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
@@ -3283,42 +3283,42 @@ if get(handles.SpotsPopup,'Value')==8
     % Here if the spots are to be picked from images that have been background
     % subtracted according to handles.BackgroundChoice
     if any(get(handles.BackgroundChoice,'Value')==[2 3])
-                        % Here to use rolling ball background (subtract off background) 
-           
+        % Here to use rolling ball background (subtract off background)
+        
         avefrm=avefrm-rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
     elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
-                        % Here to use Danny's newer background subtraction(subtract off background) 
-            
+        % Here to use Danny's newer background subtraction(subtract off background)
+        
         avefrm=avefrm-bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
     end
 end
 [imageYsize, imageXsize]=size(avefrm);                  % [ysize xsize]
 xlow=1;xhigh=imageXsize;ylow=1;yhigh=imageYsize;         % Initialize frame limits
-if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)  
+if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
     limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
-                                                   % [xlow xhi ylow yhi]
-    xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of 
+    % [xlow xhi ylow yhi]
+    xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of
     ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
-
+    
 end
-                                    % Find the spots
+% Find the spots
 
 dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
 pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
 pk=cntrd(dat,pk,handles.SpotDiameter+2);
 
 [NumOfPeaks, ~]=size(pk);
-                    % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
+% Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
 if NumOfPeaks~=0       % If there are spots, put them into handles.FitData and draw them
     pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
     pk(:,2)=pk(:,2)+ylow-1;
     handles.FitData=[imagenum*ones(NumOfPeaks,1) ave*ones(NumOfPeaks,1) pk(:,1) pk(:,2) pixnum*ones(NumOfPeaks,1) [1:NumOfPeaks]'];
-                    % Draw the aois
+    % Draw the aois
     for indx=1:NumOfPeaks
         draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
     end
 end
-                        %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
+%draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
 guidata(gcbo,handles)
 
 
@@ -3501,13 +3501,13 @@ function FramesPickSpots_Callback(hObject, eventdata, handles)
 % hObject    handle to FramesPickSpots (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-                    % Run program to find spots in all frames specified by
-                    % the FrameRange input
+% Run program to find spots in all frames specified by
+% the FrameRange input
 set(handles.FramesPickSpots,'String','...')
 pause(0.1)
 handles.AllSpots=FindAllSpots(handles,3500);     % 500=max # of spots to retain for each frame
-                % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
-                % AllSpots.AllSpotsCells{m,3}= frame #
+% AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
+% AllSpots.AllSpotsCells{m,3}= frame #
 %keyboard
 set(handles.FramesPickSpots,'String','Frames')
 set(handles.MapSpots,'Visible','on')
@@ -3520,15 +3520,15 @@ function figure1_WindowButtonMotionFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %slider1_Callback(hObject, eventdata, handles)
-                % Get current value of ImageNumber slider
+% Get current value of ImageNumber slider
 present_value=round(get(handles.ImageNumber,'value'));
-            % Compare current slider value to previous value
+% Compare current slider value to previous value
 if present_value~=get(handles.ImageNumber,'UserData');
-            % Update image only if slider position has changed
+    % Update image only if slider position has changed
     slider1_Callback(handles.ImageNumber, eventdata, handles)
 end
 
-    
+
 
 
 % --- Executes on scroll wheel click while the figure is in focus.
@@ -3559,13 +3559,13 @@ hold on
 for indx=1:max(rose,col)                           % Cycle through frame range
     
     spotnum=handles.AllSpots.AllSpotsCells{indx,2}; % number of spots found in the current frame
-     xy=handles.AllSpots.AllSpotsCells{indx,1}(1:spotnum,:);    % xy pairs of spots in current frame
-     plot(xy(:,1),xy(:,2),'y.');                % Plot the spots for current frame
+    xy=handles.AllSpots.AllSpotsCells{indx,1}(1:spotnum,:);    % xy pairs of spots in current frame
+    plot(xy(:,1),xy(:,2),'y.');                % Plot the spots for current frame
 end
 hold off
 
 
-     
+
 
 
 % --- Executes on button press in SpotsButton.
@@ -3574,93 +3574,93 @@ function SpotsButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%SpotsButtonA   mark so we can easily search for this line 
+%SpotsButtonA   mark so we can easily search for this line
 
 SpotsButtonChoice=get(handles.SpotsPopup,'Value');
 switch SpotsButtonChoice
     case 1
-                % Here to pick spots in just the current frame
-                 % We use the unprocessed frame (without any background
-                % subtraction regardless of the BackgroundChoice setting
-       if handles.NoiseDiameter<=0
-           handles.NoiseDiameter=1;
-           set(handles.EditNoiseDiameter,'String',num2str(handles.NoiseDiameter))
-       end
-       if handles.SpotDiameter<=0
-           handles.SpotDiameter=1;
-           set(handles.EditSpotDiameter,'String',num2str(handles.SpotDiameter))
-       end
-       if handles.SpotBrightness<=0
-           handles.SpotBrightness=1;
-           set(handles.EditSpotBrightness,'String',num2str(handles.SpotBrightness))
-       end
-       FitDataHold=handles.FitData;
-       handles.FitData=[];                 % Clear the screen of AOIs by setting handles.Fitdata=[]
-       guidata(gcbo,handles)               % and showing the image
-       slider1_Callback(handles.ImageNumber, eventdata, handles)
-       handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
-                                    % the proper AOIs
-       guidata(gcbo,handles)
-
-       ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
-       pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
-       imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
-       avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
-      
- % keyboard   
-       [frmrose frmcol]=size(avefrm);                  % [ysize xsize]
-       xlow=1;xhigh=frmcol;ylow=1;yhigh=frmrose;         % Initialize frame limits
-       if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)  
-           limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
-                                                   % [xlow xhi ylow yhi]
-           xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of 
-           ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
-
-       end
-                                    % Find the spots
-
-       dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
-       pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
-       pk=cntrd(dat,pk,handles.SpotDiameter+2);
-
-       [aoirose aoicol]=size(pk);
-                    % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
-       if aoirose~=0       % If there are spots, put them into handles.FitData and draw them
-           pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
-           pk(:,2)=pk(:,2)+ylow-1;
-           handles.FitData=[imagenum*ones(aoirose,1) ave*ones(aoirose,1) pk(:,1) pk(:,2) pixnum*ones(aoirose,1) [1:aoirose]'];
-                    % Draw the aois
-           for indx=1:aoirose
-               draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
-           end
-       end
-                        %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
-       guidata(gcbo,handles)
-%*******************************************************************************************
+        % Here to pick spots in just the current frame
+        % We use the unprocessed frame (without any background
+        % subtraction regardless of the BackgroundChoice setting
+        if handles.NoiseDiameter<=0
+            handles.NoiseDiameter=1;
+            set(handles.EditNoiseDiameter,'String',num2str(handles.NoiseDiameter))
+        end
+        if handles.SpotDiameter<=0
+            handles.SpotDiameter=1;
+            set(handles.EditSpotDiameter,'String',num2str(handles.SpotDiameter))
+        end
+        if handles.SpotBrightness<=0
+            handles.SpotBrightness=1;
+            set(handles.EditSpotBrightness,'String',num2str(handles.SpotBrightness))
+        end
+        FitDataHold=handles.FitData;
+        handles.FitData=[];                 % Clear the screen of AOIs by setting handles.Fitdata=[]
+        guidata(gcbo,handles)               % and showing the image
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
+        % the proper AOIs
+        guidata(gcbo,handles)
+        
+        ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
+        pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
+        imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
+        avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
+        
+        % keyboard
+        [frmrose frmcol]=size(avefrm);                  % [ysize xsize]
+        xlow=1;xhigh=frmcol;ylow=1;yhigh=frmrose;         % Initialize frame limits
+        if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
+            limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
+            % [xlow xhi ylow yhi]
+            xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of
+            ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
+            
+        end
+        % Find the spots
+        
+        dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
+        pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
+        pk=cntrd(dat,pk,handles.SpotDiameter+2);
+        
+        [aoirose aoicol]=size(pk);
+        % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
+        if aoirose~=0       % If there are spots, put them into handles.FitData and draw them
+            pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
+            pk(:,2)=pk(:,2)+ylow-1;
+            handles.FitData=[imagenum*ones(aoirose,1) ave*ones(aoirose,1) pk(:,1) pk(:,2) pixnum*ones(aoirose,1) [1:aoirose]'];
+            % Draw the aois
+            for indx=1:aoirose
+                draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
+            end
+        end
+        %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
+        guidata(gcbo,handles)
+        %*******************************************************************************************
     case 2
-                % Here to find spots over the specified frame range
-      set(handles.FramesPickSpots,'String','...')
-      set(handles.SpotsButton,'String','...')
-      pause(0.1)
-      AllSpots=FindAllSpots(handles,3500);     % 3500=max # of spots to retain for each frame
-                % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
-                % AllSpots.AllSpotsCells{m,3}= frame #
-      if get(handles.HighLowAllSpots,'Value')==0
-                % Here if toggle button is not depressed
-                % => get AllSpots for with high threshold for detection
-          handles.AllSpots=AllSpots;
-      else
-                % Here if toggle button is depressed
-                % => get AllSpots for with low threshold for detection
-          handles.AllSpotsLow=AllSpots;
-      end
-      set(handles.FramesPickSpots,'String','Frames')
-      set(handles.SpotsButton,'String','Frames')
-      set(handles.MapSpots,'Visible','on')  
-      guidata(gcbo,handles)
-%******************************************************************************************
+        % Here to find spots over the specified frame range
+        set(handles.FramesPickSpots,'String','...')
+        set(handles.SpotsButton,'String','...')
+        pause(0.1)
+        AllSpots=FindAllSpots(handles,3500);     % 3500=max # of spots to retain for each frame
+        % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
+        % AllSpots.AllSpotsCells{m,3}= frame #
+        if get(handles.HighLowAllSpots,'Value')==0
+            % Here if toggle button is not depressed
+            % => get AllSpots for with high threshold for detection
+            handles.AllSpots=AllSpots;
+        else
+            % Here if toggle button is depressed
+            % => get AllSpots for with low threshold for detection
+            handles.AllSpotsLow=AllSpots;
+        end
+        set(handles.FramesPickSpots,'String','Frames')
+        set(handles.SpotsButton,'String','Frames')
+        set(handles.MapSpots,'Visible','on')
+        guidata(gcbo,handles)
+        %******************************************************************************************
     case 3
-                % Here to draw Map all the spots picked into the current field of view
+        % Here to draw Map all the spots picked into the current field of view
         frms=handles.AllSpots.FrameVector;      % List of frames over which we found spots
         hold on
         [rose col]=size(frms);
@@ -3668,126 +3668,126 @@ switch SpotsButtonChoice
         imval=round(str2num(get(handles.ImageNumberValue,'String')));   % Current frame number
         for indx=1:max(rose,col)                           % Cycle through frame range
             XYshift=[0 0];                  % initialize aoi shift due to drift
-                    if any(get(handles.StartParameters,'Value')==[2 3 4])
-                                    % here to move the detected spots:  reference all spots to the current frame number to follow drift
-                                    % aoiinfo =[(framenumber when marked) ave x y pixnum aoinumber]
-                                    % Fake aoiinfo structure (one entry) specification frame being the indx (i.e. frame for spot detection)  
-                    aoiinfo=[indx 1 0 0 5 1];
-                                    % Get the xy shift that moves each spot detected in frame=indx to the current frame=imval   
-                    XYshift=ShiftAOI(1,imval,aoiinfo,handles.DriftList);
-                    end
+            if any(get(handles.StartParameters,'Value')==[2 3 4])
+                % here to move the detected spots:  reference all spots to the current frame number to follow drift
+                % aoiinfo =[(framenumber when marked) ave x y pixnum aoinumber]
+                % Fake aoiinfo structure (one entry) specification frame being the indx (i.e. frame for spot detection)
+                aoiinfo=[indx 1 0 0 5 1];
+                % Get the xy shift that moves each spot detected in frame=indx to the current frame=imval
+                XYshift=ShiftAOI(1,imval,aoiinfo,handles.DriftList);
+            end
             
             spotnum=handles.AllSpots.AllSpotsCells{indx,2}; % number of spots found in the current frame
             xy=handles.AllSpots.AllSpotsCells{indx,1}(1:spotnum,:);     % xy pairs of spots in current frame
-       
+            
             xy(:,1)=xy(:,1)+XYshift(1);     % Offset all the x coordinates for the detected spots
             xy(:,2)=xy(:,2)+XYshift(2);     % Offset all the y coordinates for the detected spots
             plot(xy(:,1),xy(:,2),'ro','MarkerSize',3.0);                % Plot the spots for current frame
         end
         hold off
-%*****************************************************************************************
+        %*****************************************************************************************
     case 4
-                 % Here to save a file containing the AllSpots structure
-       filestring=get(handles.OutputFilename,'String');
-     %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-     %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
-       AllSpots=FreeAllSpotsMemory(handles.AllSpots);   % Get rid of zero entries in the spot list
-                                                        % prior to saving the AllSpots structure 
-       eval(['save ' handles.FileLocations.data filestring ' AllSpots']);
-       set(handles.OutputFilename,'String','default.dat');
+        % Here to save a file containing the AllSpots structure
+        filestring=get(handles.OutputFilename,'String');
+        %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
+        %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
+        AllSpots=FreeAllSpotsMemory(handles.AllSpots);   % Get rid of zero entries in the spot list
+        % prior to saving the AllSpots structure
+        eval(['save ' handles.FileLocations.data filestring ' AllSpots']);
+        set(handles.OutputFilename,'String','default.dat');
     case 5
-                % Here to load a file containing the AllSpots structure
-       filestring=get(handles.InputParms,'String');
-       eval(['load ' handles.FileLocations.data filestring ' -mat'])
-       handles.AllSpots=AllSpots;
-       guidata(gcbo,handles);
-%******************************************************************************************* 
-%*****************************************************************************************
+        % Here to load a file containing the AllSpots structure
+        filestring=get(handles.InputParms,'String');
+        eval(['load ' handles.FileLocations.data filestring ' -mat'])
+        handles.AllSpots=AllSpots;
+        guidata(gcbo,handles);
+        %*******************************************************************************************
+        %*****************************************************************************************
     case 6
-                 % Here to save a file containing the AllSpotsLow structure
-       filestring=get(handles.OutputFilename,'String');
-     %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-     %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
-       AllSpotsLow=FreeAllSpotsMemory(handles.AllSpotsLow);   % Get rid of zero entries in the spot list
-                                                        % prior to saving the AllSpots structure 
-       eval(['save ' handles.FileLocations.data filestring ' AllSpotsLow']);
-       set(handles.OutputFilename,'String','default.dat');
+        % Here to save a file containing the AllSpotsLow structure
+        filestring=get(handles.OutputFilename,'String');
+        %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
+        %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
+        AllSpotsLow=FreeAllSpotsMemory(handles.AllSpotsLow);   % Get rid of zero entries in the spot list
+        % prior to saving the AllSpots structure
+        eval(['save ' handles.FileLocations.data filestring ' AllSpotsLow']);
+        set(handles.OutputFilename,'String','default.dat');
     case 7
-                % Here to load a file containing the AllSpotsLow structure
-       filestring=get(handles.InputParms,'String');
-       eval(['load ' handles.FileLocations.data filestring ' -mat'])
-       handles.AllSpotsLow=AllSpotsLow;
-       guidata(gcbo,handles);
-%**************************************************************************
-   case 8
-                % Here to pick spots in just the current frame
-                % We use the background subtracted image if the user
-                % is seeing a background subtracted image (i.e. if
-                % handles.BackgroundChoice does not equal 1
-               
-       if handles.NoiseDiameter<=0
-           handles.NoiseDiameter=1;
-           set(handles.EditNoiseDiameter,'String',num2str(handles.NoiseDiameter))
-       end
-       if handles.SpotDiameter<=0
-           handles.SpotDiameter=1;
-           set(handles.EditSpotDiameter,'String',num2str(handles.SpotDiameter))
-       end
-       if handles.SpotBrightness<=0
-           handles.SpotBrightness=1;
-           set(handles.EditSpotBrightness,'String',num2str(handles.SpotBrightness))
-       end
-       FitDataHold=handles.FitData;
-       handles.FitData=[];                 % Clear the screen of AOIs by setting handles.Fitdata=[]
-       guidata(gcbo,handles)               % and showing the image
-       slider1_Callback(handles.ImageNumber, eventdata, handles)
-       handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
-                                    % the proper AOIs
-       guidata(gcbo,handles)
-
-       ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
-       pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
-       imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
-       avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
-       if any(get(handles.BackgroundChoice,'Value')==[2 3])
-                        % Here to use rolling ball background (subtract off background) 
-           
-             avefrm=avefrm-rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-       elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
-                        % Here to use Danny's newer background subtraction(subtract off background) 
+        % Here to load a file containing the AllSpotsLow structure
+        filestring=get(handles.InputParms,'String');
+        eval(['load ' handles.FileLocations.data filestring ' -mat'])
+        handles.AllSpotsLow=AllSpotsLow;
+        guidata(gcbo,handles);
+        %**************************************************************************
+    case 8
+        % Here to pick spots in just the current frame
+        % We use the background subtracted image if the user
+        % is seeing a background subtracted image (i.e. if
+        % handles.BackgroundChoice does not equal 1
+        
+        if handles.NoiseDiameter<=0
+            handles.NoiseDiameter=1;
+            set(handles.EditNoiseDiameter,'String',num2str(handles.NoiseDiameter))
+        end
+        if handles.SpotDiameter<=0
+            handles.SpotDiameter=1;
+            set(handles.EditSpotDiameter,'String',num2str(handles.SpotDiameter))
+        end
+        if handles.SpotBrightness<=0
+            handles.SpotBrightness=1;
+            set(handles.EditSpotBrightness,'String',num2str(handles.SpotBrightness))
+        end
+        FitDataHold=handles.FitData;
+        handles.FitData=[];                 % Clear the screen of AOIs by setting handles.Fitdata=[]
+        guidata(gcbo,handles)               % and showing the image
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
+        % the proper AOIs
+        guidata(gcbo,handles)
+        
+        ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
+        pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
+        imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
+        avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
+        if any(get(handles.BackgroundChoice,'Value')==[2 3])
+            % Here to use rolling ball background (subtract off background)
             
-             avefrm=avefrm-bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-       end
-       [frmrose frmcol]=size(avefrm);                  % [ysize xsize]
-       xlow=1;xhigh=frmcol;ylow=1;yhigh=frmrose;         % Initialize frame limits
-       if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)  
-           limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
-                                                   % [xlow xhi ylow yhi]
-           xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of 
-           ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
-
-       end
-                                    % Find the spots
-
-       dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
-       pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
-       pk=cntrd(dat,pk,handles.SpotDiameter+2);
-
-       [aoirose aoicol]=size(pk);
-                    % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
-       if aoirose~=0       % If there are spots, put them into handles.FitData and draw them
-           pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
-           pk(:,2)=pk(:,2)+ylow-1;
-           handles.FitData=[imagenum*ones(aoirose,1) ave*ones(aoirose,1) pk(:,1) pk(:,2) pixnum*ones(aoirose,1) [1:aoirose]'];
-                    % Draw the aois
-           for indx=1:aoirose
-               draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
-           end
-       end
-                        %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
-       guidata(gcbo,handles)
-%*******************************************************************************************
-
+            avefrm=avefrm-rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
+        elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
+            % Here to use Danny's newer background subtraction(subtract off background)
+            
+            avefrm=avefrm-bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
+        end
+        [frmrose frmcol]=size(avefrm);                  % [ysize xsize]
+        xlow=1;xhigh=frmcol;ylow=1;yhigh=frmrose;         % Initialize frame limits
+        if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
+            limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
+            % [xlow xhi ylow yhi]
+            xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of
+            ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
+            
+        end
+        % Find the spots
+        
+        dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
+        pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
+        pk=cntrd(dat,pk,handles.SpotDiameter+2);
+        
+        [aoirose aoicol]=size(pk);
+        % Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
+        if aoirose~=0       % If there are spots, put them into handles.FitData and draw them
+            pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
+            pk(:,2)=pk(:,2)+ylow-1;
+            handles.FitData=[imagenum*ones(aoirose,1) ave*ones(aoirose,1) pk(:,1) pk(:,2) pixnum*ones(aoirose,1) [1:aoirose]'];
+            % Draw the aois
+            for indx=1:aoirose
+                draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
+            end
+        end
+        %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
+        guidata(gcbo,handles)
+        %*******************************************************************************************
+        
 end
 
 
@@ -3928,7 +3928,7 @@ else
     set(handles.MoveAOIsUp,'Visible','off')      % Here if MoveAOIs toggle is not depressed
     set(handles.MoveAOIsDown,'Visible','off')
     set(handles.MoveAOIsRight,'Visible','off')
-    set(handles.MoveAOIsLeft,'Visible','off')    
+    set(handles.MoveAOIsLeft,'Visible','off')
 end
 
 
@@ -4012,7 +4012,7 @@ switch MenuValue
         
     case 2
         set(handles.MapButton,'String','Define Field1')
-    
+        
     case 3
         set(handles.MapButton,'String','Define Field2')
         
@@ -4031,21 +4031,21 @@ switch MenuValue
     case 8
         set(handles.MapButton,'String','Add to Field2')
         
-    case 9       
+    case 9
         set(handles.MapButton,'String','Remove Close AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
         set(handles.IncrementUniqueRadius,'Visible','on')
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));            
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
         
     case 10
         set(handles.MapButton,'String','Remove X2 AOI')
-               
+        
     case 11
         set(handles.MapButton,'String','Remove Y2 AOI')
-               
+        
     case 12
         set(handles.MapButton,'String','Remove MT AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -4053,7 +4053,7 @@ switch MenuValue
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));            
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
     case 13
         set(handles.MapButton,'String','Remove MTXY AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -4063,9 +4063,9 @@ switch MenuValue
         set(handles.IncrementUniqueRadiusX,'Visible','on')
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on') 
+        set(handles.SignY,'Visible','on')
         set(handles.text36,'Visible','on')
-                 % Also the Low limit controls
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
@@ -4073,7 +4073,7 @@ switch MenuValue
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
         set(handles.text37,'Visible','on')
-                % Also preset and class controls
+        % Also preset and class controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
@@ -4086,10 +4086,10 @@ switch MenuValue
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));  
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
         
     case 15
-         set(handles.MapButton,'String','Remove SpotXY AOIs')
+        set(handles.MapButton,'String','Remove SpotXY AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
         set(handles.IncrementUniqueRadius,'Visible','on')
         set(handles.DecrementUniqueRadius,'Visible','on')
@@ -4098,16 +4098,16 @@ switch MenuValue
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
         set(handles.SignY,'Visible','on')
-         set(handles.text36,'Visible','on')
-                % Also the Low limit controls
+        set(handles.text36,'Visible','on')
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
         set(handles.EditUniqueRadiusXLo,'Visible','on')
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-         set(handles.text37,'Visible','on')
-                       % Also preset controls
+        set(handles.text37,'Visible','on')
+        % Also preset controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
@@ -4123,22 +4123,22 @@ switch MenuValue
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
         set(handles.SignY,'Visible','on')
-         set(handles.text36,'Visible','on')
-                % Also the Low limit controls
+        set(handles.text36,'Visible','on')
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
         set(handles.EditUniqueRadiusXLo,'Visible','on')
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-         set(handles.text37,'Visible','on')
-                       % Also preset controls
+        set(handles.text37,'Visible','on')
+        % Also preset controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
         set(handles.ImageClass,'Visible','on')
         set(handles.text39,'Visible','on')
-                    % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)  
+        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
         set(handles.XYRegionPresetMenu,'Value',8)
         XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 17
@@ -4151,22 +4151,22 @@ switch MenuValue
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
         set(handles.SignY,'Visible','on')
-         set(handles.text36,'Visible','on')
-                % Also the Low limit controls
+        set(handles.text36,'Visible','on')
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
         set(handles.EditUniqueRadiusXLo,'Visible','on')
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-         set(handles.text37,'Visible','on')
-                       % Also preset controls
+        set(handles.text37,'Visible','on')
+        % Also preset controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
         set(handles.ImageClass,'Visible','on')
         set(handles.text39,'Visible','on')
-                            % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)  
+        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
         set(handles.XYRegionPresetMenu,'Value',8)
         XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 18
@@ -4179,22 +4179,22 @@ switch MenuValue
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
         set(handles.SignY,'Visible','on')
-         set(handles.text36,'Visible','on')
-                % Also the Low limit controls
+        set(handles.text36,'Visible','on')
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
         set(handles.EditUniqueRadiusXLo,'Visible','on')
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-         set(handles.text37,'Visible','on')
-                       % Also preset controls
+        set(handles.text37,'Visible','on')
+        % Also preset controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
         set(handles.ImageClass,'Visible','on')
         set(handles.text39,'Visible','on')
-                            % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)  
+        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
         set(handles.XYRegionPresetMenu,'Value',8)
         XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 19
@@ -4207,22 +4207,22 @@ switch MenuValue
         set(handles.DecrementUniqueRadiusX,'Visible','on')
         set(handles.SignX,'Visible','on')
         set(handles.SignY,'Visible','on')
-         set(handles.text36,'Visible','on')
-                % Also the Low limit controls
+        set(handles.text36,'Visible','on')
+        % Also the Low limit controls
         set(handles.EditUniqueRadiusLo,'Visible','on')
         set(handles.IncrementUniqueRadiusLo,'Visible','on')
         set(handles.DecrementUniqueRadiusLo,'Visible','on')
         set(handles.EditUniqueRadiusXLo,'Visible','on')
         set(handles.IncrementUniqueRadiusXLo,'Visible','on')
         set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-         set(handles.text37,'Visible','on')
-                       % Also preset controls
+        set(handles.text37,'Visible','on')
+        % Also preset controls
         set(handles.SetXYRegionPreset,'Visible','on')
         set(handles.XYRegionPresetMenu,'Visible','on')
         set(handles.text38,'Visible','on')
         set(handles.ImageClass,'Visible','on')
         set(handles.text39,'Visible','on')
-                            % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)  
+        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
         set(handles.XYRegionPresetMenu,'Value',8)
         XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 20
@@ -4232,7 +4232,7 @@ switch MenuValue
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius)); 
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
     case 21
         set(handles.MapButton,'String','Retain AOIs near AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -4240,7 +4240,7 @@ switch MenuValue
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius)); 
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
     case 22
         set(handles.MapButton,'String','Make bkgnd circle')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -4248,9 +4248,9 @@ switch MenuValue
         set(handles.DecrementUniqueRadius,'Visible','on')
         UniqueRadius=str2num(get(handles.EditUniqueRadius,'String'));
         UniqueRadius=abs(UniqueRadius);                % Start off w/ positive UniqueRadius
-        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius)); 
+        set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
 end
-        
+
 % --- Executes on button press in MapButton.
 function MapButton_Callback(hObject, eventdata, handles)
 % hObject    handle to MapButton (see GCBO)
@@ -4258,49 +4258,49 @@ function MapButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 MenuValue=get(handles.MappingMenu,'Value');
 switch MenuValue
-    case 1      
-                        % Here to add an AOI file containing aoiinfo2 matrix to present handles.FitData matrix
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set 
-        [fn fp]=uigetfile('*.*','Load aoiinfo2 list');      % Promt user for filename 
-        eval( ['load ' [fp fn]  ' -mat'] );                         % Load the aoiinfo2 
+    case 1
+        % Here to add an AOI file containing aoiinfo2 matrix to present handles.FitData matrix
+        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set
+        [fn fp]=uigetfile('*.*','Load aoiinfo2 list');      % Promt user for filename
+        eval( ['load ' [fp fn]  ' -mat'] );                         % Load the aoiinfo2
         handles.FitData=[handles.FitData;aoiinfo2];         % Add aoiinfo2 list to current FitData list
-        [rose col]=size(handles.FitData);                   % 
+        [rose col]=size(handles.FitData);                   %
         handles.FitData(:,6)=[1:rose]';                     % Renumber the AOIs to match current length of list
         guidata(gcbo,handles);                              % Update the handles
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % Update the image
     case 2
-                        % Here to define the current set of AOIs as the Field1 AOIs for the purpose of mapping 
+        % Here to define the current set of AOIs as the Field1 AOIs for the purpose of mapping
         handles.Field1=handles.FitData;
         guidata(gcbo,handles);
         aoiinfo2=handles.Field1;        % Save the new field1 list of aois
         eval(['save ' handles.FileLocations.mapping 'field1.dat aoiinfo2'])
     case 3
-                        % Here to define the current set of AOIs as the Field2 AOIs for the purpose of mapping 
+        % Here to define the current set of AOIs as the Field2 AOIs for the purpose of mapping
         handles.Field2=handles.FitData;
         guidata(gcbo,handles);
         aoiinfo2=handles.Field2;            % Save the new field2 list of aois
         eval(['save ' handles.FileLocations.mapping 'field2.dat aoiinfo2'])
     case 4
-                        % Here to create a mapping file using the current
-                        % Field1 and Field2 aoi lists
+        % Here to create a mapping file using the current
+        % Field1 and Field2 aoi lists
         filename=[handles.FileLocations.mapping 'fitparms.dat'];
         mp=MakeMappingFile(handles.Field1, handles.Field2, filename);
-                        % Save the two aoi lists in field1 and field2
+        % Save the two aoi lists in field1 and field2
         aoiinfo2=handles.Field1;        %[frm  ave  x  y  pixnum  aoi#]
         
         eval(['save ' handles.FileLocations.mapping 'field1.dat aoiinfo2'])
         aoiinfo2=handles.Field2;
         eval(['save ' handles.FileLocations.mapping 'field2.dat aoiinfo2'])
-                        % Load the new mapping file into imscroll
+        % Load the new mapping file into imscroll
         set(handles.ButtonChoice,'Value',1)     % Set ButtonChoice to 'Load Fitparms
         set(handles.InputParms,'String','FitParms.dat');    % Input filename set to newly made mapping file
         guidata(gcbo,handles);
         GoButton_Callback(handles.GoButton, eventdata, handles) % Invoke the GoButton so that
-                                           % the new mapping file is loaded  
-  
-                                           
-           % Now make plots that enable user to tell if any points in mapping list are bad  
-           % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
+        % the new mapping file is loaded
+        
+        
+        % Now make plots that enable user to tell if any points in mapping list are bad
+        % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
         fitparmvector=get(handles.FitDisplay,'UserData');
         aoiinfo2_1=handles.Field1;      % Mapping point list
         aoiinfo2_2=handles.Field2;
@@ -4310,7 +4310,7 @@ switch MenuValue
         
         mapped2=zeros(rosenow,2);
         for indx=1:rosenow
-                % Prox map each aoiinfo2_1 point to field 2
+            % Prox map each aoiinfo2_1 point to field 2
             %mapped2(indx,:)=proximity_mapping_v1(handles.MappingPoints,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
             mapped2(indx,:)=proximity_mapping_v1(mappingpointlist,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
         end
@@ -4323,25 +4323,25 @@ switch MenuValue
         figure(23);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,4),'o');shg
         xlabel('gaussian x2 coordinate');ylabel('gaussian y2 coordinate');
         
-
-      
-
-
-   
         
         
-
-    
-    
+        
+        
+        
+        
+        
+        
+        
+        
     case 5
-                        % Here to restore the AOI set that was present just before adding another AOI set to it
+        % Here to restore the AOI set that was present just before adding another AOI set to it
         handles.FitData=handles.PreAddition;
         guidata(gcbo,handles);
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % Update the image
     case 6
-                        % Here to import a map: Use the field1 and field2
-                        % aois in the map to define field1 and field2
-        [fn fp]=uigetfile('*.*','Import a mapping file');      % Promt user for filename 
+        % Here to import a map: Use the field1 and field2
+        % aois in the map to define field1 and field2
+        [fn fp]=uigetfile('*.*','Import a mapping file');      % Promt user for filename
         eval( ['load ' [fp fn]  ' -mat'] );                         % Load the fitparmvector and mappingpoints
         handles.Field1=mappingpoints(:,1:6);                        % Assign field 1 of the mapping points
         handles.Field2=mappingpoints(:,7:12);                       % Assign field 2 of the mapping points
@@ -4349,8 +4349,8 @@ switch MenuValue
         handles.Field2=update_FitData_aoinum(handles.Field2);
         guidata(gcbo,handles);
     case 7
-                        % Here to add the current aois to Field1
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set 
+        % Here to add the current aois to Field1
+        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set
         handles.Field1=[handles.FitData;handles.Field1];
         [rose1 col1]=size(handles.Field1);
         handles.Field1(:,6)=[1:rose1]';
@@ -4358,8 +4358,8 @@ switch MenuValue
         guidata(gcbo,handles);                              % Update the handle varialbes
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
     case 8
-                               % Here to add the current aois to Field2
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set 
+        % Here to add the current aois to Field2
+        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set
         handles.Field2=[handles.FitData;handles.Field2];
         [rose2 col2]=size(handles.Field2);
         handles.Field2(:,6)=[1:rose2]';
@@ -4367,19 +4367,19 @@ switch MenuValue
         guidata(gcbo,handles);                              % Update the handle varialbes
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
     case 9
-                               % Here to remove Close AOIs
-                               % Grab radius off of editable text region
+        % Here to remove Close AOIs
+        % Grab radius off of editable text region
         Unique_Landing_Radius=str2num(get(handles.EditUniqueRadius,'String'));
-                               % Alter list of AOIs
+        % Alter list of AOIs
         handles.FitData=Remove_Close_AOIs_v1(handles.FitData,Unique_Landing_Radius);
         guidata(gcbo,handles);      % Update the handles structure
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated aoiset
         
-
+        
     case 10
-                               % Here to remove an AOI by clicking on the figure(21) X2 plot 
-           % First make plots that enable user to tell if any points in mapping list are bad  
-           % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
+        % Here to remove an AOI by clicking on the figure(21) X2 plot
+        % First make plots that enable user to tell if any points in mapping list are bad
+        % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
         fitparmvector=get(handles.FitDisplay,'UserData');
         aoiinfo2_1=handles.Field1;      % Mapping point list
         aoiinfo2_2=handles.Field2;
@@ -4387,7 +4387,7 @@ switch MenuValue
         [rosenow colnow]=size(aoiinfo2_1);
         mapped2=zeros(rosenow,2);
         for indx=1:rosenow
-                % Prox map each aoiinfo2_1 point to field 2
+            % Prox map each aoiinfo2_1 point to field 2
             %mapped2(indx,:)=proximity_mapping_v1(handles.MappingPoints,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
             mapped2(indx,:)=proximity_mapping_v1(mappingpointlist,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
         end
@@ -4405,45 +4405,45 @@ switch MenuValue
         figure(23);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,4),'o');shg
         xlabel('gaussian x2 coordinate');ylabel('gaussian y2 coordinate');
         
-
-                    % Let the user click on a bad spot in Figure(21) (x coordinate plot) 
+        
+        % Let the user click on a bad spot in Figure(21) (x coordinate plot)
         fig21ylist=[aoiinfo2_2(:,3) aoiinfo2_2(:,3)-mapped2(:,1)];
         figure(21);
         flag=0;     % flag=0 means we do continue to find bad points
         while flag==0
             [xpt ypt but]=ginput(1);        % Chose a bad point or right click to end
             if but==3
-                       flag=1;     % flag=1 means we did not select a bad point
-        
+                flag=1;     % flag=1 means we did not select a bad point
+                
             else       % If the user did NOT right click, then record a pt [xpt ypt]
-                        % Here if we ARE removing a bad point
-         
-        % The scale of the x and y axis is different by about 500/.5, so if we are clicking
-        % near points we must adjust the scales to what the user actually sees when we measure distance 
+                % Here if we ARE removing a bad point
+                
+                % The scale of the x and y axis is different by about 500/.5, so if we are clicking
+                % near points we must adjust the scales to what the user actually sees when we measure distance
                 %scalex=max(fig21ylist(:,1))-min(fig21ylist(:,1));
                 %scaley=max(fig21ylist(:,2))-min(fig21ylist(:,2));
-                        % Find the pt in Fig 22 closest to where the user clicked
-                distancelist=[(fig21ylist(:,1)-xpt).^2/scalex^2+(fig21ylist(:,2)-ypt).^2/scaley^2 [1:rosenow]'];    
-                                % We need to normalize by the scalex and scaley in above b/c user measures
-                                % distance by linear distance on figure, but the x and y scales are very different 
-    
-                                            % Get the aoi number for the
-                                            % aoi closest to where user
-                                            % clicked
-       
+                % Find the pt in Fig 22 closest to where the user clicked
+                distancelist=[(fig21ylist(:,1)-xpt).^2/scalex^2+(fig21ylist(:,2)-ypt).^2/scaley^2 [1:rosenow]'];
+                % We need to normalize by the scalex and scaley in above b/c user measures
+                % distance by linear distance on figure, but the x and y scales are very different
+                
+                % Get the aoi number for the
+                % aoi closest to where user
+                % clicked
+                
                 [sortdistance I]=sort(distancelist(:,1));
                 num_closest=distancelist(I(1),2);   % Index in the aoilist used to remove a point
-   
+                
                 handles.Field1(num_closest,:)=[];
                 handles.Field2(num_closest,:)=[];
                 mapped2(num_closest,:)=[];
                 handles.Field1=update_FitData_aoinum(handles.Field1);       % Update the numbering of the AOIs in the map
                 handles.Field2=update_FitData_aoinum(handles.Field2);
                 guidata(gcbo,handles) ;
-           
-                    % Now update the figure (21) plot in anticipation of picking the next point
+                
+                % Now update the figure (21) plot in anticipation of picking the next point
                 aoiinfo2_1=handles.Field1;      % Mapping point list
-                aoiinfo2_2=handles.Field2; 
+                aoiinfo2_2=handles.Field2;
                 figure(21);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,3)-mapped2(:,1),'o');shg
                 h21=gca;                        % Axis of figure(22)
                 xticks=get(h21,'XTick');        % vector of XTicks
@@ -4454,23 +4454,23 @@ switch MenuValue
                 fig21ylist=[aoiinfo2_2(:,3) aoiinfo2_2(:,3)-mapped2(:,1)];
                 [rosenow colnow]=size(aoiinfo2_1);      % update the number of rows in the spot list (needed for distancelist
                 figure(21);
-      
-        
+                
+                
             end         % end of if but==3
         end             % end of while flag=0, here when user right clicks
         if flag~=0
-                % Here is we removed selected and removed a bad point above,
-                % in which case we make a map again
+            % Here is we removed selected and removed a bad point above,
+            % in which case we make a map again
             set(handles.MappingMenu,'Value',4); % Set menu to 'Make Map' again
             MapButton_Callback(handles.MapButton, eventdata, handles) % Invoke the MapButton so that
-        end                            % we make a mapping again, this time with the bad point deleted 
-
-    
+        end                            % we make a mapping again, this time with the bad point deleted
+        
+        
     case 11
-                               % Here to remove an AOI by clicking on the figure(22) Y2 plot
-    
-              % Now make plots that enable user to tell if any points in mapping list are bad  
-           % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
+        % Here to remove an AOI by clicking on the figure(22) Y2 plot
+        
+        % Now make plots that enable user to tell if any points in mapping list are bad
+        % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
         fitparmvector=get(handles.FitDisplay,'UserData');
         aoiinfo2_1=handles.Field1;      % Mapping point list
         aoiinfo2_2=handles.Field2;
@@ -4478,7 +4478,7 @@ switch MenuValue
         [rosenow colnow]=size(aoiinfo2_1);
         mapped2=zeros(rosenow,2);
         for indx=1:rosenow
-                % Prox map each aoiinfo2_1 point to field 2
+            % Prox map each aoiinfo2_1 point to field 2
             %mapped2(indx,:)=proximity_mapping_v1(handles.MappingPoints,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
             mapped2(indx,:)=proximity_mapping_v1(mappingpointlist,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
         end
@@ -4496,30 +4496,30 @@ switch MenuValue
         figure(23);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,4),'o');shg
         xlabel('gaussian x2 coordinate');ylabel('gaussian y2 coordinate');
         
-
-                    % Let the user click on a bad spot in Figure(22) (y coordinate plot) 
+        
+        % Let the user click on a bad spot in Figure(22) (y coordinate plot)
         fig22ylist=[aoiinfo2_2(:,4) aoiinfo2_2(:,4)-mapped2(:,2)];
         figure(22);
         flag=0;     % flag=0 means we do continue to find bad points
         while flag==0
             [xpt ypt but]=ginput(1);    % chose a bad point, or right click
-        
+            
             if but==3       % User right clicks:  stop chosing points
-                        % 
+                %
                 flag=1;     % flag=1 means we did not select a bad point
-        % The scale of the x and y axis is different by about 500/.5, so if we are clicking
-        % near points we must adjust the scales to what the user actually sees when we measure distance
+                % The scale of the x and y axis is different by about 500/.5, so if we are clicking
+                % near points we must adjust the scales to what the user actually sees when we measure distance
             else
-                        % Here if user did not right click=> chose a bad point 
+                % Here if user did not right click=> chose a bad point
                 %scalex=max(fig22ylist(:,1))-min(fig22ylist(:,1));
                 %scaley=max(fig22ylist(:,2))-min(fig22ylist(:,2));
-                        % Find the pt in Fig 22 closest to where the user clicked 
-                distancelist=[(fig22ylist(:,1)-xpt).^2/scalex^2+(fig22ylist(:,2)-ypt).^2/scaley^2 [1:rosenow]'];      
-    
-                                            % Get the aoi number for the
-                                            % aoi closest to where user
-                                            % clicked
-       
+                % Find the pt in Fig 22 closest to where the user clicked
+                distancelist=[(fig22ylist(:,1)-xpt).^2/scalex^2+(fig22ylist(:,2)-ypt).^2/scaley^2 [1:rosenow]'];
+                
+                % Get the aoi number for the
+                % aoi closest to where user
+                % clicked
+                
                 [sortdistance I]=sort(distancelist(:,1));
                 num_closest=distancelist(I(1),2);   % Index in the aoilist used to remove a point
                 %keyboard
@@ -4528,11 +4528,11 @@ switch MenuValue
                 mapped2(num_closest,:)=[];
                 handles.Field1=update_FitData_aoinum(handles.Field1);       % Update the numbering of the AOIs in the map
                 handles.Field2=update_FitData_aoinum(handles.Field2);
-       
+                
                 guidata(gcbo,handles) ;
-                        % Now update the figure (22) plot in anticipation of picking the next point
+                % Now update the figure (22) plot in anticipation of picking the next point
                 aoiinfo2_1=handles.Field1;      % Mapping point list
-                aoiinfo2_2=handles.Field2; 
+                aoiinfo2_2=handles.Field2;
                 figure(22);plot(aoiinfo2_2(:,4),aoiinfo2_2(:,4)-mapped2(:,2),'o');shg
                 h22=gca;                        % Axis of figure(22)
                 xticks=get(h22,'XTick');        % vector of XTicks
@@ -4543,395 +4543,395 @@ switch MenuValue
                 fig22ylist=[aoiinfo2_2(:,4) aoiinfo2_2(:,4)-mapped2(:,2)];
                 [rosenow colnow]=size(aoiinfo2_1);      % update the number of rows in the spot list (needed for distancelist
                 figure(22);
-        
+                
             end                 % end of if but==3
         end                     % end of while flag==0
-            if flag~=0
-                % Here is we removed selected and removed a bad point above,
-                % in which case we make a map again
-                set(handles.MappingMenu,'Value',4); % Set menu to 'Make Map' again
-                MapButton_Callback(handles.MapButton, eventdata, handles) % Invoke the MapButton so that
-            end                            % we make a mapping again, this time with the bad point deleted 
+        if flag~=0
+            % Here is we removed selected and removed a bad point above,
+            % in which case we make a map again
+            set(handles.MappingMenu,'Value',4); % Set menu to 'Make Map' again
+            MapButton_Callback(handles.MapButton, eventdata, handles) % Invoke the MapButton so that
+        end                            % we make a mapping again, this time with the bad point deleted
     case 12
-                               % Here to remove AOIs that do not contain a
-                               % spot  case12 
-                               % Spots within radius distance
-                               
+        % Here to remove AOIs that do not contain a
+        % spot  case12
+        % Spots within radius distance
+        
         handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-                                              % Pick Spots according to paramters set within
-                                              % the 'Auto Spot Picking' box
+        % Pick Spots according to paramters set within
+        % the 'Auto Spot Picking' box
         imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
         CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-                                       % Set the frame range to current single value of image number from the slider 
+        % Set the frame range to current single value of image number from the slider
         set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
         CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
         CurrentSpotsButtonString=get(handles.SpotsButton,'String');
         set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-                                        % Now execute a detection of AllSpots  
+        % Now execute a detection of AllSpots
         handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-                                        % in just the current frame
+        % in just the current frame
         set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
         set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
         set(handles.SpotsButton,'String',CurrentSpotsButtonString);
         %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
         %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-         
-        % Remove AOIs that do not contain a detected spot 
-                        % Now the AllSpots structure
-                        % contains a list of all spots in the current
-                        % frame.  We next want to remove all the current
-                        % AOIs that do not contain one of these spots
-      %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
+        
+        % Remove AOIs that do not contain a detected spot
+        % Now the AllSpots structure
+        % contains a list of all spots in the current
+        % frame.  We next want to remove all the current
+        % AOIs that do not contain one of these spots
+        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
         radius=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained 
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
         radius_hys = 1;     % A multiplicative constant not used here
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
+        % [framenumber ave x y pixnum aoinumber];
         [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N 
-                                    % as containing a spot by marking 
-                                    % AOIspots(N,2) = 1
+        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
+        % as containing a spot by marking
+        % AOIspots(N,2) = 1
         
         for indx=1:rose
-
-                                    % Cycle through all the aois
+            
+            % Cycle through all the aois
             AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
-           
+            
         end
-                    % We have now found all the AOIs w/ and w/o spots and need
-                    % to remove those AOIs without spots
-                                % Keep only those rows i for which AOIspots(i,2) = 1
-        handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);     
-         
-       
-      
-        handles.FitData=update_FitData_aoinum(handles.FitData);           
-                    
+        % We have now found all the AOIs w/ and w/o spots and need
+        % to remove those AOIs without spots
+        % Keep only those rows i for which AOIspots(i,2) = 1
+        handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);
+        
+        
+        
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        
         %handles.Field2=[handles.FitData;handles.Field2];
         %[rose2 col2]=size(handles.Field2);
         %handles.Field2(:,6)=[1:rose2]';
         %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
         guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset    
-        case 13
-                               % Here to remove AOIs that do not contain a
-                               % spot  case13 
-                               % Spots within X distance radiusX and 
-                               % Y distance radiusY  
-                               % see AOISpotLandingXY(  )
-                               
+        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+    case 13
+        % Here to remove AOIs that do not contain a
+        % spot  case13
+        % Spots within X distance radiusX and
+        % Y distance radiusY
+        % see AOISpotLandingXY(  )
+        
         handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-                                              % Pick Spots according to paramters set within
-                                              % the 'Auto Spot Picking' box
+        % Pick Spots according to paramters set within
+        % the 'Auto Spot Picking' box
         imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
         CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-                                       % Set the frame range to current single value of image number from the slider 
+        % Set the frame range to current single value of image number from the slider
         set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
         CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
         CurrentSpotsButtonString=get(handles.SpotsButton,'String');
         set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-                                        % Now execute a detection of AllSpots  
+        % Now execute a detection of AllSpots
         handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-                                        % in just the current frame
+        % in just the current frame
         set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
         set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
         set(handles.SpotsButton,'String',CurrentSpotsButtonString);
         %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
         %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-         
-        % Remove AOIs that do not contain a detected spot 
-                        % Now the AllSpots structure
-                        % contains a list of all spots in the current
-                        % frame.  We next want to remove all the current
-                        % AOIs that do not contain one of these spots
-      %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
-%        radius=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained
+        
+        % Remove AOIs that do not contain a detected spot
+        % Now the AllSpots structure
+        % contains a list of all spots in the current
+        % frame.  We next want to remove all the current
+        % AOIs that do not contain one of these spots
+        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
+        %        radius=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max pixel distance to a spot.
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
         radiusY=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max  Y pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained
-                                                        % see
-                                                        % AOISpotLandingXY
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
+        % see
+        % AOISpotLandingXY
         radiusX=str2num(get(handles.EditUniqueRadiusX,'String'));     % Use as max X pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                            % for that AOI to be retained
-                                            % see AOISpotLandingXY(  )  
+        % A spot must be this close to an AOI center
+        % for that AOI to be retained
+        % see AOISpotLandingXY(  )
         radiusXLo = str2num(get(handles.EditUniqueRadiusXLo,'String'));     % Use as min  X pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained
-                                                        % see
-                                                        % AOISpotLandingXY
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
+        % see
+        % AOISpotLandingXY
         radiusYLo =str2num(get(handles.EditUniqueRadiusLo,'String'));     % Use as min Y pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                            % for that AOI to be retained
-                                            % see AOISpotLandingXY(  )  
+        % A spot must be this close to an AOI center
+        % for that AOI to be retained
+        % see AOISpotLandingXY(  )
         radius_hys = 1;     % A multiplicative constant not used here
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
+        % [framenumber ave x y pixnum aoinumber];
         [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N 
-                                    % as containing a spot by marking 
-                                    % AOIspots(N,2) = 1
+        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
+        % as containing a spot by marking
+        % AOIspots(N,2) = 1
         
         for indx=1:rose
-
-                                    % Cycle through all the aois
-%            AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
+            
+            % Cycle through all the aois
+            %            AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
             AOIspots(indx,:)=AOISpotLandingXY(aoiinfo2(indx,6),radiusX, radiusY , radiusXLo, radiusYLo, handles,aoiinfo2,radius_hys);
-           
+            
         end
-                    % We have now found all the AOIs w/ and w/o spots and need
-                    % to remove those AOIs without spots
-                                % Keep only those rows i for which AOIspots(i,2) = 1
-        handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);     
-         
-       
-      
-        handles.FitData=update_FitData_aoinum(handles.FitData);           
-                    
+        % We have now found all the AOIs w/ and w/o spots and need
+        % to remove those AOIs without spots
+        % Keep only those rows i for which AOIspots(i,2) = 1
+        handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);
+        
+        
+        
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        
         %handles.Field2=[handles.FitData;handles.Field2];
         %[rose2 col2]=size(handles.Field2);
         %handles.Field2(:,6)=[1:rose2]';
         %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
         guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset             
-        case 14
-                               % Here to remove AOIs that contain a
-                               % spot  case14
-                               
+        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+    case 14
+        % Here to remove AOIs that contain a
+        % spot  case14
+        
         handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-                                              % Pick Spots according to paramters set within
-                                              % the 'Auto Spot Picking' box
+        % Pick Spots according to paramters set within
+        % the 'Auto Spot Picking' box
         imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
         CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-                                       % Set the frame range to current single value of image number from the slider 
+        % Set the frame range to current single value of image number from the slider
         set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
         CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
         CurrentSpotsButtonString=get(handles.SpotsButton,'String');
         set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-                                        % Now execute a detection of AllSpots  
+        % Now execute a detection of AllSpots
         handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-                                        % in just the current frame
+        % in just the current frame
         set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
         set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
         set(handles.SpotsButton,'String',CurrentSpotsButtonString);
         %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
         %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-         
-        % Remove AOIs that do not contain a detected spot 
-                        % Now the AllSpots structure
-                        % contains a list of all spots in the current
-                        % frame.  We next want to remove all the current
-                        % AOIs that do not contain one of these spots
-      %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
+        
+        % Remove AOIs that do not contain a detected spot
+        % Now the AllSpots structure
+        % contains a list of all spots in the current
+        % frame.  We next want to remove all the current
+        % AOIs that do not contain one of these spots
+        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
         radius=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained 
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
         radius_hys = 1;     % A multiplicative constant not used here
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
+        % [framenumber ave x y pixnum aoinumber];
         [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N 
-                                    % as containing a spot by marking 
-                                    % AOIspots(N,2) = 1
+        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
+        % as containing a spot by marking
+        % AOIspots(N,2) = 1
         
         for indx=1:rose
-
-                                    % Cycle through all the aois
+            
+            % Cycle through all the aois
             AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
-           
+            
         end
-                    % We have now found all the AOIs w/ and w/o spots and need
-                    % to remove those AOIs without spots
-                                % Keep only those rows i for which
-                                % AOIspots(i,2) = 0
-        handles.FitData=handles.FitData(~logical(AOIspots(:,2)),:);     
-         
-       
-      
-        handles.FitData=update_FitData_aoinum(handles.FitData);           
-                    
+        % We have now found all the AOIs w/ and w/o spots and need
+        % to remove those AOIs without spots
+        % Keep only those rows i for which
+        % AOIspots(i,2) = 0
+        handles.FitData=handles.FitData(~logical(AOIspots(:,2)),:);
+        
+        
+        
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        
         %handles.Field2=[handles.FitData;handles.Field2];
         %[rose2 col2]=size(handles.Field2);
         %handles.Field2(:,6)=[1:rose2]';
         %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
         guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset 
+        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
     case 15
         % Here to remove AOIs with nearby spots,
         % specified the X and Y range
-                                % Here to remove AOIs that contain a
-                               % spot  case14
-                               
+        % Here to remove AOIs that contain a
+        % spot  case14
+        
         handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-                                              % Pick Spots according to paramters set within
-                                              % the 'Auto Spot Picking' box
+        % Pick Spots according to paramters set within
+        % the 'Auto Spot Picking' box
         imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
         CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-                                       % Set the frame range to current single value of image number from the slider 
+        % Set the frame range to current single value of image number from the slider
         set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
         CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
         CurrentSpotsButtonString=get(handles.SpotsButton,'String');
         set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-                                        % Now execute a detection of AllSpots  
+        % Now execute a detection of AllSpots
         handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-                                        % in just the current frame
+        % in just the current frame
         set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
         set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
         set(handles.SpotsButton,'String',CurrentSpotsButtonString);
         %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
         %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-         
-        % Remove AOIs that do not contain a detected spot 
-                        % Now the AllSpots structure
-                        % contains a list of all spots in the current
-                        % frame.  We next want to remove all the current
-                        % AOIs that do not contain one of these spots
-      %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
-       
-       radiusY=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max  Y pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained
-                                                        % see
-                                                        % AOISpotLandingXY
+        
+        % Remove AOIs that do not contain a detected spot
+        % Now the AllSpots structure
+        % contains a list of all spots in the current
+        % frame.  We next want to remove all the current
+        % AOIs that do not contain one of these spots
+        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
+        
+        radiusY=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max  Y pixel distance to a spot.
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
+        % see
+        % AOISpotLandingXY
         radiusX=str2num(get(handles.EditUniqueRadiusX,'String'));     % Use as max X pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                            % for that AOI to be retained
-                                            % see AOISpotLandingXY(  )  
+        % A spot must be this close to an AOI center
+        % for that AOI to be retained
+        % see AOISpotLandingXY(  )
         radiusXLo = str2num(get(handles.EditUniqueRadiusXLo,'String'));     % Use as min  Y pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                                        % for that AOI to  be retained
-                                                        % see
-                                                        % AOISpotLandingXY
+        % A spot must be this close to an AOI center
+        % for that AOI to  be retained
+        % see
+        % AOISpotLandingXY
         radiusYLo =str2num(get(handles.EditUniqueRadiusLo,'String'));     % Use as min X pixel distance to a spot.
-                                                        % A spot must be this close to an AOI center
-                                            % for that AOI to be retained
-                                            % see AOISpotLandingXY(  )  
+        % A spot must be this close to an AOI center
+        % for that AOI to be retained
+        % see AOISpotLandingXY(  )
         radius_hys = 1;     % A multiplicative constant not used here
-                % radiusX and radiusXlo must be the same sign
-                % radiusY and radiusYlo must be the same sign
+        % radiusX and radiusXlo must be the same sign
+        % radiusY and radiusYlo must be the same sign
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
+        % [framenumber ave x y pixnum aoinumber];
         [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N 
-                                    % as containing a spot by marking 
-                                    % AOIspots(N,2) = 1
+        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
+        % as containing a spot by marking
+        % AOIspots(N,2) = 1
         
         for indx=1:rose
-
-                                    % Cycle through all the aois
+            
+            % Cycle through all the aois
             AOIspots(indx,:)=AOISpotLandingXY(aoiinfo2(indx,6),radiusX, radiusY, radiusXLo, radiusYLo ,handles,aoiinfo2,radius_hys);
-           
+            
         end
-                    % We have now found all the AOIs w/ and w/o spots and need
-                    % to remove those AOIs without spots
-                                % Keep only those rows i for which
-                                % AOIspots(i,2) = 0
-        handles.FitData=handles.FitData(~logical(AOIspots(:,2)),:);     
-         
-       
-      
-        handles.FitData=update_FitData_aoinum(handles.FitData);           
-                    
+        % We have now found all the AOIs w/ and w/o spots and need
+        % to remove those AOIs without spots
+        % Keep only those rows i for which
+        % AOIspots(i,2) = 0
+        handles.FitData=handles.FitData(~logical(AOIspots(:,2)),:);
+        
+        
+        
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        
         %handles.Field2=[handles.FitData;handles.Field2];
         %[rose2 col2]=size(handles.Field2);
         %handles.Field2(:,6)=[1:rose2]';
         %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
         guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset 
+        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
     case 16
-         % Define aoiImageSet
-         % Here to create an aoiImageSet as examples of a
-         % particular class of images (particular combination of spots
-         % offset from AOI due to prism dispersion)
-                % Here to Save AOIs along with images of regions (for image classification)
-         BeginOrAdd=0;              % Create a new aoiImageSet 
-         Update_aoiImageSet(handles,BeginOrAdd);
-         slider1_Callback(handles.ImageNumber, eventdata, handles) 
+        % Define aoiImageSet
+        % Here to create an aoiImageSet as examples of a
+        % particular class of images (particular combination of spots
+        % offset from AOI due to prism dispersion)
+        % Here to Save AOIs along with images of regions (for image classification)
+        BeginOrAdd=0;              % Create a new aoiImageSet
+        Update_aoiImageSet(handles,BeginOrAdd);
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 17
-         % SaveTo (=add to existing) aoiImageSet
-         % Here to create an aoiImageSet as examples of a
-         % particular class of images (particular combination of spots
-         % offset from AOI due to prism dispersion)
-                % Here to Save AOIs along with images of regions (for image classification)
-         BeginOrAdd=1;              % Create an aoiImageSet, adding it to the
-                                    % existing aoiImageSet
-         Update_aoiImageSet(handles,BeginOrAdd);
-          
-         slider1_Callback(handles.ImageNumber, eventdata, handles) 
-     case 18
-         % Import/New aoiImageSet
-         % User will navigate to file containing an existing aoiImageSet,
-         % and that aoiImageSet will be the new aoiImageSet going forward.
-         % The aoiImageSet are examples of a
-         % particular classes of images (particular combination of spots
-         % offset from AOI due to prism dispersion)
-         
-         BeginOrAdd=0;              % Create a new aoiImageSet (overwrite any existing)
-         Import_aoiImageSet(handles,BeginOrAdd);
-          
-         
-         %keyboard
-         slider1_Callback(handles.ImageNumber, eventdata, handles) 
-     
-
+        % SaveTo (=add to existing) aoiImageSet
+        % Here to create an aoiImageSet as examples of a
+        % particular class of images (particular combination of spots
+        % offset from AOI due to prism dispersion)
+        % Here to Save AOIs along with images of regions (for image classification)
+        BeginOrAdd=1;              % Create an aoiImageSet, adding it to the
+        % existing aoiImageSet
+        Update_aoiImageSet(handles,BeginOrAdd);
+        
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
+    case 18
+        % Import/New aoiImageSet
+        % User will navigate to file containing an existing aoiImageSet,
+        % and that aoiImageSet will be the new aoiImageSet going forward.
+        % The aoiImageSet are examples of a
+        % particular classes of images (particular combination of spots
+        % offset from AOI due to prism dispersion)
+        
+        BeginOrAdd=0;              % Create a new aoiImageSet (overwrite any existing)
+        Import_aoiImageSet(handles,BeginOrAdd);
+        
+        
+        %keyboard
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        
+        
     case 19
         % Import/Add aoiImageSet
-         % User will navigate to file containing an existing aoiImageSet,
-         % and that aoiImageSet will be added to the current aoiImageSet..
-         % The aoiImageSet are examples of a
-         % particular classes of images (particular combination of spots
-         % offset from AOI due to prism dispersion)                % Here to Save AOIs along with images of regions (for image classification)
-         
-         %****Here we need to add aoiImageSet to existing
-         %handles.aoiImageSet
-         BeginOrAdd=1;             % Add the imported aoiImageSet to the existing set
-         Import_aoiImageSet(handles,BeginOrAdd);
-          
-                                    % Update the AOIs displayed
-         slider1_Callback(handles.ImageNumber, eventdata, handles)  
-         
+        % User will navigate to file containing an existing aoiImageSet,
+        % and that aoiImageSet will be added to the current aoiImageSet..
+        % The aoiImageSet are examples of a
+        % particular classes of images (particular combination of spots
+        % offset from AOI due to prism dispersion)                % Here to Save AOIs along with images of regions (for image classification)
+        
+        %****Here we need to add aoiImageSet to existing
+        %handles.aoiImageSet
+        BeginOrAdd=1;             % Add the imported aoiImageSet to the existing set
+        Import_aoiImageSet(handles,BeginOrAdd);
+        
+        % Update the AOIs displayed
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        
     case 20
         % Remove AOIs near AOIs
         
         filestring=get(handles.InputParms,'String');
         eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
-                               % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
-                               % be filtered in that we will retain only those AOIs from the current list
-                               % that are not close to AOIs from this reference list we just loaded
+        % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
+        % be filtered in that we will retain only those AOIs from the current list
+        % that are not close to AOIs from this reference list we just loaded
         Refaoiinfo2=aoiinfo2;   % The AOI list that we just loaded is our reference list of AOIs
         handles.Refaoiinfo2=Refaoiinfo2;    % Save the list of AOIs used as our reference set of AOIs
         [refrose refcol]=size(Refaoiinfo2);  % rose = number of AOIs in our reference list
-                    
-                   % Now we re-define 'aoiinfo2' to refer to our current
-                   % list of AOIs (that will then be filtered)
+        
+        % Now we re-define 'aoiinfo2' to refer to our current
+        % list of AOIs (that will then be filtered)
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
-        [rose col]=size(aoiinfo2);   % Dimensions of our current aoi list            
-                     %Next, fetch the PixelDistance value that will serve
-                     %as our distance criteria for choosing from our
-                     %current AOI list
-       PixelDistance=str2num(get(handles.EditUniqueRadius,'String'));
-     
-
-       for indx=1:refrose
-
-                                    % Cycle through AOIs in our reference list
-                              %  (xycoord,               xylist,        PixelDistance)
-           Farlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
-           aoiinfo2=aoiinfo2(Farlist.logikFar,:); % retain only those current aoiinfo2 entries
-                            % that are more distant than PixelDistance
-           handles.FitData=aoiinfo2;
-           handles.FitData=update_FitData_aoinum(handles.FitData);
-       end
-       handles.FarPixelDistance=PixelDistance;      % Save the distance used to pick AOIs here
-       handles.NearFarFlagg=1;                  % Setting NearFarFlagg=1 then allows user to perform
-                                            % the 'Retain AOIs Near AOIs' operation.  This order of operations
-                                         % is necessary so that size(RefAOINearLogik) properly reflects the total number
-                                         % of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
-                                         % in the current step  (case 20)
+        % [framenumber ave x y pixnum aoinumber];
+        [rose col]=size(aoiinfo2);   % Dimensions of our current aoi list
+        %Next, fetch the PixelDistance value that will serve
+        %as our distance criteria for choosing from our
+        %current AOI list
+        PixelDistance=str2num(get(handles.EditUniqueRadius,'String'));
+        
+        
+        for indx=1:refrose
+            
+            % Cycle through AOIs in our reference list
+            %  (xycoord,               xylist,        PixelDistance)
+            Farlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
+            aoiinfo2=aoiinfo2(Farlist.logikFar,:); % retain only those current aoiinfo2 entries
+            % that are more distant than PixelDistance
+            handles.FitData=aoiinfo2;
+            handles.FitData=update_FitData_aoinum(handles.FitData);
+        end
+        handles.FarPixelDistance=PixelDistance;      % Save the distance used to pick AOIs here
+        handles.NearFarFlagg=1;                  % Setting NearFarFlagg=1 then allows user to perform
+        % the 'Retain AOIs Near AOIs' operation.  This order of operations
+        % is necessary so that size(RefAOINearLogik) properly reflects the total number
+        % of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
+        % in the current step  (case 20)
         guidata(gcbo,handles);
         %handles.FitData
         slider1_Callback(handles.ImageNumber, eventdata, handles)
@@ -4941,79 +4941,79 @@ switch MenuValue
             sprintf('User must first perform ''Remove AOIs Near AOIs'' ')
             return          % Stop without executing the current 'Retain AOIs Near AOIs'
         end
-       
+        
         filestring=get(handles.InputParms,'String');
         eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
-                               % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
-                               % be filtered in that we will retain only those AOIs from the current list
-                               % that are not close to AOIs from this reference list we just loaded
+        % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
+        % be filtered in that we will retain only those AOIs from the current list
+        % that are not close to AOIs from this reference list we just loaded
         Refaoiinfo2=aoiinfo2;   % The AOI list that we just loaded is our reference list of AOIs
         handles.Refaoiinfo2=Refaoiinfo2;    % Save the list of AOIs used as our reference set of AOIs
         [refrose refcol]=size(Refaoiinfo2);  % rose = number of AOIs in our reference list
-                    
-                   % Now we re-define 'aoiinfo2' to refer to our current
-                   % list of AOIs (that will then be filtered)
+        
+        % Now we re-define 'aoiinfo2' to refer to our current
+        % list of AOIs (that will then be filtered)
         aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
-        [rose col]=size(aoiinfo2);   % Dimensions of our current aoi list            
-                     %Next, fetch the PixelDistance value that will serve
-                     %as our distance criteria for choosing from our
-                     %current AOI list
-       PixelDistance=str2num(get(handles.EditUniqueRadius,'String'));
-    
-       TotalNearLogik=aoiinfo2(:,6)<0;     % Logical array size of starting aoiinfo2 
-                                % We'll use this to OR the criterion of
-                                % being close to any AOI in refaoiinfo2
-                                % TotalNearLogik starts out all logical zeros
-
-       for indx=1:refrose
-
-                                    % Cycle through AOIs in our reference list
-                              %  (xycoord,               xylist,        PixelDistance)
-           Nearlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
-           TotalNearLogik=TotalNearLogik | Nearlist.logikNear; % When finished with the 
-                        % loop, an entry will be true (1) only if that
-                        % row of aoiinfo2 lists an AOI
-                            % that is closer than PixelDistance to some
-                            % AOI in our refaoiinof2 list
-           %keyboard
-
-       end
-       aoiinfo2=aoiinfo2(TotalNearLogik,:);     % Keep only AOIs that are close to 
-                                        % some AOI in our refaoiinfo2 list
-       handles.FitData=aoiinfo2;        
-       handles.FitData=update_FitData_aoinum(handles.FitData);
-       handles.NearPixelDistance=PixelDistance;       % Save the distance used to pick AOIs here
-       RefAOINearLogik=cell(refrose,1); % Cell array that will store logical arrays
-                                        % that identify which AOIs in
-                                        % aoiinfo2 that each AOI in
-                                        % refaoiinfo2 is close to by our
-                                        % PixelDistance criteria
-                                        
-       % keyboard
-       for indxx=1:refrose
-           Nearlist=Near_Far_AOIs(Refaoiinfo2(indxx,3:4),aoiinfo2(:,3:4), PixelDistance);
-           RefAOINearLogik{indxx}=Nearlist.logikNear;
-       end
-       handles.RefAOINearLogik=RefAOINearLogik;     % Cell array, one array for each AOI in Refaoiinfo2.
-                                          % Each logic array identifies which AOIs in
-                                           % aoiinfo2 that each AOI in
-                                           % refaoiinfo2 is close to by our
-                                           % PixelDistance criteria
-                       % e.g.  aoiinfo2(handles.RefAOINearLogik{12},:) picks
-                       % out the rows in aoiinfo2 corresponding to the AOIs 
-                       % that are close to the AOI number=12
-                       % from the Refaoiinfo2 list.
-       guidata(gcbo,handles);            
-       slider1_Callback(handles.ImageNumber, eventdata, handles)
+        % [framenumber ave x y pixnum aoinumber];
+        [rose col]=size(aoiinfo2);   % Dimensions of our current aoi list
+        %Next, fetch the PixelDistance value that will serve
+        %as our distance criteria for choosing from our
+        %current AOI list
+        PixelDistance=str2num(get(handles.EditUniqueRadius,'String'));
+        
+        TotalNearLogik=aoiinfo2(:,6)<0;     % Logical array size of starting aoiinfo2
+        % We'll use this to OR the criterion of
+        % being close to any AOI in refaoiinfo2
+        % TotalNearLogik starts out all logical zeros
+        
+        for indx=1:refrose
+            
+            % Cycle through AOIs in our reference list
+            %  (xycoord,               xylist,        PixelDistance)
+            Nearlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
+            TotalNearLogik=TotalNearLogik | Nearlist.logikNear; % When finished with the
+            % loop, an entry will be true (1) only if that
+            % row of aoiinfo2 lists an AOI
+            % that is closer than PixelDistance to some
+            % AOI in our refaoiinof2 list
+            %keyboard
+            
+        end
+        aoiinfo2=aoiinfo2(TotalNearLogik,:);     % Keep only AOIs that are close to
+        % some AOI in our refaoiinfo2 list
+        handles.FitData=aoiinfo2;
+        handles.FitData=update_FitData_aoinum(handles.FitData);
+        handles.NearPixelDistance=PixelDistance;       % Save the distance used to pick AOIs here
+        RefAOINearLogik=cell(refrose,1); % Cell array that will store logical arrays
+        % that identify which AOIs in
+        % aoiinfo2 that each AOI in
+        % refaoiinfo2 is close to by our
+        % PixelDistance criteria
+        
+        % keyboard
+        for indxx=1:refrose
+            Nearlist=Near_Far_AOIs(Refaoiinfo2(indxx,3:4),aoiinfo2(:,3:4), PixelDistance);
+            RefAOINearLogik{indxx}=Nearlist.logikNear;
+        end
+        handles.RefAOINearLogik=RefAOINearLogik;     % Cell array, one array for each AOI in Refaoiinfo2.
+        % Each logic array identifies which AOIs in
+        % aoiinfo2 that each AOI in
+        % refaoiinfo2 is close to by our
+        % PixelDistance criteria
+        % e.g.  aoiinfo2(handles.RefAOINearLogik{12},:) picks
+        % out the rows in aoiinfo2 corresponding to the AOIs
+        % that are close to the AOI number=12
+        % from the Refaoiinfo2 list.
+        guidata(gcbo,handles);
+        slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 22
-                % Here to create a circle of backgroun AOIs
+        % Here to create a circle of backgroun AOIs
         AOIsize=str2num(get(handles.PixelNumber,'String'));
-      
+        
         AOIdistance=str2num(get(handles.EditUniqueRadius,'String'));
         folderaoiinfo=get(handles.InputParms,'String');
-                      % Load variable 'aoiinfo2' containing the frm# for spots
-                      % in the folder2 sequence file.
+        % Load variable 'aoiinfo2' containing the frm# for spots
+        % in the folder2 sequence file.
         eval(['load ' handles.FileLocations.data folderaoiinfo ' -mat']);
         InputAoiinfo2=aoiinfo2;
         bkaoiinfo2Structure=BackgroundAOICircle(InputAoiinfo2, AOIsize, AOIdistance);
@@ -5024,44 +5024,44 @@ switch MenuValue
         slider1_Callback(handles.ImageNumber, eventdata, handles)
         %keyboard
         %handles.RefAOINearLogik
-         
-                % Still must remove any AOIs that have ended up being near
-                % reference AOIs (b/c of close neighbors in reference AOI set 
+        
+        % Still must remove any AOIs that have ended up being near
+        % reference AOIs (b/c of close neighbors in reference AOI set
         set(handles.EditUniqueRadius,'String',num2str(0.99*AOIdistance))
         set(handles.MappingMenu,'Value',20);    % set to 'Remove AOIs near AOIs'
         guidata(gcbo,handles);
         %MapButton_Callback(handles.MapButton, eventdata, handles)
         handles=RemoveAOIsNearAOIs(handles);        % Test using a function rather than
-                                                % a Callback in order to get guidata
-                                                % to properly update the handles 
+        % a Callback in order to get guidata
+        % to properly update the handles
         guidata(gcbo,handles);
         %keyboard
         
         
-                % Now must invoke the 'Retain AOIs near AOIs to update
-                % the handles.RefAOINearLogik cell array to properly 
-                % AOIs that we may have just removed from the background
-                % AOI set.
+        % Now must invoke the 'Retain AOIs near AOIs to update
+        % the handles.RefAOINearLogik cell array to properly
+        % AOIs that we may have just removed from the background
+        % AOI set.
         handles.NearFarFlagg=1;              % Setting NearFarFlagg=1 then allows user to perform
-                                            % the 'Retain AOIs Near AOIs' operation.  This order of operations
-                                         % is necessary so that size(RefAOINearLogik) properly reflects the total number
-                                         % of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
-                                         % in the current step  (case 20)
+        % the 'Retain AOIs Near AOIs' operation.  This order of operations
+        % is necessary so that size(RefAOINearLogik) properly reflects the total number
+        % of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
+        % in the current step  (case 20)
         set(handles.EditUniqueRadius,'String',num2str(1.01*AOIdistance))
         set(handles.MappingMenu,'Value',21);    % set to 'Retain AOIs near AOIs'
         
         % MapButton_Callback(handles.MapButton, eventdata, handles)
-       handles=RetainAOIsNearAOIs(handles);
-       guidata(gcbo,handles);
+        handles=RetainAOIsNearAOIs(handles);
+        guidata(gcbo,handles);
         %keyboard
-                    % Now return the MappingMenu to prior settings
+        % Now return the MappingMenu to prior settings
         set(handles.EditUniqueRadius,'String',num2str(AOIdistance))
         set(handles.MappingMenu,'Value',22);    % set to 'Retain AOIs near AOIs'
         slider1_Callback(handles.ImageNumber, eventdata, handles)
         
 end                                         % End of switch
-        
-  
+
+
 
 
 
@@ -5120,7 +5120,7 @@ val=get(handles.MagChoice,'Value');
 if val<13           % Check range
     val=val+1;
     set(handles.MagChoice,'Value',val)
-
+    
 end
 MagChoice_Callback(handles.MagChoice, eventdata,handles)    % Invoke the MapChoice popup menu
 
@@ -5135,7 +5135,7 @@ val=get(handles.MagChoice,'Value');
 if val>1           % Check range
     val=val-1;
     set(handles.MagChoice,'Value',val)
-
+    
 end
 MagChoice_Callback(handles.MagChoice, eventdata,handles)    % Invoke the MapChoice popup menu
 
@@ -5155,8 +5155,8 @@ val= round(imagenum);
 aoiinfo2(:,1)=val;                          % Set the frame number to match the current frame
 handles.FitData=aoiinfo2;
 handles.NearFarFlagg=0;                 % NearFarFlagg=0 prevents user from performing 'Retain AOIs Near AOIs' until
-                                        % the user has first performed
-                                        % 'Remove AOIs Near AOIs'
+% the user has first performed
+% 'Remove AOIs Near AOIs'
 guidata(gcbo,handles);
 
 
@@ -5171,11 +5171,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 1)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 set(handles.PresetGo1,'String',INV_S)
 guidata(gcbo,handles);
 
@@ -5199,11 +5199,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 2)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo2,'String',INV_S)
 guidata(gcbo,handles);
@@ -5227,11 +5227,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 3)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 set(handles.PresetGo3,'String',INV_S)
 guidata(gcbo,handles);
 
@@ -5245,11 +5245,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 4)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo4,'String',INV_S)
 guidata(gcbo,handles);
@@ -5264,11 +5264,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 5)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo5,'String',INV_S)
 guidata(gcbo,handles);
@@ -5311,11 +5311,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 6)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo6,'String',INV_S)
 guidata(gcbo,handles);
@@ -5339,11 +5339,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 7)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo7,'String',INV_S)
 guidata(gcbo,handles);
@@ -5368,11 +5368,11 @@ FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which 
 handles.FramePresetMatrix(FramePresetChoiceValue, 8)=str2num(INV_S);  % Store the newest frame set
 FramePresetMatrix=handles.FramePresetMatrix;      % Assign to matrix
 if ~isempty(handles.FitData)
-                % Here is there are some AOIs selected
+    % Here is there are some AOIs selected
     handles.aoiinfo2Cell{FramePresetChoiceValue}=handles.FitData;   % Save the AOI set
     aoiinfo2Cell=handles.aoiinfo2Cell;
 end
-eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices 
+eval(['save ' handles.FileLocations.gui_files 'FramePresetMatrix.dat FramePresetMatrix aoiinfo2Cell']) % Store the matrices
 
 set(handles.PresetGo8,'String',INV_S)
 guidata(gcbo,handles);
@@ -5444,7 +5444,7 @@ if get(handles.SignX,'Value')==1
     %set(handles.EditUniqueRadiusX,'String',num2str(RadiusX))
 else
     set(handles.SignX,'String','X')
-     set(handles.SignX,'BackgroundColor',[.9412 .9412 .9412])
+    set(handles.SignX,'BackgroundColor',[.9412 .9412 .9412])
 end
 
 % --- Executes on button press in SignY.
@@ -5484,7 +5484,7 @@ function EditUniqueRadiusXLo_Callback(hObject, eventdata, handles)
 %    RadiusXLo=-RadiusXLo;
 %    set(handles.EditUniqueRadiusXLo,'String',num2str(RadiusXLo))
 %end
-    
+
 % --- Executes during object creation, after setting all properties.
 function EditUniqueRadiusXLo_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to EditUniqueRadiusXLo (see GCBO)
@@ -5571,20 +5571,20 @@ function XYRegionPresetMenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns XYRegionPresetMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from XYRegionPresetMenu
 XYRegionPresetMenuValue=get(handles.XYRegionPresetMenu,'Value');    % Current value of the preset popup menu
-   % Set the various handles to the values in the appropriate preset 
+% Set the various handles to the values in the appropriate preset
 set(handles.EditUniqueRadiusX,'String',handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadiusX);
 set(handles.EditUniqueRadius,'String',handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadius);
 set(handles.EditUniqueRadiusXLo,'String',handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadiusXLo);
 set(handles.EditUniqueRadiusLo,'String',handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadiusLo);
 set(handles.SignX,'Value',handles.XYRegionPreset{XYRegionPresetMenuValue}.SignX);
 set(handles.SignY,'Value',handles.XYRegionPreset{XYRegionPresetMenuValue}.SignY);
-    if (XYRegionPresetMenuValue~=8)
-       
-       % If XYRegionPresetMenu does NOT specify 'Image Region' we update the preset setting for the MappingMenu 
-        set(handles.MappingMenu,'Value', handles.XYRegionPreset{XYRegionPresetMenuValue}.MappingMenuValue);
-        MappingMenu_Callback(handles.MappingMenu,eventdata, handles)
-    end
-                    % Update the text on the buttons
+if (XYRegionPresetMenuValue~=8)
+    
+    % If XYRegionPresetMenu does NOT specify 'Image Region' we update the preset setting for the MappingMenu
+    set(handles.MappingMenu,'Value', handles.XYRegionPreset{XYRegionPresetMenuValue}.MappingMenuValue);
+    MappingMenu_Callback(handles.MappingMenu,eventdata, handles)
+end
+% Update the text on the buttons
 SignX_Callback(handles.SignX, eventdata, handles)
 SignY_Callback(handles.SignY, eventdata, handles)
 
@@ -5600,7 +5600,7 @@ function SetXYRegionPreset_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 XYRegionPresetMenuValue=get(handles.XYRegionPresetMenu,'Value');    % Current value of the preset popup menu
-                     % Save the current settings in the handles stucture presets cell array  
+% Save the current settings in the handles stucture presets cell array
 handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadiusX=get(handles.EditUniqueRadiusX,'String');
 handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadius=get(handles.EditUniqueRadius,'String');
 handles.XYRegionPreset{XYRegionPresetMenuValue}.EditUniqueRadiusXLo=get(handles.EditUniqueRadiusXLo,'String');
@@ -5609,9 +5609,9 @@ handles.XYRegionPreset{XYRegionPresetMenuValue}.SignX=get(handles.SignX,'Value')
 handles.XYRegionPreset{XYRegionPresetMenuValue}.SignY=get(handles.SignY,'Value');
 handles.XYRegionPreset{XYRegionPresetMenuValue}.MappingMenuValue=get(handles.MappingMenu,'Value');
 XYRegionPreset=handles.XYRegionPreset;
-                      % Save the modified cell array in the reference file 
- eval(['save ' handles.FileLocations.gui_files 'XYRegionPreset.dat XYRegionPreset -mat'])
- guidata(gcbo,handles);
+% Save the modified cell array in the reference file
+eval(['save ' handles.FileLocations.gui_files 'XYRegionPreset.dat XYRegionPreset -mat'])
+guidata(gcbo,handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -5658,36 +5658,36 @@ function FramePresetChoice_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FramePresetChoice contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FramePresetChoice
- eval(['load ' handles.FileLocations.gui_files 'FramePresetMatrix.dat -mat'])   % Load FramePresetMatrix 
- FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which preset set we are presently using
- handles.FitData=aoiinfo2Cell{FramePresetChoiceValue};              % Updata the FitData AOI set
- 
-            % Now update the seven frame preset buttons
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,1) );
- set(handles.PresetGo1,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,2) );
- set(handles.PresetGo2,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,3) );
- set(handles.PresetGo3,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,4) );
- set(handles.PresetGo4,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,5) );
- set(handles.PresetGo5,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,6) );
- set(handles.PresetGo5,'String',INV_S)
- 
- INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,7) );
- set(handles.PresetGo5,'String',INV_S)
+eval(['load ' handles.FileLocations.gui_files 'FramePresetMatrix.dat -mat'])   % Load FramePresetMatrix
+FramePresetChoiceValue=get(handles.FramePresetChoice,'Value');    % Fetch which preset set we are presently using
+handles.FitData=aoiinfo2Cell{FramePresetChoiceValue};              % Updata the FitData AOI set
 
- guidata(gcbo,handles);                 %Update handles
-            % Update the display with the new AOI set
- %slider1_Callback(handles.ImageNumber, eventdata, handles)      
- 
+% Now update the seven frame preset buttons
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,1) );
+set(handles.PresetGo1,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,2) );
+set(handles.PresetGo2,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,3) );
+set(handles.PresetGo3,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,4) );
+set(handles.PresetGo4,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,5) );
+set(handles.PresetGo5,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,6) );
+set(handles.PresetGo5,'String',INV_S)
+
+INV_S=num2str(handles.FramePresetMatrix(FramePresetChoiceValue,7) );
+set(handles.PresetGo5,'String',INV_S)
+
+guidata(gcbo,handles);                 %Update handles
+% Update the display with the new AOI set
+%slider1_Callback(handles.ImageNumber, eventdata, handles)
+
 
 % --- Executes during object creation, after setting all properties.
 function FramePresetChoice_CreateFcn(hObject, eventdata, handles)
@@ -5715,7 +5715,7 @@ if FPC_Value>1
 end
 
 
-    
+
 % --- Executes on button press in IncrementFramePresetChoice.
 function IncrementFramePresetChoice_Callback(hObject, eventdata, handles)
 % hObject    handle to IncrementFramePresetChoice (see GCBO)

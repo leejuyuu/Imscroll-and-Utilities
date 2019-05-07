@@ -41,12 +41,12 @@ function pc=BackgroundAOICircle(InputAoiinfo2, AOIsize, AOIdistance)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-        % In polar coordinates (r,theta) the center of the background AOI circle will be
-        % placed at a distance=AOIdistance from a reference AOI, and will 
-        % spaced by angles theta = 2*delta, where 
+% In polar coordinates (r,theta) the center of the background AOI circle will be
+% placed at a distance=AOIdistance from a reference AOI, and will
+% spaced by angles theta = 2*delta, where
 delta=atan(AOIsize/AOIdistance/sqrt(2));
-        % Note that AOIsize/sqrt(2) is 1/2 the diagnol of the background
-        % AOIs we make (square AOIs with sides=AOIsize)
+% Note that AOIsize/sqrt(2) is 1/2 the diagnol of the background
+% AOIs we make (square AOIs with sides=AOIsize)
 
 beta=2*delta*1.1;    % 1.1 factor and attempt to really insure the AOIs do not overlap
 aoinumber=floor(2*pi/beta); % = number of AOIs we will space around the circle
@@ -56,40 +56,40 @@ end
 if aoinumber<3
     sprintf('only 2 or fewer background AOIs created in circle')
 end
-[refrose refcol]=size(InputAoiinfo2);
+[refrose, refcol]=size(InputAoiinfo2);
 bknumber=aoinumber*refrose;     % = total number of background AOIs that will be placed
 pc.aoiinfo2=zeros(bknumber,refcol); % Reserve space for output background aoiinfo2
-            % frm#   ave   x  y  pixnum    aoi#  referenceAOI#      (we will not retain referenceAOI# in the output matrix) 
-bkaoiinfo2=[zeros(bknumber,1)   ones(bknumber,1)  zeros(bknumber,1)  zeros(bknumber,1)  AOIsize*ones(bknumber,1)  [1:bknumber]'  zeros(bknumber,1)];
+% frm#   ave   x  y  pixnum    aoi#  referenceAOI#      (we will not retain referenceAOI# in the output matrix)
+bkaoiinfo2=[zeros(bknumber,1)   ones(bknumber,1)  zeros(bknumber,1)  zeros(bknumber,1)  AOIsize*ones(bknumber,1)  (1:bknumber)'  zeros(bknumber,1)];
 outindx=1;  % Initialize row index of pc.aoiinfo2
 for indx=1:refrose
-        % Looping through all the reference AOIs
+    % Looping through all the reference AOIs
     xzero=InputAoiinfo2(indx,3);
     yzero=InputAoiinfo2(indx,4);
     AOIzero=InputAoiinfo2(indx,6);
     frmzero=InputAoiinfo2(indx,1);
-        % Vector of AOIs in the background AOI circle for the current reference AOI 
-    x=xzero+AOIdistance*cos(beta*[0:aoinumber-1]);
-    y=yzero+AOIdistance*sin(beta*[0:aoinumber-1]);
+    % Vector of AOIs in the background AOI circle for the current reference AOI
+    x=xzero+AOIdistance*cos(beta*(0:aoinumber-1));
+    y=yzero+AOIdistance*sin(beta*(0:aoinumber-1));
     for subindx=1:aoinumber
-                    % Enter the background AOI coordinates into the output matrix 
+        % Enter the background AOI coordinates into the output matrix
         bkaoiinfo2(outindx,3:4)=[x(subindx) y(subindx)];
         bkaoiinfo2(outindx,7)=AOIzero;      % Include the reference AOI#
         bkaoiinfo2(outindx,1)=frmzero;      % Reference AOI frame number
         outindx=outindx+1;              % Increment the row index
     end
 end
-      % Have now written all the xy coordinates for the background AOIs
-      % Create the  output.RefAOINearLogik cell array
+% Have now written all the xy coordinates for the background AOIs
+% Create the  output.RefAOINearLogik cell array
 pc.RefAOINearLogik=cell(refrose,1);
 for refindx=1:refrose
-        % Loop through all the reference AOIs, finding all their background AOIs in the output aoiinfo2 matrix 
+    % Loop through all the reference AOIs, finding all their background AOIs in the output aoiinfo2 matrix
     logik=InputAoiinfo2(refindx,6)==bkaoiinfo2(:,7);    % Logical array, picks out rows
-                                    % of bkaoiinfo2 that specify background
-                                    % AOIs for  the
-                                    % current reference AOI#
+    % of bkaoiinfo2 that specify background
+    % AOIs for  the
+    % current reference AOI#
     pc.RefAOINearLogik{refindx,1}=logik;
 end
 
-    
-pc.aoiinfo2(:,1:6)=bkaoiinfo2(:,1:6);      % 
+
+pc.aoiinfo2(:,1:6)=bkaoiinfo2(:,1:6);      %
