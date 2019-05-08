@@ -42,31 +42,31 @@ function pc=fetchframes_mapstruc_cell_v1(mapentry,mapstruc_cell,handles)
 if isfield(handles,'TiffFolder')
     folder=handles.TiffFolder;
 end
-%dum=uint32(dum);  
-ave=mapstruc_cell{mapentry,1}.aoiinf(2);       % Number of frames to ave (first frame)
-framenumber=mapstruc_cell{mapentry,1}.aoiinf(1); % First frame number                                                 
+
+ave = mapstruc_cell{mapentry,1}.aoiinf(2);       % Number of frames to ave (first frame)
+framenumber=mapstruc_cell{mapentry,1}.aoiinf(1); % First frame number
 if mapstruc_cell{mapentry,1}.folderuse ==1         %  = 0 for using folder
- dum=uint32(imread([folder],'tiff',framenumber)); 
- dum=dum-dum;                               % zeroed array same size as the images
+    dum=uint32(imread([folder],'tiff',framenumber));
+    dum=dum-dum;                               % zeroed array same size as the images
     for aveindx=framenumber:framenumber+ave-1         % Read in the frames and average them
         
         %dum=imadd(dum,uint32(imread([folder],'tiff',aveindx)));
         dum=dum+uint32(imread([folder],'tiff',aveindx));
     end
-
-elseif mapstruc_cell{mapentry,1}.folderuse ==2  
-                                                % Here to ave over the
-                                                % frames in 'images'
+    
+elseif mapstruc_cell{mapentry,1}.folderuse ==2
+    % Here to ave over the
+    % frames in 'images'
     dum=sum(images(:,:,framenumber:framenumber+ave-1),3);
 elseif mapstruc_cell{mapentry,1}.folderuse ==3          % Here to Glimpse file images
- dum=uint32( glimpse_image(handles.gfolder,handles.gheader,framenumber) );
- dum=dum-dum;                           % zeroed array same size as the images
+    dum=uint32( glimpse_image(handles.gfolder,handles.gheader,framenumber) );
+    dum=dum-dum;                           % zeroed array same size as the images
     for aveindx=framenumber:framenumber+ave-1        % Read in the frames and average them
-
-
+        
+        
         %dum=imadd(dum,uint32( glimpse_image(handles.gfolder,handles.gheader,aveindx) ) );
         dum=dum+uint32( glimpse_image(handles.gfolder,handles.gheader,aveindx) );
-
+        
     end
 end
 

@@ -1,4 +1,4 @@
-function pc=gauss2d_mapstruc2d_v2(mapstruc_cell,parenthandles)
+function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles)
 %
 % function gauss2d_mapstruc2d_v2(mapstruc_cell,parenthandles,handles)
 %
@@ -291,7 +291,7 @@ for framemapindx=2:nFrame
     end
     
     switchvalue=get(parenthandles.FitChoice,'Value');
-    parfor aoiindx2=1:nAOI   % Loop through all the aois for this frame
+    for aoiindx2=1:nAOI   % Loop through all the aois for this frame
         
         %****rowindex=rowindex+1;                       % Increment row index
         %****    [mpc npc]=size(pc.ImageData);                  % Get the last outputs
