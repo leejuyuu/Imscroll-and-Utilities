@@ -138,30 +138,6 @@ for aoiindx = 1:nAOI
             % have a zero offset in our output matrix
             FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
             %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
-        case 3                % Here to integrate spot, moving center.
-            % We find the max only within the original aoi, and center our aoi about
-            % this maximum point.  The spot max can
-            % therefore move only within the chosen aoi. Any further and we lose it
-            maxind=maxfind(firstaoi);
-            maoix=maxind(2)+xlow-1;maoiy=maxind(1)+ylow-1;    % x and y for aoi maximum, with indices referenced
-            % to the original image frame
-            [mxlow, mxhi, mylow, myhi]=AOI_Limits([maoix maoiy],pixnum/2);
-            %      mylow=round(maoiy-pixnum/2);mxlow=round(maoix-pixnum/2);
-            %      myhi=round(mylow+pixnum-1);mxhi=round(mxlow+pixnum-1);
-            mfirstaoi=firstfrm(mylow:myhi,mxlow:mxhi);
-            % [frame# amp xcenter ycenter sigma offset (int aoi)]
-            % (aoi# added later as first element in each row)
-            FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mfirstaoi))];
-            %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mfirstaoi))];
-            
-        case 4                            % Here to fit to 2D gaussian
-            % Fit the first aoi
-            %[amplitude xo sigx yo sigy bkgnd]
-            outarg=gauss2dxyfit(double(firstaoi),double([mx-mn pixnum/2  pixnum/4 pixnum/2 pixnum/4 mn]) );
-            %  [ aoi#    frm#    ampl.    xo   sigmax   yo   sigmay    offset   (int inten)  ]
-            FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3) outarg(4)+ylow outarg(5) outarg(6) sum(sum(firstaoi))];
-            %      FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3) outarg(4)+ylow-1 outarg(5) outarg(6) sum(sum(firstaoi))];
-            %pc.ImageData=[pc.ImageData; aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3) outarg(4)+ylow-1 outarg(5) outarg(6) sum(sum(firstaoi))];
         case 5
             % Here to just integrate the AOI using a
             % linear interpolation for when the AOI
@@ -170,84 +146,9 @@ for aoiindx = 1:nAOI
             shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
             FirstImageData=double([aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
             %pc.ImageData=double([pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-        case 6
-            % Here to integrate both the image AND
-            % the background (for later subtraction)
-            % Here to just integrate the AOI using a
-            % linear interpolation for when the AOI
-            % only partially overlaps pixels
-            % First integrate the data
-            shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-            shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-            FirstImageData=double([aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-            %pc.ImageData=double([pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-            % Then integrate the background
-            shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-            shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-            FirstBackgroundData=double([ aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundFirstFrame,[shiftedx shiftedy],pixnum/2)) ]);
-            %pc.BackgroundData=double([ pc.BackgroundData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundFirstFrame,[shiftedx shiftedy],pixnum/2)) ]);
-        case 7                                % Here to fit and integrate the spot
-            %  inputarg0 = [ ampl xzero yzero sigma offset]
-            % Now fit the first frame aoi
-            % Note: inputarg now skips sigma:  put in as a fixed value
-            % the outarg will be [amp x y offset] (skips sigma)
-            
-            outarg=gauss2dfit_fixed_sigma(double(firstaoi),double([inputarg0(1:3) sigma inputarg0(5)]));
-            
-            % Reference aoixy to original frame pixels for
-            % storage in output array.
-            %pc.ImageData=[mapstruc(1).aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(firstaoi))];
-            % [(aoi #)               amp          xzero         yzero       sigma      offset    (int intensity) ]
-            %aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
-            % aoiinf is a column vector with (number of rows)= number of frames to be processed
-            % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
-            FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow sigma outarg(4) sum(sum(firstaoismall))];
-            %pc.ImageData=[pc.ImageData;aoiindx
-            %mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
-        case 8
-            
-            [1 aoiindx]
-            % Here for prism-dispersed imaging.  We
-            % identify to which class the image belongs.
-            % classes: [ROG RO RG OG R O G Z]= 1:8
-            %
-            % shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-            % shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-            oneaoiinfo2=mapstruc_cell{1,aoiindx}.aoiinf;         % [frame# ave aoix aoiy pixnum aoinumber]
-            % Note: aoix and aoiy are drift-corrected already (inside build_2d_mapstruc_aois_frms() )
-            HalfOutputImageSize= parenthandles.aoiImageSet.HalfOutputImageSize;    % Image region boundaries defined
-            % by the current aoiImageSet, which
-            % should be the calibration aoiImageSet w/ examplex
-            % of each single dye class of image = R, O or G
-            
-            RegisterFlag=0;                                      % =0  => register the image
-            RoundingPixelFraction=[0 0];                         % Register image to pixel center
-            % Fetch image from region offset around AOI and register
-            % image so AOI is centered on a pixel (gfoloder image source --add tiff tif later):
-            
-            ExImageStruc=RegisterImage(parenthandles.gfolder,oneaoiinfo2,HalfOutputImageSize,RoundingPixelFraction, RegisterFlag);
-            ExImage=uint16(sum(ExImageStruc.frames,3)/oneaoiinfo2(1,2)); % Registered averaged image.  This image will be classified as 1:8
-            % Next, get the tstR, tstO, tstG from handles.aoiImageSet
-            % and then call SpotCoefficients( )
-            ExImage_xy=oneaoiinfo2(1,3:4);   % Drift-corrected xy for this AOI
-            NearR=Nearest_Images(ExImage_xy,5,parenthandles.aoiImageSet,5);        % 5 nearest R calibration images
-            NearO=Nearest_Images(ExImage_xy,6,parenthandles.aoiImageSet,5);        % 5 nearest O calibration images
-            NearG=Nearest_Images(ExImage_xy,7,parenthandles.aoiImageSet,5);        % 5 nearest G calibration images
-            %SC=SpotCoefficients(ExImage,NearR.AveImage,NearO.AveImage,NearG.AveImage);   % Find optimized [b p j k] values: linear least squares
-            %Find optimized [b p j k] values: nonlinear
-            %least squares for which p,j,k>0, but b is unconstrained
-            options=optimset('fminsearch');
-            options.MaxFunEvals=500000;
-            options.TolFun=1e-6;
-            options.TolX=1e-6;
-            options.MaxIter=10000;
-            SC=fminsearch('SpotCoefficients_PositiveNonlinear',[-150 .5 .5 .5],options,ExImage,NearR.AveImage,NearO.AveImage,NearG.AveImage);
-            %[ (aoi#)  (frm#) (b)  (p) (j) (k) (shiftedx) (shiftedy) ]
-            %FirstImageData=double([aoiindx oneaoiinfo2(1,1) SC.math' ExImage_xy ]);
-            FirstImageData=double([aoiindx oneaoiinfo2(1,1) SC(1) abs(SC(2:4)) ExImage_xy ]);
-            
-            
-            
+        
+        otherwise
+            error('the chosen fitting method isn''t supported in this version')
     end            %END of switch
     
     ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
@@ -354,32 +255,7 @@ for framemapindx=2:nFrame
                 %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
                 ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
                 
-            case 3     % Here to integrate spot, moving center with max.
-                % We find the max only within the original aoi, and center our aoi about
-                % this maximum point.  The spot max can
-                % therefore move only within the chosen aoi. Any further and we lose it
-                maxind=maxfind(currentaoi);
-                maoix=maxind(2)+xlow-1;maoiy=maxind(1)+ylow-1;    % x and y for aoi maximum, with indices referenced
-                % to the original image frame
-                [mxlow, mxhi, mylow, myhi]=AOI_Limits([maoix maoiy],pixnum/2);
-                %         mylow=round(maoiy-pixnum/2);mxlow=round(maoix-pixnum/2);
-                %         myhi=round(mylow+pixnum-1);mxhi=round(mxlow+pixnum-1);
-                mcurrentaoi=currentfrm(mylow:myhi,mxlow:mxhi);
-                % [frame# amp xcenter ycenter sigma offset (int aoi)]
-                
-                % (aoi# added later as first element in each row)
-                %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mcurrentaoi))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mcurrentaoi))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mcurrentaoi))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) 0 maoix maoiy 0 0 sum(sum(mcurrentaoi))];
-            case 4     % Here to fit spot with 2D gaussian
-                outarg=gauss2dxyfit(double(currentaoi),double([mx-mn pixnum/2  pixnum/4 pixnum/2 pixnum/4 mn]) );
-                %****        pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3) outarg(4)+ylow outarg(5) outarg(6) sum(sum(currentaoi))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3) outarg(4)+ylow outarg(5) outarg(6) sum(sum(currentaoi))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3) outarg(4)+ylow outarg(5) outarg(6) sum(sum(currentaoi))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3) outarg(4)+ylow outarg(5) outarg(6) sum(sum(currentaoi))];
-                %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3) outarg(4)+ylow-1 outarg(5) outarg(6) sum(sum(currentaoi))];
-            case 5
+           case 5
                 % Here to just integrate the AOI using a
                 % linear interpolation for when the AOI
                 % only partially overlaps pixels
@@ -390,90 +266,8 @@ for framemapindx=2:nFrame
                 %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
                 ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
                 
-            case 6
-                % Here to integrate both the image AND
-                % the background (for later subtraction)
-                % Here to just integrate the AOI using a
-                % linear interpolation for when the AOI
-                % only partially overlaps pixels
-                % First integrate the data
-                shiftedx=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3);
-                shiftedy=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(4);
-                %****       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                % Then integrate the background
-                shiftedx=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3);
-                shiftedy=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(4);
-                %****       pc.BackgroundData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundCurrentFrame,[shiftedx shiftedy],pixnum/2))];
-                %****pc.BackgroundData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundCurrentFrame,[shiftedx shiftedy],pixnum/2))];
-                %BackgroundData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundCurrentFrame,[shiftedx shiftedy],pixnum/2))];
-                %****BackgroundData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                % BackgroundDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                BackgroundDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(BackgroundCurrentFrame,[shiftedx shiftedy],pixnum/2))];
-                
-            case 7                                % Here to fit and integrate the spot
-                % Note:the inputarg0 now skips the sigma:  put in as a fixed #
-                % The outarg will be [amp x y offset]
-                outarg=gauss2dfit_fixed_sigma(double(currentaoi),double([inputarg0(1:3) sigma inputarg0(5)]));
-                %****       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow sigma outarg(4) sum(sum(currentaoismall))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow sigma outarg(4) sum(sum(currentaoismall))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow sigma outarg(4) sum(sum(currentaoismall))];
-                
-                % [aoinumber framenumber amplitude xcenter ycenter sigma offset integrated_aoi (integrated pixnum) (original aoi#)]
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow sigma outarg(4) sum(sum(currentaoismall))];
-                
-                %       pc.ImageData(rowindex,:)=[aoiindx2
-                %       mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
-                
-            case 8
-                [framemapindx aoiindx2]                            % Here for prism-dispersed imaging.  We
-                % identify to which class the image belongs.
-                % classes: [ROG RO RG OG R O G Z]= 1:8
-                %
-                % shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-                % shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-                
-                % oneaoiinfo2 == information for current frame
-                % number and AOI, (aoix and aoiy already drift corrected)
-                
-                oneaoiinfo2=mapstruc_cell{framemapindx,aoiindx2}.aoiinf;         % [frame# ave aoix aoiy pixnum aoinumber]
-                
-                % Note: aoix and aoiy are drift-corrected already (inside build_2d_mapstruc_aois_frms() )
-                
-                HalfOutputImageSize= parenthandles.aoiImageSet.HalfOutputImageSize;    % Image region boundaries defined
-                % by the current aoiImageSet, which
-                % should be the calibration aoiImageSet w/ examplex
-                % of each single dye class of image = R, O or G
-                
-                RegisterFlag=0;                                      % =0  => register the image
-                RoundingPixelFraction=[0 0];                         % Register image to pixel center
-                % Fetch image from region offset around AOI and register
-                % image so AOI is centered on a pixel (gfoloder image source --add tiff tif later):
-                ExImageStruc=RegisterImage(parenthandles.gfolder,oneaoiinfo2,HalfOutputImageSize,RoundingPixelFraction, RegisterFlag);
-                ExImage=uint16(sum(ExImageStruc.frames,3)/oneaoiinfo2(1,2)); % Registered averaged image.  This image will be classified as 1:8
-                % Next, get the tstR, tstO, tstG from handles.aoiImageSet
-                % and then call SpotCoefficients( )
-                ExImage_xy=oneaoiinfo2(1,3:4);   % Drift-corrected xy for this frame number and AOI
-                NearR=Nearest_Images(ExImage_xy,5,parenthandles.aoiImageSet,5);        % 5 nearest R calibration images
-                NearO=Nearest_Images(ExImage_xy,6,parenthandles.aoiImageSet,5);        % 5 nearest O calibration images
-                NearG=Nearest_Images(ExImage_xy,7,parenthandles.aoiImageSet,5);        % 5 nearest G calibration images
-                %SC=SpotCoefficients(ExImage,NearR.AveImage,NearO.AveImage,NearG.AveImage);   % Find optimized [b p j k] values
-                %[ (aoi#)  (frm#) (b)  (p) (j) (k) (shiftedx) (shiftedy) ]
-                options=optimset('fminsearch');
-                options.MaxFunEvals=500000;
-                options.TolFun=1e-6;
-                options.TolX=1e-6;
-                options.MaxIter=10000;
-                %keyboard
-                SC=fminsearch('SpotCoefficients_PositiveNonlinear',[-150 .5 .5 .5],options,ExImage,NearR.AveImage,NearO.AveImage,NearG.AveImage);
-                %[ (aoi#)  (frm#) (b)  (p) (j) (k) (shiftedx) (shiftedy) ]
-                
-                
-                %ImageDataParallel(aoiindx2,:,framemapindx)=double([aoiindx2 oneaoiinfo2(1,1) SC.math' ExImage_xy ]);
-                ImageDataParallel(aoiindx2,:,framemapindx)=double([aoiindx2 oneaoiinfo2(1,1) SC(1) abs(SC(2:4)) ExImage_xy ]);
-                
+            otherwise
+                error('the chosen fitting method isn''t supported in this version')
                 
         end            %END of switch
         
