@@ -46,26 +46,10 @@ FirstImageData = [];
 FirstBackgroundData = [];
 Radius=parenthandles.RollingBallRadius;
 Height=parenthandles.RollingBallHeight;
-
-% get the first averaged frame/aoi
-firstfrm=fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
-
-if any(get(parenthandles.BackgroundChoice,'Value')==[2 3])
-    % Here to use rolling ball background
-    
-    BackgroundFirstFrame=rolling_ball(firstfrm,Radius,Height);
-else
-    % Here to use Danny's newer background subtraction
-    BackgroundFirstFrame=bkgd_image(firstfrm,Radius,Height);
+fitChoice = get(parenthandles.FitChoice,'Value');
+if get(parenthandles.BackgroundChoice,'Value') ~= 1
+    error('background choice is not supported in this version')
 end
-
-
-[nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
-
-% Get the sigma value from the editable text region for gaussina fit with fixed sigma
-sigma = str2double(get(parenthandles.SigmaValueString,'String'));
-
-
 if ~isfield(parenthandles,'Pixnums')
     % Here if user did not set the small AOI size for integration
     % when gaussian fitting with a fixed sigma
@@ -77,254 +61,267 @@ elseif isempty(parenthandles.Pixnums)
     parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
     guidata(gcbo,parenthandles)
 end
-
-
-% Pre-Allocate space
-if get(parenthandles.FitChoice,'Value')==4
-    ImageDataParallel(:,:,nFrame)=zeros(nAOI,9);    % (aoiindx,DataEntryIndx,FrmIndx)
-    % Stacked matrices with each matrix containing the data for all the aois in one frame.
-    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,9);
+if fitChoice == 5
+    pc = getAoiIntensityLinearInterp(mapstruc_cell,parenthandles);
 else
-    ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
-    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
-end
-% Pre-Allocate space
-LastxyLowHigh(nAOI,:)=zeros(1,4);          % When gaussian tracking an aoi we must use the last xy location
-LastxyLowHighSmall(nAOI,:)=zeros(1,4);     % as input to the next xy fit.  Hence we store the last set of xy values
-% for just one frame.
-
-for aoiindx = 1:nAOI
-    
-    % Limits for the aoi
-    aoiy = mapstruc_cell{1,aoiindx}.aoiinf(4);  % Y (row) Center of aoi
-    aoix = mapstruc_cell{1,aoiindx}.aoiinf(3);  % X (col)center of aoifram
-    pixnum = mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
-    [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
-    LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
-    % Use the next AOI limits for integration of a small AOI when
-    % fitting a gaussian (with fixed sigma) to the larger AOI
-    [xlowsmall, xhismall, ylowsmall, yhismall] = AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
-    LastxyLowHighSmall(aoiindx,:) = [xlowsmall xhismall ylowsmall yhismall];
-    
-    firstaoi = firstfrm(ylow:yhi,xlow:xhi);
-    % Again, use the following AOI for integration of a small AOI when
-    % fitting a gaussian (with fixed sigma) to the larger AOI
-    firstaoismall = firstfrm(ylowsmall:yhismall,xlowsmall:xhismall);
-    % starting parameters for fit
-    %[ ampl xzero yzero sigma offset]
-    mx = double( max(max(firstaoi)) );
-    mn = double( mean(mean(firstaoi)) );
-    inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
-    switch (get(parenthandles.FitChoice,'Value'))
-        
-        case 1                                % Here to fit and integrate the spot
-            
-            % Now fit the first frame aoi
-            outarg=gauss2dfit(double(firstaoi),double(inputarg0));
-            % Reference aoixy to original frame pixels for
-            % storage in output array.
-            %pc.ImageData=[mapstruc(1).aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(firstaoi))];
-            % [(aoi #)               amp          xzero         yzero       sigma      offset    (int intensity) ]
-            %aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
-            % aoiinf is a column vector with (number of rows)= number of frames to be processed
-            % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
-            % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
-            FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
-            %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
-        case 2
-            % Here if we only integrate the aoi, not fitting
-            % the spot to a gaussian.  Note that we
-            % retain the original aoi coordinates, but
-            % have a zero offset in our output matrix
-            FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
-            %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
-        case 5
-            % Here to just integrate the AOI using a
-            % linear interpolation for when the AOI
-            % only partially overlaps pixels
-            shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-            shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-            FirstImageData=double([aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-            %pc.ImageData=double([pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-        
-        otherwise
-            error('the chosen fitting method isn''t supported in this version')
-    end            %END of switch
-    
-    ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
-    
-    if get(parenthandles.FitChoice,'Value')==6
-        % Here only if FirstBackgroundData actually contains computed entries
-        % If we are computing background, just
-        % place the first data into
-        
-        BackgroundDataParallel(aoiindx,:,1)=FirstBackgroundData; % (aoiindx,  DataIndx,  FrameIndx)
-    end
-end             % End of aoiindx loop through all the aois for the first frame
-
-
-%Now loop through the remaining frames
-
-
-for framemapindx=2:nFrame
+    % get the first averaged frame/aoi
+    firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
     
     
-    if framemapindx/10==round(framemapindx/10)
-        framemapindx
-    end
-    % Get the next averaged frame to process
-    currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-    if get(parenthandles.FitChoice,'Value')==6
-        
-        % Here if user wants the background computed (this
-        % requires a couple seconds, so we only compute it if
-        % the user wants it
-        if any(get(parenthandles.BackgroundChoice,'Value')==[2 3])
-            % Here to use rolling ball background
-            BackgroundCurrentFrame=rolling_ball(currentfrm,Radius,Height);
-        else
-            % Here to use Danny's newer background subtraction
-            BackgroundCurrentFrame=bkgd_image(currentfrm,Radius,Height);
-        end
-        
+    
+    
+    [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
+    
+    
+    
+    
+    
+    
+    % Pre-Allocate space
+    if fitChoice==4
+        ImageDataParallel(:,:,nFrame)=zeros(nAOI,9);    % (aoiindx,DataEntryIndx,FrmIndx)
+        % Stacked matrices with each matrix containing the data for all the aois in one frame.
+        BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,9);
     else
-        BackgroundCurrentFrame=currentfrm;
+        ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
+        BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
     end
+    % Pre-Allocate space
+    LastxyLowHigh = zeros(nAOI,4);          % When gaussian tracking an aoi we must use the last xy location
+    LastxyLowHighSmall = zeros(nAOI,4);     % as input to the next xy fit.  Hence we store the last set of xy values
+    % for just one frame.
     
-    switchvalue=get(parenthandles.FitChoice,'Value');
-    for aoiindx2=1:nAOI   % Loop through all the aois for this frame
+    for aoiindx = 1:nAOI
         
-        %****rowindex=rowindex+1;                       % Increment row index
-        %****    [mpc npc]=size(pc.ImageData);                  % Get the last outputs
-        %lastoutput=pc.ImageData(mpc,:);                % ImageData has the same form as aoifits
-        
-        pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
-        
-        % 3/8/2011: Note the following two lines (first line commented out).
-        % There was some apparent confusion as to the meaning of the startparm variable.
-        % It is, of course indicative of whether the aois move with the DriftList (=2 3 or 4
-        % if moving with DriftList) but here is was being interpreted as indicating that
-        % the gaussian fit would progress by using the last output [x  y] gaussian center
-        % as the center of the next aoi:  the aoi could then move off very
-        % quickly.  The statement as now stands will keep the aoi being fit as merely the
-        % aoi with a center that moves according to DriftList (the moving aoi information
-        % is already specified in the mapstruc stucture)
-        
-        
-        
-        
-        TempLastxy=LastxyLowHigh(aoiindx2,:);
-        xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
-        TempLastxySmall=LastxyLowHighSmall(aoiindx2,:);
-        xlowsmall=TempLastxySmall(1);xhismall=TempLastxySmall(2);
-        ylowsmall=TempLastxySmall(3);yhismall=TempLastxySmall(4);
-        currentaoi=currentfrm(ylow:yhi,xlow:xhi);
-        % Again, use the following AOIfor integration of a small AOI when
+        % Limits for the aoi
+        aoiy = mapstruc_cell{1,aoiindx}.aoiinf(4);  % Y (row) Center of aoi
+        aoix = mapstruc_cell{1,aoiindx}.aoiinf(3);  % X (col)center of aoifram
+        pixnum = mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
+        [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
+        LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
+        % Use the next AOI limits for integration of a small AOI when
         % fitting a gaussian (with fixed sigma) to the larger AOI
+        [xlowsmall, xhismall, ylowsmall, yhismall] = AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
+        LastxyLowHighSmall(aoiindx,:) = [xlowsmall xhismall ylowsmall yhismall];
         
-        currentaoismall=currentfrm(ylowsmall:yhismall,xlowsmall:xhismall);
-        
-        % For now, always guess at starting parameters
-        
-        mx=double( max(max(currentaoi)) );
-        mn=double( mean(mean(currentaoi)) );
-        inputarg0=[mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
-        
-        % Now fit the current aoi
-        
-        %     switch (get(parenthandles.FitChoice,'Value'))
-        switch switchvalue
+        firstaoi = firstfrm(ylow:yhi,xlow:xhi);
+        % Again, use the following AOI for integration of a small AOI when
+        % fitting a gaussian (with fixed sigma) to the larger AOI
+        firstaoismall = firstfrm(ylowsmall:yhismall,xlowsmall:xhismall);
+        % starting parameters for fit
+        %[ ampl xzero yzero sigma offset]
+        mx = double( max(max(firstaoi)) );
+        mn = double( mean(mean(firstaoi)) );
+        inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
+        switch fitChoice
             
             case 1                                % Here to fit and integrate the spot
                 
-                
-                
-                outarg=gauss2dfit(double(currentaoi),double(inputarg0));
-                %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
+                % Now fit the first frame aoi
+                outarg=gauss2dfit(double(firstaoi),double(inputarg0));
+                % Reference aoixy to original frame pixels for
+                % storage in output array.
+                %pc.ImageData=[mapstruc(1).aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(firstaoi))];
+                % [(aoi #)               amp          xzero         yzero       sigma      offset    (int intensity) ]
+                %aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
+                % aoiinf is a column vector with (number of rows)= number of frames to be processed
+                % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
+                % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
+                FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
+                %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
             case 2
                 % Here if we only integrate the aoi, not fitting
                 % the spot to a gaussian.  Note that we
                 % retain the original aoi coordinates, but
                 % have a zero offset in our output matrix
-                %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
+                FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
                 
-           case 5
+            case 5
                 % Here to just integrate the AOI using a
                 % linear interpolation for when the AOI
                 % only partially overlaps pixels
-                shiftedx=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3);
-                shiftedy=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(4);
-                %****       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
+                shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
+                shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
+                FirstImageData=double([aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
                 
             otherwise
                 error('the chosen fitting method isn''t supported in this version')
-                
         end            %END of switch
         
+        ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
         
-    end             %END of for loop aoiindx2
-    
-    
-    if get(parenthandles.TrackAOIs,'Value')==1
-        
-        % Here for moving aoi (last output aoixy)
-        % Save the last fit xy locations
-        for aoiindx3=1:nAOI
-            lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
-            pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
-            [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
-            LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
-            [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],parenthandles.Pixnums(1)/2);
-            LastxyLowHighSmall(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
+        if fitChoice==6
+            % Here only if FirstBackgroundData actually contains computed entries
+            % If we are computing background, just
+            % place the first data into
+            
+            BackgroundDataParallel(aoiindx,:,1)=FirstBackgroundData; % (aoiindx,  DataIndx,  FrameIndx)
         end
-    else
-        % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
-        for aoiindx4=1:nAOI
-            aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
-            aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
-            pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
-            [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
-            LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
-            % Use the next AOI limits for integration of a small AOI when
+    end             % End of aoiindx loop through all the aois for the first frame
+    
+    
+    %Now loop through the remaining frames
+    
+    
+    for framemapindx=2:nFrame
+        
+        
+        if framemapindx/10==round(framemapindx/10)
+            framemapindx
+        end
+        % Get the next averaged frame to process
+        currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
+        if fitChoice==6
+            
+            % Here if user wants the background computed (this
+            % requires a couple seconds, so we only compute it if
+            % the user wants it
+            if any(get(parenthandles.BackgroundChoice,'Value')==[2 3])
+                % Here to use rolling ball background
+                BackgroundCurrentFrame=rolling_ball(currentfrm,Radius,Height);
+            else
+                % Here to use Danny's newer background subtraction
+                BackgroundCurrentFrame=bkgd_image(currentfrm,Radius,Height);
+            end
+            
+        else
+            BackgroundCurrentFrame=currentfrm;
+        end
+        
+        
+        for aoiindx2=1:nAOI   % Loop through all the aois for this frame
+            
+            %****rowindex=rowindex+1;                       % Increment row index
+            %****    [mpc npc]=size(pc.ImageData);                  % Get the last outputs
+            %lastoutput=pc.ImageData(mpc,:);                % ImageData has the same form as aoifits
+            
+            pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
+            
+            % 3/8/2011: Note the following two lines (first line commented out).
+            % There was some apparent confusion as to the meaning of the startparm variable.
+            % It is, of course indicative of whether the aois move with the DriftList (=2 3 or 4
+            % if moving with DriftList) but here is was being interpreted as indicating that
+            % the gaussian fit would progress by using the last output [x  y] gaussian center
+            % as the center of the next aoi:  the aoi could then move off very
+            % quickly.  The statement as now stands will keep the aoi being fit as merely the
+            % aoi with a center that moves according to DriftList (the moving aoi information
+            % is already specified in the mapstruc stucture)
+            
+            
+            
+            
+            TempLastxy=LastxyLowHigh(aoiindx2,:);
+            xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
+            TempLastxySmall=LastxyLowHighSmall(aoiindx2,:);
+            xlowsmall=TempLastxySmall(1);xhismall=TempLastxySmall(2);
+            ylowsmall=TempLastxySmall(3);yhismall=TempLastxySmall(4);
+            currentaoi=currentfrm(ylow:yhi,xlow:xhi);
+            % Again, use the following AOIfor integration of a small AOI when
             % fitting a gaussian (with fixed sigma) to the larger AOI
-            [xlowsmall, xhismall, ylowsmall, yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
-            LastxyLowHighSmall(aoiindx4,:)=[xlowsmall xhismall ylowsmall yhismall];
+            
+            currentaoismall=currentfrm(ylowsmall:yhismall,xlowsmall:xhismall);
+            
+            % For now, always guess at starting parameters
+            
+            mx=double( max(max(currentaoi)) );
+            mn=double( mean(mean(currentaoi)) );
+            inputarg0=[mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
+            
+            % Now fit the current aoi
+            
+            %     switch (fitChoice)
+            switch fitChoice
+                
+                case 1                                % Here to fit and integrate the spot
+                    
+                    
+                    
+                    outarg=gauss2dfit(double(currentaoi),double(inputarg0));
+                    %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+                    %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
+                case 2
+                    % Here if we only integrate the aoi, not fitting
+                    % the spot to a gaussian.  Note that we
+                    % retain the original aoi coordinates, but
+                    % have a zero offset in our output matrix
+                    %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
+                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
+                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
+                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
+                    
+                case 5
+                    % Here to just integrate the AOI using a
+                    % linear interpolation for when the AOI
+                    % only partially overlaps pixels
+                    shiftedx=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3);
+                    shiftedy=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(4);
+                    %****       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
+                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
+                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
+                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
+                    
+                otherwise
+                    error('the chosen fitting method isn''t supported in this version')
+                    
+            end            %END of switch
+            
+            
+        end             %END of for loop aoiindx2
+        
+        
+        if get(parenthandles.TrackAOIs,'Value')==1
+            
+            % Here for moving aoi (last output aoixy)
+            % Save the last fit xy locations
+            for aoiindx3=1:nAOI
+                lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
+                pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
+                [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
+                LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
+                [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],parenthandles.Pixnums(1)/2);
+                LastxyLowHighSmall(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
+            end
+        else
+            % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
+            for aoiindx4=1:nAOI
+                aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
+                aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
+                pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
+                [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
+                LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
+                % Use the next AOI limits for integration of a small AOI when
+                % fitting a gaussian (with fixed sigma) to the larger AOI
+                [xlowsmall, xhismall, ylowsmall, yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
+                LastxyLowHighSmall(aoiindx4,:)=[xlowsmall xhismall ylowsmall yhismall];
+            end
         end
-    end
+        
+    end           % end of for loop framemapindx
     
-end           % end of for loop framemapindx
-
-
-
-% Pre-Allocate space
-if get(parenthandles.FitChoice,'Value')==4
-    pc.ImageData(nAOI*nFrame,:)=zeros(1,9);    % (aoiindx,DataEntryIndx,FrmIndx)
-    % Stacked matrices with
-    % each matrix containing the data for all the aois
-    % in one frame.
-    pc.BackgroundData(nAOI*nFrame,:)=zeros(1,9);
-else
-    pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
-    pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
+    
+    
+    % Pre-Allocate space
+    if fitChoice==4
+        pc.ImageData(nAOI*nFrame,:)=zeros(1,9);    % (aoiindx,DataEntryIndx,FrmIndx)
+        % Stacked matrices with
+        % each matrix containing the data for all the aois
+        % in one frame.
+        pc.BackgroundData(nAOI*nFrame,:)=zeros(1,9);
+    else
+        pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
+        pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
+    end
+    % ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
+    % Reshaping data matrices for output
+    % The form ImageData and BackgroundData matrices was required to
+    % satisfy the parallel processing loop requirements for indexing
+    
+    for frameindex=1:nFrame
+        pc.ImageData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=ImageDataParallel(:,:,frameindex);
+        pc.BackgroundData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=BackgroundDataParallel(:,:,frameindex);
+    end
 end
-% ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
-% Reshaping data matrices for output
-% The form ImageData and BackgroundData matrices was required to
-% satisfy the parallel processing loop requirements for indexing
-
-for frameindex=1:nFrame
-    pc.ImageData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=ImageDataParallel(:,:,frameindex);
-    pc.BackgroundData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=BackgroundDataParallel(:,:,frameindex);
 end
-end
- 
