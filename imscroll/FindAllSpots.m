@@ -110,6 +110,6 @@ for frmindx=1:frmcol            % Cycle through all frames, finding the spots
 end
 
 set(handles.ImageNumber,'Value',currentimagenum);                % Reinstate proper image number on slider
-
+fprintf('process finished\n');
 guidata(gcbo,handles)
 pc=FreeAllSpotsMemory(AllSpots);                        % Output structure containing cell array with spot record

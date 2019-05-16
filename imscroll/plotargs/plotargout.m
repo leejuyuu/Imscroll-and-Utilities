@@ -2225,7 +2225,7 @@ set(handles.ButtonChoice,'Value',11);
          aoifits=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits,parenthandles);  % v5 remove slight baseline offset using
                                                                                      % DetrendAfterBackgroundSubtraction
          %keyboard
-        
+        fprintf('process finished\n')
         set(handles.DataOperation,'Value',0)        % reset the toggle to 0 when done
          set(handles.ButtonChoice,'Value',11);      % and set menu to 'Click and Display AOIs'
         eval(['save ' parenthandles.FileLocations.data 'bkdefault.dat aoifits']);
