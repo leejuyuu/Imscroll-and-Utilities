@@ -1561,8 +1561,8 @@ switch ButtonChoiceValue
     handles.IntervalDataStructure.AllSpots=FreeAllSpotsMemory(parenthandles.AllSpots);
     Intervals.AllSpots=handles.IntervalDataStructure.AllSpots;
                                                 % Open a dialog box for user
-    [fn fp]=uiputfile('*.*','Save the CumulativeIntervalArray and AllTracesCellArray');
-    eval( ['save ' [fp fn] ' Intervals' ] );                    % Save the Intervals structure
+    [fn, fp]=uiputfile('.dat','Save the CumulativeIntervalArray and AllTracesCellArray','data\');
+    save([fp,fn],'Intervals')
     set(handles.AOIList,'String',[fp fn])
     guidata(gcbo,handles)
 
@@ -4118,3 +4118,5 @@ function LoadAOIFitsChoice_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+function TextInputAoifits_CreateFcn(hObject, eventdata, handles)
