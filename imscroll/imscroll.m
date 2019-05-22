@@ -63,7 +63,7 @@ if nargin <= 1  % LAUNCH GUI
             
             handles.gfolder=foldstruc.gfolder;        % The path to the glimpse folder, (maybe) defined by user in command mode
             handles.gfolder1=foldstruc.gfolder;      % Storing gfolder as gfolder1 so we can switch between gfolders
-            eval(['load ' foldstruc.gfolder 'header.mat'])     % loads the vid structure of the glimpse folder
+            load([foldstruc.gfolder,'header.mat'])     % loads the vid structure of the glimpse folder
             handles.gheader=vid;
             handles.gheader1=vid;
             handles.MaxFrames=vid.nframes;               % Get number of frames in the file from vid structure
@@ -2501,7 +2501,10 @@ if sourcenum==3
     gname=handles.gfolder;
     lengthgname=length(gname);
     set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
+    handles.imageInfo = getImageInfo(handles.gfolder,3);
+    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrame))
     guidata(gcbo,handles);
+    
 end
 if sourcenum==1
     % here for using tiff files
@@ -2537,6 +2540,8 @@ if sourcenum==1
     tiffname=handles.TiffFolder;
     lengthtiffname=length(tiffname);
     set(handles.GlimpseFolderName,'String',tiffname(lengthtiffname-14:lengthtiffname));
+    handles.imageInfo = getImageInfo(handles.TiffFolder,1);
+    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrame))
     guidata(gcbo,handles);
 end
 
