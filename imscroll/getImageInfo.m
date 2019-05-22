@@ -1,9 +1,9 @@
 function imageInfo = getImageInfo(path,imageType)
 % imageInfo = getImageInfo(path)
-% returns the information of image stack file.
+% returns the information of image sequence file.
 % imageInfo = struct(
-% frame number
-% pixel size
+%     'nFrame' number of frames in sequence
+%     'width' and 'height': image width (pixel) and height (pixel)
 
 switch imageType
     case 1
