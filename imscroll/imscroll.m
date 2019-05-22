@@ -2502,7 +2502,7 @@ if sourcenum==3
     lengthgname=length(gname);
     set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
     handles.imageInfo = getImageInfo(handles.gfolder,3);
-    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrame))
+    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrames))
     guidata(gcbo,handles);
     
 end
@@ -2541,7 +2541,7 @@ if sourcenum==1
     lengthtiffname=length(tiffname);
     set(handles.GlimpseFolderName,'String',tiffname(lengthtiffname-14:lengthtiffname));
     handles.imageInfo = getImageInfo(handles.TiffFolder,1);
-    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrame))
+    set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrames))
     guidata(gcbo,handles);
 end
 
