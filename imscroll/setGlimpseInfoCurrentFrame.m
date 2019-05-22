@@ -1,4 +1,7 @@
 function setGlimpseInfoCurrentFrame(CurrentFrameNumber,handles)
+% setGlimpseInfoCurrentFrame(CurrentFrameNumber,handles)
+% setting the current frame laser indicators and the current frame filter wheel status to show in imscroll gui 
+
 % Set the laser indicators
 if isfield(handles.gheader,'lasers');
     LaserIndicator=handles.gheader.lasers(CurrentFrameNumber,:);     % 0/1 binary indicator
