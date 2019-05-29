@@ -1,4 +1,4 @@
-function image = getAveragedImage(fileProperty,CurrentFrameNumber,FrameAverage)
+function image = getAveragedImage(imageFileProperty,CurrentFrameNumber,FrameAverage)
 %
 % function getframes_v1(handles)
 %
@@ -24,18 +24,19 @@ function image = getAveragedImage(fileProperty,CurrentFrameNumber,FrameAverage)
 % A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
-tempImageSum = zeros(fileProperty.height,fileProperty.width,'uint32');
-switch fileProperty.fileType
-    case 1
+tempImageSum = zeros(imageFileProperty.height,imageFileProperty.width,'uint32');
+switch imageFileProperty.fileType
+    case 'tiff'
         % popup menu 'Tiff_Folder'
         for aveindx = CurrentFrameNumber:CurrentFrameNumber+FrameAverage-1
-            tempImageSum = tempImageSum + uint32(imread(fileProperty.filePath,'tiff',aveindx)) ;
+            tempImageSum = tempImageSum + uint32(imread(imageFileProperty.filePath,'tiff',aveindx)) ;
         end
-    case 3
+    case 'glimpse'
         % popup menu 'Glimpse_Folder'
         % use Glimpse file directly
+        tempImageSum = tempImageSum';
         for aveindx=CurrentFrameNumber:CurrentFrameNumber+FrameAverage-1
-            tempImageSum = tempImageSum + uint32(glimpse_image(fileProperty.filePath,fileProperty.gheader,aveindx));
+            tempImageSum = tempImageSum + uint32(glimpse_image(imageFileProperty.filePath,imageFileProperty.gheader,aveindx));
         end
     otherwise
         error('Error in getAveragedImage.m \nImage type is not supported in this version%s','')
