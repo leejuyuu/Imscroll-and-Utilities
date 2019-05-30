@@ -1,4 +1,4 @@
-function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles)
+function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles,imageFileProperty)
 %
 % function gauss2d_mapstruc2d_v2(mapstruc_cell,parenthandles,handles)
 %
@@ -42,28 +42,29 @@ function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles)
 
 
 
-FirstImageData = [];
-FirstBackgroundData = [];
-Radius=parenthandles.RollingBallRadius;
-Height=parenthandles.RollingBallHeight;
 fitChoice = get(parenthandles.FitChoice,'Value');
-if get(parenthandles.BackgroundChoice,'Value') ~= 1
-    error('background choice is not supported in this version')
-end
-if ~isfield(parenthandles,'Pixnums')
-    % Here if user did not set the small AOI size for integration
-    % when gaussian fitting with a fixed sigma
-    parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
-    guidata(gcbo,parenthandles)
-elseif isempty(parenthandles.Pixnums)
-    % Here if parenthandles.Pixnums exists but is empty.  Set to
-    % pixnum for first aoi
-    parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
-    guidata(gcbo,parenthandles)
-end
 if fitChoice == 5
-    pc = getAoiIntensityLinearInterp(mapstruc_cell,parenthandles);
+    pc = getAoiIntensityLinearInterp(mapstruc_cell,imageFileProperty);
 else
+    FirstImageData = [];
+    FirstBackgroundData = [];
+    Radius=parenthandles.RollingBallRadius;
+    Height=parenthandles.RollingBallHeight;
+    
+    if get(parenthandles.BackgroundChoice,'Value') ~= 1
+        error('background choice is not supported in this version')
+    end
+    if ~isfield(parenthandles,'Pixnums')
+        % Here if user did not set the small AOI size for integration
+        % when gaussian fitting with a fixed sigma
+        parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
+        guidata(gcbo,parenthandles)
+    elseif isempty(parenthandles.Pixnums)
+        % Here if parenthandles.Pixnums exists but is empty.  Set to
+        % pixnum for first aoi
+        parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
+        guidata(gcbo,parenthandles)
+    end
     % get the first averaged frame/aoi
     firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
     
