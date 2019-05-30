@@ -36,8 +36,9 @@ for iFrame = 1:nFrames
     for iAOI = 1:nAOI   % Loop through all the aois for this frame
         shiftedx=mapstruc_cell{iFrame,iAOI}.aoiinf(3);
         shiftedy=mapstruc_cell{iFrame,iAOI}.aoiinf(4);
+        
         Data(iAOI,:,iFrame)=[iAOI, mapstruc_cell{iFrame,iAOI}.aoiinf(1:5), 0,...
-            double(linear_AOI_interpolation(currentFrameImage,[shiftedx shiftedy],pixnum/2))];
+            double(linear_AOI_interpolation2(currentFrameImage,[shiftedx shiftedy],pixnum/2))];
         
     end             %END of for loop aoiindx2
    
