@@ -3648,7 +3648,8 @@ switch SpotsButtonChoice
         set(handles.FramesPickSpots,'String','...')
         set(handles.SpotsButton,'String','...')
         pause(0.1)
-        AllSpots=FindAllSpots(handles,3500);     % 3500=max # of spots to retain for each frame
+        imageFileProperty = getImageFileProperty(handles.TiffFolder);
+        AllSpots=FindAllSpots(handles,3500,imageFileProperty);     % 3500=max # of spots to retain for each frame
         % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
         % AllSpots.AllSpotsCells{m,3}= frame #
         if get(handles.HighLowAllSpots,'Value')==0
