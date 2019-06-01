@@ -1,4 +1,4 @@
-function pc=FindAllSpots(handles,maxnum,imageFileProperty)
+function pc=FindAllSpots(imageFileProperty,region,aoiProcessParameters,spotPickingParameters)
 %
 %  function FindAllSpots(handles,maxnum)
 % gfolder,frmrange,frmlimits,NoiseDiameter,SpotDiameter,SpotBrightness
@@ -23,40 +23,27 @@ function pc=FindAllSpots(handles,maxnum,imageFileProperty)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
-FrameRange = eval([get(handles.FrameRange,'String') ';']);
-frameAverage = round(str2double(get(handles.FrameAve,'String')));
+frameRange = aoiProcessParameters.frameRange;
+frameAverage = aoiProcessParameters.frameAverage;
+noiseDiameter = spotPickingParameters.noiseDiameter;
+spotDiameter  = spotPickingParameters.spotDiameter;
+spotBrightness = spotPickingParameters.spotBightness;
 
-nFrames = length(FrameRange);
+nFrames = length(frameRange);
 % preallocate the arrays for
 % storing spot information
 AllSpots.AllSpotsCells=cell(nFrames,3);  % Will be a cell array {N,3} N=# of frames computed, and
 % AllSpots{m,1}= [x y] list of spots, {m,2}= # of spots in list, {m,3}= frame#
 
 AllSpots.AllSpotsCellsDescription='{m,1}= [x y] list of spots in frm m, {m,2}= # of spots in list, {m,3}= frame#]';
-AllSpots.FrameVector=FrameRange;         % Vector of frames whose spots are stored in AllSpotsCells
-AllSpots.Parameters=[ handles.NoiseDiameter handles.SpotDiameter handles.SpotBrightness];
+AllSpots.FrameVector=frameRange;         % Vector of frames whose spots are stored in AllSpotsCells
+AllSpots.Parameters=[ noiseDiameter, spotDiameter, spotBrightness];
 AllSpots.ParametersDescripton='[NoiseDiameter  SpotDiameter  SpotBrightness] used for picking spots';
-AllSpots.aoiinfo2=handles.FitData;       % List of AOIs user has chosen
-AllSpots.aoiinfo2Description='[frm#  ave  x  y  pixnum  aoi#]';
 
-
-
-xlow=1;
-xhigh=imageFileProperty.width;
-ylow=1;
-yhigh=imageFileProperty.height;
-% Initialize frame limits
-if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
-    limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
-    % [xlow xhi ylow yhi]
-    xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of
-    ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
-    
-end
-
-
-
-for iFrame = FrameRange            % Cycle through all frames, finding the spots
+% AllSpots.aoiinfo2=handles.FitData;       % List of AOIs user has chosen
+% AllSpots.aoiinfo2Description='[frm#  ave  x  y  pixnum  aoi#]';
+[xlow,xhigh,ylow,yhigh] = region{:};
+for iFrame = frameRange            % Cycle through all frames, finding the spots
     if iFrame/500==round(iFrame/500)
         fprintf('processing frame %d\n', iFrame);
     end
@@ -66,19 +53,11 @@ for iFrame = FrameRange            % Cycle through all frames, finding the spots
     % If the handles.BackgroundChoice is set to show the user
     % a background-subtracted image, then use that background
     % subtracted image in which to find spots.
-    if any(get(handles.BackgroundChoice,'Value')==[2 3])
-        % Here to use rolling ball background (subtract off background)
-        
-        currentFrameImage=currentFrameImage-rolling_ball(currentFrameImage,handles.RollingBallRadius,handles.RollingBallHeight);
-    elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
-        % Here to use Danny's newer background subtraction(subtract off background)
-        
-        currentFrameImage=currentFrameImage-bkgd_image(currentFrameImage,handles.RollingBallRadius,handles.RollingBallHeight);
-    end
     
-    dat=bpass(double(currentFrameImage(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
-    pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
-    pk=cntrd(dat,pk,handles.SpotDiameter+2);        % This is our list of spots in this frame FrameRange(frmindx)
+    
+    dat=bpass(double(currentFrameImage(ylow:yhigh,xlow:xhigh)),noiseDiameter,spotDiameter);
+    pk=pkfnd(dat,spotBrightness,spotDiameter);
+    pk=cntrd(dat,pk,spotDiameter+2);        % This is our list of spots in this frame FrameRange(frmindx)
     
     [nAOIs,~]=size(pk);
     

@@ -3644,12 +3644,18 @@ switch SpotsButtonChoice
         guidata(gcbo,handles)
         %*******************************************************************************************
     case 2
+        if get(handles.BackgroundChoice,'Value')~=1
+            error('error in SpotsButton_Callback\nBackground choice is not supported in this version%s','')
+        end
+        aoiProcessParameters = getAoiProcessParameters(handles);
+        spotPickingParameters = getSpotPickingParameters(handles);
         % Here to find spots over the specified frame range
         set(handles.FramesPickSpots,'String','...')
         set(handles.SpotsButton,'String','...')
         pause(0.1)
         imageFileProperty = getImageFileProperty(handles.TiffFolder);
-        AllSpots=FindAllSpots(handles,3500,imageFileProperty);     % 3500=max # of spots to retain for each frame
+        region = setProcessingImageRegionFromHandles(handles,imageFileProperty);
+        AllSpots=FindAllSpots(imageFileProperty,region,aoiProcessParameters,spotPickingParameters);     % 3500=max # of spots to retain for each frame
         % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
         % AllSpots.AllSpotsCells{m,3}= frame #
         if get(handles.HighLowAllSpots,'Value')==0
