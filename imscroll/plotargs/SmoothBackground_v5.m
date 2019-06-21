@@ -1,4 +1,4 @@
-function pc=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits, driftList)
+function RefaoifitsMinusBkgnd = SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits,~)
 %
 % function SmoothBackground_v5(bkgndaoifits, SGsmooth, Refaoifits, <parenthandles>)
 %
@@ -17,14 +17,14 @@ function pc=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits, driftList)
 %            running over the reference AOIs.
 % Refaoifits == aoifits structure (stored by imscroll) for the reference
 %            AOIs.  It is the traces from these referece AOIs for which we
-%            we seek to subtract a background.  Once the background is 
+%            we seek to subtract a background.  Once the background is
 %            subtracted, the trace baseline should be at zero.
-% SGsmooth == [ SG_PolyOrder   SG_Frames]  parameter for Savitsky-Golay 
+% SGsmooth == [ SG_PolyOrder   SG_Frames]  parameter for Savitsky-Golay
 %            smoothing of background traces, where
-% SG_PolyOrder==   parameter specifying the order of polynomial 
-%               used in Savitsky-Golay smoothing 
+% SG_PolyOrder==   parameter specifying the order of polynomial
+%               used in Savitsky-Golay smoothing
 % SG_Frame ==   parameter specifying the window size (number of points) used
-%              for Savitsky-Golay smoothing.  (must be odd) e.g. = 41 
+%              for Savitsky-Golay smoothing.  (must be odd) e.g. = 41
 % Output.data == data member same as Refaoifits.data, but the output has
 %             had the smoothed background trace subtracted off
 % Output Bkdata == a data listing containing the smoothed background data
@@ -62,172 +62,134 @@ function pc=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits, driftList)
 % (that deviate from the prior average trace by more than 4*MeanStd).  That
 % re-computed average is then smoothed and subtracted from the data AOI
 % trace.
-
-
-% Grab the handles structure
-% parameters, if present
-
-
-RefaoifitsMinusBkgnd=Refaoifits;      % Save space for output.  We will
-% later (below) replace) the data traces.
-RefaoifitsMinusBkgnd.Bkdata=Refaoifits.data;  % Replicate the data list.  We
-
-% will replace these with the final
+%.....................................................................................
+%% allocate space and getting informations
+% Save space for output.  We will later replace the data traces.
+RefaoifitsMinusBkgnd=Refaoifits;
+%Replicate the data list.  We will replace these with the final
 % smoothed background traces that we use
-AOInums=Refaoifits.aoiinfo2(:,6);   % List of AOI numbers in our reference Refaoifits
-AOIsWithoutBkgndSubtraction=[];     % Will store a list of those reference AOIs for which
+RefaoifitsMinusBkgnd.Bkdata=Refaoifits.data;
+
+% List of AOI numbers in our reference Refaoifits
+AOInums=Refaoifits.aoiinfo2(:,6);
+
+% Will store a list of those reference AOIs for which
 % we are unable to subtract a background (b/c there are
 % no neighboring AOIs associated with them in the
 % background AOI set we chose).
 
 
-nFrames = max(Refaoifits.data(:,2));
-[~,ncolData] = size(Refaoifits.data);
+nAOIs = length(AOInums);
+nFrames = length(Refaoifits.data(:,2))/nAOIs;
+% Will store a list of those reference AOIs for which
+% we are unable to subtract a background (b/c there are
+% no neighboring AOIs associated with them in the
+% background AOI set we chose).
+isAOIsWithoutBkgndSubtraction = false(nAOIs,1);
+frameCol = Refaoifits.data(1:nAOIs:end,2);
 
+%% Subtract background one by one
 for iAOI = AOInums'
-    
-    % Cycle through all the reference AOIs
     if iAOI/20==round(iAOI/20)
-        iAOI
+        fprintf('processing AOI %d\n',iAOI);
     end
     
-    iRefAOI = AOInums(iAOI);           % Identifies the referece AOI for which we
-    % will fetch and smooth background traces
+    iRefAOI = AOInums(iAOI);
     
-    
+    %picking out the x, y coordinates and intensities of this ref AOI
     logikRef = Refaoifits.data(:,1) == iRefAOI;
     refTrace = Refaoifits.data(logikRef,8);
     refXY = Refaoifits.data(logikRef,[4,5]);
     
+    
     % Pick out the aoiinfo2 list of background AOIs that pair with the
     % current value of reference AOI
     %[(framenumber when marked) ave x y pixnum aoinumber]
-    Bkgndaoiinfo2CurrentAOI=Bkgndaoifits.aoiinfo2(Bkgndaoifits.RefAOINearLogik{iRefAOI},:);
-    [nBkgAOIs,~] = size(Bkgndaoiinfo2CurrentAOI);     % rose=# of background AOIs in this list
+    BkgndaoiNumbers=Bkgndaoifits.aoiinfo2(Bkgndaoifits.RefAOINearLogik{iRefAOI},6);
+    nBkgAOIs = length(BkgndaoiNumbers);
     
     if nBkgAOIs > 0
         
         % Here if we are able to subtract background AOIs for the current
-        % reference AOI specified by refAOInum=AOInums(indxroot)
-       
-        bkgData = zeros(nFrames,ncolData,nBkgAOIs);
+        % reference AOI specified by iAOInum
         
-        bkgTrace = zeros(nFrames,nBkgAOIs); 
+        % Picking out the x, y coordinates and intensities of those
+        % background aois
+        bkgTrace = zeros(nFrames,nBkgAOIs);
+        % The strange indexing here is because later we need to get xy coordinates
+        % without yeilding a 3D matrix (so nFrames is the last dimensions)
         bkgXY = zeros(nBkgAOIs,2,nFrames);
         
-       
         for iBkgAOI=1:nBkgAOIs
-            % Cycle through the AOIs in our Bkgndaoiinfo2 list,
-            % fetching the integrated traces for each
-            logikPassedBkgAOI=Bkgndaoifits.data(:,1)==Bkgndaoiinfo2CurrentAOI(iBkgAOI,6);
-            bkgData(:,:,iBkgAOI)=Bkgndaoifits.data(logikPassedBkgAOI,:);   % Storing the data traces for the background AOIs
-            % associated with reference AOI number refAOInum
-            bkgTrace(:,iBkgAOI) = Bkgndaoifits.data(logikPassedBkgAOI,8); % Data trace stored in a row
-            bkgXY(iBkgAOI,:,:) = Bkgndaoifits.data(logikPassedBkgAOI,[4,5])';
+            logikBkgAOI=Bkgndaoifits.data(:,1)==BkgndaoiNumbers(iBkgAOI);
+            bkgTrace(:,iBkgAOI) = Bkgndaoifits.data(logikBkgAOI,8);
+            bkgXY(iBkgAOI,:,:) = Bkgndaoifits.data(logikBkgAOI,[4,5])';
         end
         
-        medianBkgTrace = median(bkgTrace,2);  % (1 x rosedat)=(1 x #of frms), median of bkgnd AOIs computed for each frame
+        medianBkgTrace = median(bkgTrace,2);
         % Large deviations of baseline do not show up in these values of median,
         % just the noise of the pts in each
         % frame.  Median is less subject to large deviations by a single bkgnd AOI
-%        
         
         SmoothedMedianTrace=sgolayfilt(medianBkgTrace,SGsmooth(1),SGsmooth(2));
         % Find the background trace with the smallest std deviation from
         % the smoothed median background trace.
-        Std_SmoothedMedianBkg = zeros(nBkgAOIs,1); %  Here we will store the std dev values for each
-        % (bkgnd trace) - (smoothed median background trace)
-        % rose = # of bkgnd AOIs for the current reference AOI
+        
+        % Calculate std for the difference (bkgnd trace) - (smoothed median background trace)
+        Std_SmoothedMedianBkg = zeros(nBkgAOIs,1);
         for iBkgAOI = 1:nBkgAOIs
-            
-            
-            % rose = # of bkgnd AOIs for the current reference AOI, so
-            % we cycle through all the bkgnd AOIs for the current
-            % reference AOI
-            % Calculate std for the difference between each
-            % background trace and the smoothed averaged (or median) background trace
-            
             Std_SmoothedMedianBkg(iBkgAOI) = std(bkgTrace(:,iBkgAOI)-SmoothedMedianTrace);
         end
-        [MinSDBkTraceMinusMedianTrace, I]=min(Std_SmoothedMedianBkg);     % Minimum standard deviation of (bkgnd trace)-(smoothed median trace)
-        
+        % Minimum standard deviation of (bkgnd trace)-(smoothed median trace)
+        [MinSDBkTraceMinusMedianTrace, I]=min(Std_SmoothedMedianBkg);
         
         % Now we look frame-by-frame for outliers among the bkgnd AOIs
         % We throw out pts that are more than 4*MeanStd off the SmoothedAveTrace trace
-        %AveBkgndTraceNoOuts=zeros(rosedat,1);   % Average background trace after removing outliers
         
-        % We will replace it frame-by-frame w/ the averaged bkgnd trace (excluding outliers)
         AveBkgndTraceNoOuts = zeros(nFrames,1);
-        
         for iFrame=1:nFrames
-            % Cycle through all the frames
-            %logik=abs(dat(indx,8,:)-SmoothedAveTrace(indx))<4*MeanStd;   % Retain bkgnd values only within 4*MeanStd of smoothed background
-            logikPassedBkgAOI=abs(bkgTrace(iFrame,:)-SmoothedMedianTrace(iFrame))<4*MinSDBkTraceMinusMedianTrace;   % Retain bkgnd values only within 4*MinSDBkTraceMunusMedianTrace of smoothed background
             
+            % Excluding outliers
+            % Retain bkgnd values only within 4*MinSDBkTraceMunusMedianTrace of smoothed background
+            logikPassedBkgAOI=abs(bkgTrace(iFrame,:)-SmoothedMedianTrace(iFrame))<4*MinSDBkTraceMinusMedianTrace;
             if sum(logikPassedBkgAOI)>2
                 % Need at least three points to fit to a plane
-                
-                % Obtain the drift-corrected xy positions
-                % for both the reference and background AOIs
-                % Refaoiinfo2subShifted and Bkgndaoiinfo2Shifted
-                % are both aoiinfo2 matrices
-                % keyboard
-                
-                
-                planedata = [bkgXY(logikPassedBkgAOI,:,iFrame), bkgTrace(iFrame,logikPassedBkgAOI)']; 
-                Aparm=plane_fit_LinearLeastSquares(planedata);   % Outputs [A1  A2  A3]
-                % where z=A1*x + A2*y + A3
+                % planedata = (x,y,z) vectors
+                planedata = [bkgXY(logikPassedBkgAOI,:,iFrame), bkgTrace(iFrame,logikPassedBkgAOI)'];
+                % Outputs [A1  A2  A3] where z=A1*x + A2*y + A3
+                Aparm = plane_fit_LinearLeastSquares(planedata);
+                % Interpolate background on the ref aoi coordinate using that fitted plane
                 AveBkgndTraceNoOuts(iFrame) = sum(Aparm.*([refXY(iFrame,:),1]));
-                % Populating a column vector
-                % Replace with average of bkgnd traces (excluding outliers) so long as all the traces are not outliers
+            elseif sum(logikPassedBkgAOI)>0
+                % Here if we cannot fit to a plane (<3 background points) but
+                % we still have 1 or 2 good background points
+                
+                % Form ave of all the bkgnd traces (having frame-by-frame removed the outlier bkgnd AOIs)
+                AveBkgndTraceNoOuts(iFrame)=mean(bkgTrace(iFrame,logikPassedBkgAOI));
+            else
                 % If all the traces contain outliers, the we just retain the
                 % dataonly(I,:) value from above, which is the value from
                 % the one bkgnd trace with minimum std dev of (bkgnd trace)-(smoothed median trace)
-            elseif sum(logikPassedBkgAOI)>0
-                % Here if we cannot fit to a plane (<3 background points) but
-                % we still have 1 or 2 background points
-                AveBkgndTraceNoOuts(iFrame)=mean(bkgTrace(iFrame,logikPassedBkgAOI));     % Form ave of all the bkgnd traces (having
-                % frame-by-frame removed the outlier bkgnd AOIs)
-            
-                
-            else
-                
                 AveBkgndTraceNoOuts(iFrame) = bkgTrace(iFrame,I);
             end
         end
+        % Smooth the averaged background trace
         SmoothedAveTraceNoOuts = sgolayfilt(AveBkgndTraceNoOuts,SGsmooth(1),SGsmooth(2));
         
-        
-        
-        logikPassedBkgAOI=Refaoifits.data(:,1)==iRefAOI; % reAOInum is the current reference AOI number that we are
-        % currently operating on (to remove the baseline offset)
-        Refdat=Refaoifits.data(logikPassedBkgAOI,:);        % Pick out data for the reference AOI
-        
-        %*** Pick one of the following three statements:
-        %RefTraceMinusBkgnd=Refdat(:,8)- SmoothedMedianTraceAll;
-        RefTraceMinusBkgnd=refTrace- SmoothedAveTraceNoOuts;
+        % Subtract the smoothed background trace from reference AOI trace.
+        RefTraceMinusBkgnd = refTrace- SmoothedAveTraceNoOuts;
         
         % At this point RefTraceMinusBkgnd still has a little baseline offset sometimes
         % So for this version 5 we use DetrendAfterBackgroundSubtraction to help remove that
         % small amount of offset
-        
-        
-        %RefTraceMinusBkgnd=Refdat(:,8)- SmoothedMedianTraceAllNoOutlier';
-        %*******        % [Refdat(:,2) RefTraceMinusBkgnd] = [(frm#)  (background-corrected intensity)]
-        %      ( [frm#   (trace with baseline offset)], (baseline std dev) )
-        RefTraceMinusBkgnd_subBaseline=DetrendAfterBackgroundSubtraction([Refdat(:,2) RefTraceMinusBkgnd],MinSDBkTraceMinusMedianTrace);
+        RefTraceMinusBkgnd_subBaseline=DetrendAfterBackgroundSubtraction([frameCol, RefTraceMinusBkgnd],MinSDBkTraceMinusMedianTrace);
         % output=[(frame number)  (final trace)]
         
-        % logik=Refaoifits.data(:,1)==refAOInum;      % Find all data trace entries for current reference AOI number
-        %RefaoifitsMinusBkgnd.data(logik,8)=RefTraceMinusBkgnd;    % Replace the data entries for the current AOI
-        % with background corrected data
-        RefaoifitsMinusBkgnd.Bkdata(logikPassedBkgAOI,8)=SmoothedAveTraceNoOuts;         % Replace .Bkdata member with the smoothed ave bkgnd trace
-        %RefaoifitsMinusBkgnd.data(logik,8)=RefTraceMinusBkgnd;
-        RefaoifitsMinusBkgnd.data(logikPassedBkgAOI,8)=RefTraceMinusBkgnd_subBaseline(:,2);    % Replace the data entries for the current AOI
+        % Replace field 'Bkdata' with the smoothed ave bkgnd trace
+        RefaoifitsMinusBkgnd.Bkdata(logikRef,8)=SmoothedAveTraceNoOuts;
+        % Replace the data entries for the current AOI
         % with background corrected, baseline-corrected data
-        
-        
-        %keyboard
+        RefaoifitsMinusBkgnd.data(logikRef,8)=RefTraceMinusBkgnd_subBaseline(:,2);
         
     else
         % Here if we are UNABLE to subtract background AOIs for the current
@@ -235,18 +197,15 @@ for iAOI = AOInums'
         
         % Add this reference AOI to our list of AOIs for which we did
         % not subtract the background
-        AOIsWithoutBkgndSubtraction=[AOIsWithoutBkgndSubtraction;iRefAOI];
+        isAOIsWithoutBkgndSubtraction(iRefAOI) = true;
         sprintf('No background AOIs for ref AOI number %i',iRefAOI)
     end
-    
-    
 end
 % Add member listing reference AOIs for which we were
 % unable to subtract a background (no
 % neighboring AOIs in our chosen bkgnd AOI set)
-RefaoifitsMinusBkgnd.AOIsWithoutBkgndSubtraction=AOIsWithoutBkgndSubtraction;
-
-pc=RefaoifitsMinusBkgnd;        % Output an aoifits structure containing a pc.data with background
+RefaoifitsMinusBkgnd.AOIsWithoutBkgndSubtraction = AOInums(isAOIsWithoutBkgndSubtraction);
+% Output an aoifits structure containing a pc.data with background
 % corredted data, and pc.Bkdata containing a data
 % listing with the smoothed background data.
 end

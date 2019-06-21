@@ -1502,7 +1502,7 @@ switch ButtonChoiceValue
     case 2         % Load the vid.ttb time base array
     set(handles.DataOperation,'Value',0)        % reset the toggle to 0
                                                 % Open a dialog box for user
-    [fn fp]=uigetfile('*.*','Loading Time Base'); 
+    [fn fp]=uigetfile('.dat','Loading Time Base'); 
     eval( ['load ' [fp fn] ' -mat' ] );                    % Load the vid structure
     tb=vid.ttb;                                  % Get the time base information
     tb=tb*1e-3;                                 % Convert time base to seconds
@@ -2202,8 +2202,8 @@ set(handles.ButtonChoice,'Value',11);
         Refaoifits=parenthandles.aoifits1;      % aoifits for data AOIs
         logik=Refaoifits.data(:,1,1)==1;        % Picks out all rows for  
                                                 % data AOI #1
-        ldata=sum(logik);                       % Length of the integrated data traces
-        SGwindow=round(ldata/5);                % Savitsky-Golay smoothing parameter, 
+        nFramesInTrace=sum(logik);                       % Length of the integrated data traces
+        SGwindow=round(nFramesInTrace/5);                % Savitsky-Golay smoothing parameter, 
                                           % Window set to (1/5) length of data trace 
         %SGwindow=round(ldata/15)
         if SGwindow/2==round(SGwindow/2)
@@ -2214,21 +2214,13 @@ set(handles.ButtonChoice,'Value',11);
                             % Using 2nd order polynomial, and window size
                             % that is (1/5) length of integrated trace
       
-        %aoifits=SmoothBackground_v1(Bkgndaoifits, SGsmooth, Refaoifits);
-        
-        %keyboard
-         %aoifits=SmoothBackground_v2(Bkgndaoifits, SGsmooth, Refaoifits);   % v2: remove background AOI outliers frame by frame
-         %aoifits=SmoothBackground_v3(Bkgndaoifits, SGsmooth, Refaoifits,parenthandles);   % v3: remove background AOI outliers frame by frame
-                                                            % that have a nearby detected spot (need AllSpots loaded 
-         %aoifits=SmoothBackground_v4(Bkgndaoifits, SGsmooth, Refaoifits,parenthandles);  % v4 fit background AOI values to a plane
-      
-         aoifits=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits,parenthandles);  % v5 remove slight baseline offset using
+         aoifits=SmoothBackground_v5(Bkgndaoifits, SGsmooth, Refaoifits);  % v5 remove slight baseline offset using
                                                                                      % DetrendAfterBackgroundSubtraction
-         %keyboard
+         
         fprintf('process finished\n')
         set(handles.DataOperation,'Value',0)        % reset the toggle to 0 when done
          set(handles.ButtonChoice,'Value',11);      % and set menu to 'Click and Display AOIs'
-        eval(['save ' parenthandles.FileLocations.data 'bkdefault.dat aoifits']);
+        save([parenthandles.FileLocations.data, 'bkdefault.dat'],'aoifits');
         parenthandles.aoifits1=aoifits;
         guidata(gcbo,handles);                  % Update the handles structure
         guidata(handles.parenthandles_fig,parenthandles);
@@ -2253,8 +2245,8 @@ set(handles.ButtonChoice,'Value',11);
         Refaoifits=parenthandles.aoifits1;      % aoifits for data AOIs
         logik=Refaoifits.data(:,1,1)==1;        % Picks out all rows for  
                                                 % data AOI #1
-        ldata=sum(logik);                       % Length of the integrated data traces
-        SGwindow=round(ldata/5);                % Savitsky-Golay smoothing parameter, 
+        nFramesInTrace=sum(logik);                       % Length of the integrated data traces
+        SGwindow=round(nFramesInTrace/5);                % Savitsky-Golay smoothing parameter, 
                                           % Window set to (1/5) length of data trace 
         %SGwindow=round(ldata/15)
         if SGwindow/2==round(SGwindow/2)
