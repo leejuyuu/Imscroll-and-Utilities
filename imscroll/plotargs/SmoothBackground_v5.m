@@ -157,7 +157,7 @@ for iAOI = AOInums'
                 % planedata = (x,y,z) vectors
                 planedata = [bkgXY(logikPassedBkgAOI,:,iFrame), bkgTrace(iFrame,logikPassedBkgAOI)'];
                 % Outputs [A1  A2  A3] where z=A1*x + A2*y + A3
-                Aparm = plane_fit_LinearLeastSquares(planedata);
+                Aparm = fitLinearLeastSquare3DPlane(planedata);
                 % Interpolate background on the ref aoi coordinate using that fitted plane
                 AveBkgndTraceNoOuts(iFrame) = sum(Aparm.*([refXY(iFrame,:),1]));
             elseif sum(logikPassedBkgAOI)>0
