@@ -68,6 +68,7 @@ if aoirose~=0       % If there are spots, put them into handles.FitData and draw
     for indx=1:aoirose
         draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
     end
+    
 end
                         %draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
 guidata(gcbo,handles)
