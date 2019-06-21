@@ -149,7 +149,7 @@ for iAOI = AOInums'
             
             Std_SmoothedMedianBkg(iBkgAOI) = std(bkgTrace(:,iBkgAOI)-SmoothedMedianTrace);
         end
-        [MinSDBkTraceMinusMedianTrace, ~]=min(Std_SmoothedMedianBkg);     % Minimum standard deviation of (bkgnd trace)-(smoothed median trace)
+        [MinSDBkTraceMinusMedianTrace, I]=min(Std_SmoothedMedianBkg);     % Minimum standard deviation of (bkgnd trace)-(smoothed median trace)
         
         
         % Now we look frame-by-frame for outliers among the bkgnd AOIs
@@ -188,13 +188,14 @@ for iAOI = AOInums'
                 % we still have 1 or 2 background points
                 AveBkgndTraceNoOuts(iFrame)=mean(bkgTrace(iFrame,logikPassedBkgAOI));     % Form ave of all the bkgnd traces (having
                 % frame-by-frame removed the outlier bkgnd AOIs)
-            keyboard
-                fprintf('%d,%d\n',iAOI, iFrame);
+            
+                
             else
-                fprintf('%d,%d\n',iAOI, iFrame);
+                
+                AveBkgndTraceNoOuts(iFrame) = bkgTrace(iFrame,I);
             end
         end
-        SmoothedAveTraceNoOuts=sgolayfilt(AveBkgndTraceNoOuts,SGsmooth(1),SGsmooth(2));
+        SmoothedAveTraceNoOuts = sgolayfilt(AveBkgndTraceNoOuts,SGsmooth(1),SGsmooth(2));
         
         
         
