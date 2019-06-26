@@ -40,8 +40,8 @@ function pc=ShiftAOI(AOInumber,FrameNumber,AOIinfo,DriftList)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-aoilogic=AOIinfo(:,6)==AOInumber;      
-currentxy=AOIinfo(aoilogic,3:4);       % Pick off original xy coordinates and
+aoilogic = AOIinfo(:,6)==AOInumber;      
+currentxy = AOIinfo(aoilogic,3:4);       % Pick off original xy coordinates and
 InitialFrame=AOIinfo(aoilogic,1);      % original frame where aoi was marked
                     % Get the index of the entries corresponding to the 
                     % (initially chosen)  and (current frame) numbers for the aoi 

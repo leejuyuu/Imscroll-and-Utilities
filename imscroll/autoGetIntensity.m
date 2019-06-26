@@ -14,8 +14,10 @@ input.aois = A.aoiinfo2;
 A = load([mapDir,map,'.dat'],'-mat');
 input.map = A.fitparmvector;
 
-aoifits = create_AOIfits_Structure_woHandle(imagePath,aoiinfo);
-
+aoifits = create_AOIfits_Structure_woHandle(greenImagePath,aoiinfo);
+imageFileProperty = getImageFileProperty(greenImagePath);
+mapstruc2d = build_2d_mapstruc_aois_frms(handles);
+pc = getAoiIntensityLinearInterp(mapstruc_cell,imageFileProperty);
 
 
 
