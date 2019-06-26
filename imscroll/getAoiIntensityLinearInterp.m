@@ -1,4 +1,4 @@
-function pc = getAoiIntensityLinearInterp(mapstruc_cell,imageFileProperty)
+function pc = getAoiIntensityLinearInterp(imageFileProperty,aoiinfo,aoiProcessParameters,driftList)
 %
 % function getAoiIntensityLinearInterp(mapstruc_cell,parenthandles)
 %
@@ -20,11 +20,16 @@ function pc = getAoiIntensityLinearInterp(mapstruc_cell,imageFileProperty)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 ...............................................................................
     
-pixnum = mapstruc_cell{1,1}.aoiinf(5);
-[nFrames, nAOI] = size(mapstruc_cell); 
-FrameAverage = mapstruc_cell{1,1}.aoiinf(1,2);
+
+nAOIs = length(aoiinfo(:,1));
+
+aoiWidth = aoiinfo(1,5);
+frameAverage = aoiProcessParameters.frameAverage;
+frameRange = aoiProcessParameters.frameRange;
+nFrames = length(frameRange);
+shiftedXY = batchShitfAOI(aoiinfo,frameRange,driftList);
 % Pre-Allocate space
-Data = zeros(nAOI,8,nFrames);
+Data = zeros(nAOIs,8,nFrames);
 for iFrame = 1:nFrames
         
     if mod(iFrame,10) == 0
@@ -32,13 +37,11 @@ for iFrame = 1:nFrames
         fprintf('processing frame %d\n',iFrame)
     end
     % Get the next averaged frame to process
-    currentFrameImage = getAveragedImage(imageFileProperty,iFrame,FrameAverage);
-    for iAOI = 1:nAOI   % Loop through all the aois for this frame
-        shiftedx=mapstruc_cell{iFrame,iAOI}.aoiinf(3);
-        shiftedy=mapstruc_cell{iFrame,iAOI}.aoiinf(4);
+    currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
+    for iAOI = 1:nAOIs   % Loop through all the aois for this frame
         
-        Data(iAOI,:,iFrame)=[iAOI, mapstruc_cell{iFrame,iAOI}.aoiinf(1:5), 0,...
-            double(linear_AOI_interpolation2(currentFrameImage,[shiftedx shiftedy],pixnum/2))];
+        Data(iAOI,:,iFrame)=[iAOI, iFrame,frameAverage,shiftedXY(iAOI,:,iFrame),aoiWidth, 0,...
+            double(linear_AOI_interpolation2(currentFrameImage,shiftedXY(iAOI,:,iFrame),aoiWidth/2))];
         
     end             %END of for loop aoiindx2
    
@@ -48,9 +51,9 @@ end           % end of for loop framemapindx
 % Reshaping data matrices for output
 % The form ImageData and BackgroundData matrices was required to
 % satisfy the parallel processing loop requirements for indexing
-pc.ImageData = zeros(nAOI*nFrames,8);
+pc.ImageData = zeros(nAOIs*nFrames,8);
 for frameindex=1:nFrames
-    pc.ImageData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=Data(:,:,frameindex);
+    pc.ImageData((frameindex-1)*nAOIs+1:(frameindex-1)*nAOIs+nAOIs,:)=Data(:,:,frameindex);
 end
 pc.BackgroundData = pc.ImageData;
 end
