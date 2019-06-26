@@ -14,7 +14,7 @@ input.aois = A.aoiinfo2;
 A = load([mapDir,map,'.dat'],'-mat');
 input.map = A.fitparmvector;
 
-
+aoifits = create_AOIfits_Structure_woHandle(imagePath,aoiinfo);
 
 
 

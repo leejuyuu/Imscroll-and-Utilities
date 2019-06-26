@@ -1,4 +1,4 @@
-function aoifits = create_AOIfits_Structure_woHandle(imagePath,aoiinfo,aoiWidth,frameAverage)
+function aoifits = create_AOIfits_Structure_woHandle(imagePath,aoiinfo)
 % Define the output structure of the AOIfits data, called by
 % Imscroll/FitAOIs callback
 
@@ -10,16 +10,9 @@ end
 if isempty(aoiinfo)
     error('aoiinfo not given\n%s','')
 end
-% default values
-if nargin < 4
-    frameAverage = 1;
-end
-if nargin < 3
-    aoiWidth = 6;
-end
 
 aoifits.dataDescription = '[aoinumber framenumber amplitude xcenter ycenter sigma offset integrated_aoi (integrated pixnum) (original aoi#)]';
-aoifits.parameter = [frameAverage aoiWidth];
+aoifits.parameter = [aoiinfo(1,2), aoiinfo(1,5)];
 aoifits.parameterDescription='[ave pixnum]';
 aoifits.tifFile=imagePath;
 aoifits.centers=aoiinfo(:,3:4);
