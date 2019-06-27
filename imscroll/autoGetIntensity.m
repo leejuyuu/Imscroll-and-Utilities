@@ -17,6 +17,7 @@ nAOIs = length(input.aois(:,1));
 aoifits = create_AOIfits_Structure_woHandle(greenImagePath,input.aois);
 imageFileProperty = getImageFileProperty(greenImagePath);
 aoiinfo = input.aois;
+map2 =getInverseMap(input.map);
 aoiinfo(:,[3 4]) = mapXY(aoiinfo(:,[3 4]),getInverseMap(input.map));
 aoiProcessParameters = struct(...
     'frameRange',(parametersIn{2,2}:parametersIn{2,3}),...

@@ -42,6 +42,7 @@ for iFrame = 1:nFrames
     % Get the next averaged frame to process
     currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame
+        
         beforeBackground(iAOI,iFrame) = double(linear_AOI_interpolation2(...
             currentFrameImage,shiftedXY(iAOI,:,iFrame),aoiWidth/2));
         backgroundTrace(iAOI,iFrame) = getAOIBackgroundIntensity(currentFrameImage,intXY(iAOI,:,iFrame),aoiWidth);
