@@ -28,7 +28,7 @@ for iAOI = aoivector'
     %Also mark the first interval 0s or 1s with -2 or -3 respectively,
     %and the ending interval 0s or 1s with +2 or +3 respectivley
     PTCA{1,2}=aoinumber;               % Place aoinumber into proper cell array entry
-    traces{1} = dat.BinaryInputTrace;   % [(-2,-3,0,1,2,3)  frm#  0,1]
+    traces{iAOI} = dat.BinaryInputTrace;   % [(-2,-3,0,1,2,3)  frm#  0,1]
     
     
     if isempty(tb)
