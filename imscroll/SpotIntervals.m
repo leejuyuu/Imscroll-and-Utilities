@@ -1,20 +1,18 @@
 function IntervalDataStructure = SpotIntervals(frameRange,radius,radius_hys,aoiinfo,shiftedXY,AllSpots,AllSpotsLow,tb)
-
+%
 
 frameInterval = [frameRange(1), frameRange(end)];
 
 aoivector=aoiinfo(:,6);    % Vector of aoi numbers
 nAOIs = length(aoivector);
-
-
 ATCA = cell(nAOIs,16);
-
-
-for iAOI = aoivector
+traces  = cell(nAOIs,1);
+cumulatedInterval = cell(nAOIs,1);
+for iAOI = aoivector'
     aoinumber=aoivector(iAOI);   % Current AOI
     fprintf('processing AOI %d\n',iAOI);
     % Bin01Trace = [(frm #)  0/1]
-    Bin01Trace = AOISpotLanding(aoinumber,radius,radius_hys,AllSpots,AllSpotsLow,shiftedXY);          % 1/0 binary trace of spot landings
+    Bin01Trace = AOISpotLanding2(aoinumber,radius,radius_hys,AllSpots,AllSpotsLow,shiftedXY);          % 1/0 binary trace of spot landings
     
     % Take binary trace and find all the intervals in it
     %0.5=upThresh  0.5=downThresh  1=minUP  1=minDown
@@ -30,7 +28,7 @@ for iAOI = aoivector
     %Also mark the first interval 0s or 1s with -2 or -3 respectively,
     %and the ending interval 0s or 1s with +2 or +3 respectivley
     PTCA{1,2}=aoinumber;               % Place aoinumber into proper cell array entry
-    PTCA{1,13}=dat.BinaryInputTrace;   % [(-2,-3,0,1,2,3)  frm#  0,1]
+    traces{1} = dat.BinaryInputTrace;   % [(-2,-3,0,1,2,3)  frm#  0,1]
     
     
     if isempty(tb)
@@ -45,15 +43,14 @@ for iAOI = aoivector
         % Next expression takes care of incidents where events occur at edge or across boundaries where Glimpse
         % goes off to take other images (multiple Glimpse boxes)% Altered at lines 1515 1616 1881 3141 and in EditBinaryTrace.m
         medianOneFrame=median(diff(tb));    % median value of one frame duration
-        PTCA{1,10}=[dat.IntervalData(:,1:4) tb(dat.IntervalData(:,3))-tb(dat.IntervalData(:,2))+medianOneFrame PTCA{1,2}*ones(IDrose,1)];
+        
+        cumulatedInterval{iAOI} = [dat.IntervalData(:,1:4) tb(dat.IntervalData(:,3))-tb(dat.IntervalData(:,2))+medianOneFrame PTCA{1,2}*ones(IDrose,1)];
         
     end
     
-    ATCA(iAOI,:) = PTCA;
-    
 end             % End of cycling through the AOIs
-IntervalDataStructure.AllTracesCellArray=ATCA;
-IntervalDataStructure.CumulativeIntervalArray=cell2mat(ATCA(:,10));
+IntervalDataStructure.AllTracesCellArray=traces;
+IntervalDataStructure.CumulativeIntervalArray=cell2mat(cumulatedInterval);
 % Add the AllSpots structure (for saving) used for finding intervals
 % AllSpots structure defined in imscroll gui
 IntervalDataStructure.AllSpots = AllSpots;
