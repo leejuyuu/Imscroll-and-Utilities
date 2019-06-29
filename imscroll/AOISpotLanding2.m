@@ -61,7 +61,7 @@ for iFrame = 1:nFrames
         
     end
     % [frame number, AmpHighLow]
-    pc(iFrame,:)=[AllSpots.AllSpotsCells{iFrame,3}. AmpHighLow];
+    pc(iFrame,:)=[AllSpots.AllSpotsCells{iFrame,3}, AmpHighLow];
 end
 
 end
