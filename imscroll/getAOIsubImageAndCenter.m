@@ -6,16 +6,13 @@ y = edge(3):edge(4);
 x = edge(1):edge(2);
 newcenter = [radius+1, radius+1];
 
-    y = y(y>=1);
-    newcenter(2) = newcenter(2)-sum(y<1);
+newcenter(2) = newcenter(2)-sum(y<1);
+y = y(y>=1);
+y = y(y < ymax);
 
-    y = y(y < ymax);
-
-    x = x(x >= 1);
-    newcenter(1) = newcenter(1)-sum(x<1);
-
-    x = x(x < xmax);
-
+newcenter(1) = newcenter(1)-sum(x<1);
+x = x(x >= 1);
+x = x(x < xmax);
 
 subimage = image(y,x);
 
