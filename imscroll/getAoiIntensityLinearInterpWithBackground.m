@@ -28,6 +28,7 @@ frameAverage = aoiProcessParameters.frameAverage;
 frameRange = aoiProcessParameters.frameRange;
 nFrames = length(frameRange);
 shiftedXY = batchShitfAOI(aoiinfo,frameRange,driftList);
+[shiftedXYout,aoiinfoout] = removeOutOfEdgeAOIs(shiftedXY,aoiinfo,imageFileProperty);
 intXY = round(shiftedXY);
 % Pre-Allocate space
 Data = zeros(nAOIs,8,nFrames);
@@ -39,6 +40,7 @@ for iFrame = 1:nFrames
         %indicate the current progress
         fprintf('processing frame %d\n',iFrame)
     end
+    
     % Get the next averaged frame to process
     currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame

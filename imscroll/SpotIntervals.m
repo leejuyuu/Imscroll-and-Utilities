@@ -8,11 +8,11 @@ nAOIs = length(aoivector);
 ATCA = cell(nAOIs,16);
 traces  = cell(nAOIs,1);
 cumulatedInterval = cell(nAOIs,1);
-for iAOI = aoivector'
+for iAOI = 1:nAOIs
     aoinumber=aoivector(iAOI);   % Current AOI
     fprintf('processing AOI %d\n',iAOI);
     % Bin01Trace = [(frm #)  0/1]
-    Bin01Trace = AOISpotLanding2(aoinumber,radius,radius_hys,AllSpots,AllSpotsLow,shiftedXY);          % 1/0 binary trace of spot landings
+    Bin01Trace = AOISpotLanding2(iAOI,radius,radius_hys,AllSpots,AllSpotsLow,shiftedXY);          % 1/0 binary trace of spot landings
     
     % Take binary trace and find all the intervals in it
     %0.5=upThresh  0.5=downThresh  1=minUP  1=minDown
