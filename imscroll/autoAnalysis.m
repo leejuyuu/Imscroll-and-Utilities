@@ -1,11 +1,8 @@
-function out = autoAnalysis(csvpath,map)
+function out = autoAnalysis(csvpath,mapFileName)
 [~,~,parametersIn] = xlsread(csvpath);
-A = load('/gui_files/filelocations.dat','-mat');
-mapDir = A.FileLocations.mapping;
-dataDir = A.FileLocations.data;
 
-A = load([mapDir,map,'.dat'],'-mat');
-mapMatrix = A.fitparmvector;
+[mapDir, dataDir] = loadCommonDirPath();
+mapMatrix = loadMapMatrix(mapDir,mapFileName);
 nFile = length(parametersIn(:,1))-1;
 for iFile = 2:nFile + 1
     input = struct;
