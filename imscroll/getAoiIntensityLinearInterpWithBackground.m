@@ -27,13 +27,14 @@ aoiWidth = aoiinfo(1,5);
 frameAverage = aoiProcessParameters.frameAverage;
 frameRange = aoiProcessParameters.frameRange;
 nFrames = length(frameRange);
-shiftedXY = batchShitfAOI(aoiinfo,frameRange,driftList);
-[shiftedXYout,aoiinfoout] = removeOutOfEdgeAOIs(shiftedXY,aoiinfo,imageFileProperty);
+shiftedXY = batchShitfAOI(aoiinfo(:,[3 4]),aoiinfo(1,1),...
+        frameRange,driftList);
+
 intXY = round(shiftedXY);
 % Pre-Allocate space
 Data = zeros(nAOIs,8,nFrames);
-beforeBackground = zeros(nAOIs,nFrames);
-backgroundTrace = zeros(nAOIs,nFrames);
+intensity = zeros(nAOIs,nFrames);
+backgroundIntensity = zeros(nAOIs,nFrames);
 for iFrame = 1:nFrames
         
     if mod(iFrame,10) == 0
@@ -45,11 +46,11 @@ for iFrame = 1:nFrames
     currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame
         
-        beforeBackground(iAOI,iFrame) = double(linear_AOI_interpolation2(...
+        intensity(iAOI,iFrame) = double(linear_AOI_interpolation2(...
             currentFrameImage,shiftedXY(iAOI,:,iFrame),aoiWidth/2));
-        backgroundTrace(iAOI,iFrame) = getAOIBackgroundIntensity(currentFrameImage,intXY(iAOI,:,iFrame),aoiWidth);
+        backgroundIntensity(iAOI,iFrame) = getAOIBackgroundIntensity(currentFrameImage,intXY(iAOI,:,iFrame),aoiWidth);
         Data(iAOI,:,iFrame)=[iAOI,iFrame,frameAverage,shiftedXY(iAOI,:,iFrame),aoiWidth, 0,...
-            beforeBackground(iAOI,iFrame) - backgroundTrace(iAOI,iFrame)];
+            intensity(iAOI,iFrame) - backgroundIntensity(iAOI,iFrame)];
         
     end             %END of for loop aoiindx2
    
@@ -63,7 +64,7 @@ pc.ImageData = zeros(nAOIs*nFrames,8);
 for frameindex=1:nFrames
     pc.ImageData((frameindex-1)*nAOIs+1:(frameindex-1)*nAOIs+nAOIs,:)=Data(:,:,frameindex);
 end
-pc.BackgroundTrace =backgroundTrace;
-pc.beforeBackground = beforeBackground;
+pc.BackgroundTrace =backgroundIntensity;
+pc.beforeBackground = intensity;
 end
  

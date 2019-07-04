@@ -31,18 +31,19 @@ function intensity=linear_AOI_interpolation2(currentFrameImage,xycenter,aoiHalfW
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 aoiX = xycenter(1);
 aoiY = xycenter(2);
-
-% Define a range of pixels that more than encompases the entire
-% aoi.  We will integrate only over this limited pixel range.
 xRange = [aoiX-aoiHalfWidth, aoiX+aoiHalfWidth];
 yRange = [aoiY-aoiHalfWidth, aoiY+aoiHalfWidth];
-
+% Because the integer coordinates were set at the center of each pixel, so
+% rounding moves the edges of aoi to the center of the pixels that contain
+% edges.
 xIntRange = round(xRange);
 yIntRange = round(yRange);
 
 aoiImage = double(currentFrameImage(yIntRange(1):yIntRange(2),xIntRange(1):xIntRange(2)));
 mask = ones(size(aoiImage));
-
+% Because the integer coordinates were set at the center of each pixel, so
+% the first edge is 0.5, second is 1.5, etc.
+% This part 
 mask(:,1) = mask(:,1)*(xIntRange(1)+0.5-xRange(1));
 mask(:,end) = mask(:,end)*(xRange(2)-xIntRange(2)+0.5);
 mask(1,:) = mask(1,:)*(yIntRange(1)+0.5-yRange(1));

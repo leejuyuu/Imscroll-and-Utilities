@@ -27,7 +27,8 @@ for iFile = 2:nFile + 1
         'frameRange',(parametersIn{iFile,2}:parametersIn{iFile,3}),...
         'frameAverage', parametersIn{iFile,4}...
         );
-    shiftedXY = batchShitfAOI(aoiinfo,aoiProcessParameters.frameRange,input.driftlist);
+    shiftedXY = batchShitfAOI(aoiinfo(:,[3 4]),aoiinfo(1,1),...
+        aoiProcessParameters.frameRange,input.driftlist);
     [~,aoiinfo] = removeOutOfEdgeAOIs(shiftedXY,aoiinfo,imageFileProperty);
     pc = getAoiIntensityLinearInterpWithBackground(imageFileProperty,aoiinfo,aoiProcessParameters,input.driftlist);
     aoifits.data = pc.ImageData;
