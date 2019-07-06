@@ -1,14 +1,17 @@
-function shiftedXY = batchShitfAOI(aoiinfo,frameRange,driftList)
-% shiftedXY = batchShitfAOI(aoiinfo,frameRange,driftList)
-% This currently only works for aoifits is equal or before frame range.
-XY = aoiinfo(:,[3,4]);
-aoiinfoFrame = aoiinfo(1,1);
-nAOIs = length(aoiinfo(:,1));
-nFrames = length(frameRange);
-shiftedXY = zeros(nAOIs,2,nFrames);
-cumsumDrift = cumsum(driftList(aoiinfoFrame+1:frameRange(end),[2 3]));
+function shiftedXY = batchShitfAOI(XY,startFrame,frameRange,driftList)
+% shiftedXY = batchShitfAOI(XY,startFrame,frameRange,driftList)
+% 
+% Shifts XY coordinates at startFrame to every frame in frameRange vector,
+% generates a 3D matrix that is (nAOIs,2,nFrames) size.
 
-for iFrame = frameRange-aoiinfoFrame
+% **This currently only works for aoifits is equal or before frame range.
+
+
+nFrames = length(frameRange);
+shiftedXY = zeros([size(XY),nFrames]);
+cumsumDrift = cumsum(driftList(startFrame+1:frameRange(end),[2 3]));
+
+for iFrame = frameRange-startFrame
     if iFrame == 0
         shiftedXY(:,:,iFrame+1) = XY;
     else
