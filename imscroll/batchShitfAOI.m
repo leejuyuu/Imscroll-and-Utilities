@@ -10,13 +10,14 @@ function shiftedXY = batchShitfAOI(XY,startFrame,frameRange,driftList)
 nFrames = length(frameRange);
 shiftedXY = zeros([size(XY),nFrames]);
 cumsumDrift = cumsum(driftList(startFrame+1:frameRange(end),[2 3]));
-
-for iFrame = frameRange-startFrame
-    if iFrame == 0
-        shiftedXY(:,:,iFrame+1) = XY;
+difference = frameRange - startFrame;
+for iFrame = 1:nFrames
+    if difference(iFrame) == 0
+        shiftedXY(:,:,iFrame) = XY;
     else
         for i = 1:2
-            shiftedXY(:,i,iFrame+1) = XY(:,i) + cumsumDrift(iFrame,i);
+            shiftedXY(:,i,iFrame) = XY(:,i) +...
+                cumsumDrift(difference(iFrame),i);
         end
     end
 end
