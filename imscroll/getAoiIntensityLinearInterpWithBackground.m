@@ -44,7 +44,7 @@ for iFrame = 1:nFrames
     end
     
     % Get the next averaged frame to process
-    currentFrameImage = sum(uint32(tiffObj(:,:,iFrame:iFrame+frameAverage-1)),3)/frameAverage;
+    currentFrameImage = uint32(sum(uint32(tiffObj(:,:,iFrame:iFrame+frameAverage-1)),3))/frameAverage;
     
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame
         
