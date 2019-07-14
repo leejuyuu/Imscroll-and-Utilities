@@ -14,7 +14,7 @@ figure(2);
 imshow(filteredIm,[0 200]);
 regionalMax = imregionalmax(filteredIm);
 cc = bwconncomp(regionalMax);
-maskIm = filteredIm;
+
 nRmax = cc.NumObjects;
 R = 10;
 % Create ringed mask
@@ -39,12 +39,33 @@ maskIm = zeros(size(filteredIm));
 % figure
 for iRmax = 1:nRmax
     [regionY,regionX] = ind2sub(size(filteredIm),cc.PixelIdxList{iRmax});
+    %{
     subimage = nanIm(regionY-R+R:regionY+R+R,regionX-R+R:regionX+R+R);
     ringMax = zeros(1,R);
     for r = 1:R
         ringMax(r) = max(subimage(rings(:,:,r)));
     end
+    %}
 %     plot(1:R,ringMax)
+
+ringMax = nan(1,R^2);
+candidateXY =zeros(8,2);
+q = 0;
+
+for r = 1:R
+    for k = 0:floor(r/2)
+        q = q + 1;
+        candidateXY(1,:) = [k,r-k];
+        candidateXY(2,:) = [r-k,k];
+        candidateXY([3,4],:) = candidateXY([1,2],:);
+        candidateXY([3,4],2) = -candidateXY([3,4],2);
+        candidateXY([5:8],:) = candidateXY([1:4],:);
+        candidateXY([5:8],1) = -candidateXY([5:8],1);
+        values = nanIm(regionY + candidateXY(:,2)+R,regionX+candidateXY(:,1)+R);
+        ringMax(q) = max(values(:));
+    end
+end
+        
     Ip = min(ringMax);
     maskIm(cc.PixelIdxList{iRmax}) =  Ip;
     %{
@@ -67,8 +88,8 @@ Jout = imreconstruct(maskIm,filteredIm);
 figure(3)
 imshow(Jout,[0,1000])
 J2 = filteredIm - Jout;
-figure(4)
-imshow(J2,[0,100])
+figure(5)
+imshow(J2,[80,150])
 end
 
 
