@@ -1,17 +1,17 @@
-function testMPHD
+function imageOut = testMPHD(image)
 for i = 1:10
-    Rawimage(:,:,i) = imread('D:\TYL\PriA_project\Expt_data\20190624\L1_mapping\01.tif',i);
+%     Rawimage(:,:,i) = imread('D:\TYL\PriA_project\Expt_data\20190624\L1_mapping\01.tif',i);
 end
-image = mean(Rawimage,3);
-figure(1);
-imshow(image,[500,1500]);
+% image = mean(Rawimage,3);
+% figure(1);
+% imshow(image,[500,1500]);
 % kneral size 11x11, sigma = 0.5
 LoG_filter = fspecial('log', [10, 10],0.5);
 filteredIm = imfilter(image,LoG_filter,'replicate');
-% filteredIm  = imgaussfilt(image,1);
+filteredIm  = imgaussfilt(filteredIm,0.5);
 % filteredIm=bpass(double(image),0.5,5);
-figure(2);
-imshow(filteredIm,[0 200]);
+% figure(2);
+% imshow(filteredIm,[0 200]);
 regionalMax = imregionalmax(filteredIm);
 cc = bwconncomp(regionalMax);
 
@@ -85,11 +85,25 @@ end
     %}
 end
 Jout = imreconstruct(maskIm,filteredIm);
-figure(3)
-imshow(Jout,[0,1000])
+% figure(3)
+% imshow(Jout,[0,1000])
 J2 = filteredIm - Jout;
 figure(5)
-imshow(J2,[80,150])
+imshow(J2,[0,100])
+bb = J2>10;
+bb2 = bwareaopen(bb,2);
+J3 = bb2.*J2;
+% figure(6)
+% imshow(J3,[60,200])
+kk = J3 >= 80;
+bb2 = bwareaopen(kk,2);
+J4 = J3.*kk;
+J5 = J4 - imreconstruct(J4-1,J4);
+% figure(7)
+% imshow(J5,[0,1]);
+logik = J5<1 & J5>0;
+sum(logik(:))
+imageOut = J4;
 end
 
 
