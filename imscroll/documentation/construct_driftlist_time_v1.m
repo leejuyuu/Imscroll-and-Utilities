@@ -232,7 +232,7 @@ else
     fity=polyfit((vid.ttb(crange)-mn)',cumy(crange),Polyorderxy(2));
     valy=polyval(fity,vid.ttb(crange)-mn);
 end
-
+%{
                         % Plot the concatenated xy coord and fits against time 
 figure(27);plot(vid.ttb(crange),cumx(crange),'b',vid.ttb(crange),valx,'r');
 gtext(['xdrift, polyfit order:' num2str(Polyorderxy(1))])
@@ -256,7 +256,9 @@ xlabel('frames');ylabel('x pixel')
 figure(32);plot(crange,cumy(crange),'b',crange,valy,'r');
 %gtext(['ydrift, polyfit order:' num2str(Polyorderxy(2))])
 xlabel('frames)');ylabel('y pixel')
-                % Construct the cumulative driftlist from the polynomial fits
+                
+%}
+% Construct the cumulative driftlist from the polynomial fits
 cumdriftlist=zeros(SequenceLength,4);
 cumdriftlist(:,1)=[[1:SequenceLength]'];
 cumdriftlist(crange,2)=valx;

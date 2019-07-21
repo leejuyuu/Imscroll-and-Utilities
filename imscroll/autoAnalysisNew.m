@@ -1,4 +1,6 @@
 function out = autoAnalysisNew(csvpath,mapFileName)
+addpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\CoSMoS_Analysis_Utilities')
+
 [~,~,parametersIn] = xlsread(csvpath);
 
 [mapDir, dataDir] = loadCommonDirPath();
@@ -8,14 +10,23 @@ for iFile = 2:nFile + 1
     input = struct;
     A = load([dataDir, parametersIn{iFile,1},'_driftfit.dat'],'-mat');
     ImagePath = A.aoifits.tifFile;
+    driftfit = A.aoifits;
     
+    %{
     input.driftlist = A.driftlist;
+    %}
     A = load([dataDir, parametersIn{iFile,1},'_aoi.dat'],'-mat');
     input.aois = A.aoiinfo2;
     
-    A = load([ImagePath(1:end-4),'.dat'],'-mat');
-    input.time = A.vid.ttb;
-    
+%     A = load([ImagePath(1:end-4),'.dat'],'-mat');
+    input.time = importTimeBase(ImagePath);
+    [driftlist,param] = makeDriftlistLimited(parametersIn{iFile,2},...
+        parametersIn{iFile,3},parametersIn{iFile,3}+parametersIn{iFile,4},...
+    input.time,driftfit);
+save([dataDir, parametersIn{iFile,1},'_driftlist.dat'],'driftlist');
+save([dataDir, parametersIn{iFile,1},'_driftparam.dat'],'param');
+
+
     nAOIs = length(input.aois(:,1));
     aoifits = create_AOIfits_Structure_woHandle(ImagePath,input.aois);
     imageFileProperty = getImageFileProperty(ImagePath);
@@ -26,9 +37,9 @@ for iFile = 2:nFile + 1
         'frameRange',(parametersIn{iFile,2}:parametersIn{iFile,3}),...
         'frameAverage', parametersIn{iFile,4}...
         );
-    shiftedXY = batchShitfAOI(aoiinfo,aoiProcessParameters.frameRange,input.driftlist);
+    shiftedXY = batchShitfAOI(aoiinfo,aoiProcessParameters.frameRange,driftlist);
     [~,aoiinfo] = removeOutOfEdgeAOIs(shiftedXY,aoiinfo,imageFileProperty);
-    pc = getAoiIntensityLinearInterpWithBackground(imageFileProperty,aoiinfo,aoiProcessParameters,input.driftlist);
+    pc = getAoiIntensityLinearInterpWithBackground(imageFileProperty,aoiinfo,aoiProcessParameters,driftlist);
     aoifits.data = pc.ImageData;
     aoifits.backgroundTrace = pc.BackgroundTrace;
     aoifits.beforeBackground = pc.beforeBackground;
