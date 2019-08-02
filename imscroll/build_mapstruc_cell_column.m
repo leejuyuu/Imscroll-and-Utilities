@@ -1,4 +1,4 @@
-function pc=build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse,handles)
+function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,folder,folderuse,handles)
 %
 % function build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse)
 %
@@ -38,68 +38,30 @@ function pc=build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse,handles
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
-               % aoiinf will have as many rows as there are frames to
-               % process i.e. maoi = number of frames to process
-
-[maoi naoi]=size(aoiinf);       % maoi is the number of aois= number of 
-                                % cell array entries
-                                
-                                % Initialize the structure
-                                % Each member of the structure will have as
-                                % many rows as there are frames to process
-                                % because we initialize mapstruc(maoi) by
-                                % referencing the moai row
-  
-if startparm ==2                % == 2 for moving aois, in which case
-                                % we will shift the xy coordinates using
-    frmrange=aoiinf(:,1)';      % the handles.DriftList table
-    for indxx=frmrange          % First column of the aoiinf matrix lists the
-                                % frames over which we will process the
-                                % aois
-                                %                     (aoi#)     (frm#) aoiinfo
-                                %
-                                % Pick out the correct line (frame) in the
-                                % aoiinf table
-        logic=(indxx==aoiinf(:,1));
-        aoiinf(logic,3:4)=aoiinf(logic,3:4)+ShiftAOI(aoiinf(1,6),indxx,handles.FitData,handles.DriftList);
+% Initialize the structure
+% oneAoiinf has row number = number of fitted frames
+[nFrame, ~]=size(oneAoiinf);
+mapstruc_cell_column = cell(nFrame,1);
+mapstruc_cell_column(:) = {struct(...
+    'startparm',startparm,...
+    'folder',folder,...
+    'folderuse',folderuse...
+    )};
+if startparm == 2
+    % == 2 for moving aois, in which case we will shift the xy coordinates
+    % using the handles.DriftList table
+    frameRange = oneAoiinf(:,1)';
+    for iFrame = frameRange
         
+        isEntryEqualiFrame=(iFrame==oneAoiinf(:,1));
+        oneAoiinf(isEntryEqualiFrame,3:4)=oneAoiinf(isEntryEqualiFrame,3:4)+...
+            ShiftAOI(oneAoiinf(1,6),iFrame,handles.FitData,handles.DriftList);
     end
 end
-mapstruc_cell_column=cell(maoi,1);
 
+for iFrame = 1:nFrame
+    mapstruc_cell_column{iFrame}.aoiinf = oneAoiinf(iFrame,:);
+end
 
-
-[mstart nstart]=size(startparm);
-[mfold nfold]=size(folder);
-[mfolderuse nfolderuse]=size(folderuse);
-if mstart==1
-                        % Repeat startparm enough to fill structure
-    startparm=repmat(startparm,maoi,1);
 end
-if mfold == 1
-                        % Repeat folder enough to fill structure
-    folder=repmat(folder,maoi,1);
-end
-if mfolderuse == 1
-                        % Repeat folderuse enough to fill structure
-    folderuse=repmat(folderuse,maoi,1);
-end
-[maoi naoi]=size(aoiinf);
-[mstart nstart]=size(startparm);
-[mfold nfold]=size(folder);
-[mfolderuse nfolderuse]=size(folderuse);
-if (mstart==maoi)&(mfold == maoi)&(mfolderuse==maoi)
-    for indx=1:maoi
-        mapstruc_cell_column{indx}= struct('aoiinf',aoiinf(indx,:),'startparm',startparm(indx,:),...
-                    'folder',folder(indx,:),'folderuse',folderuse(indx,:) );           
-    end        
-                
-                
- pc=mapstruc_cell_column;
- else   
-                        %Here if the number of entries for any parameter was not either
-                        % 1 or maoi
-     pc='error in build_mapstruc';
- end
  
-     % 

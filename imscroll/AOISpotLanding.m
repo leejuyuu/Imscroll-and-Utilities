@@ -29,20 +29,20 @@ function pc=AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
 
 %keyboard
 FrameRange=handles.AllSpots.FrameVector;       % Vector of frames for which spots were found
-[frmrose frmcol]=size(FrameRange);      % also, frmcol= #rows in AllSpots cell array
-[asrose ascol]=size(handles.AllSpots.AllSpotsCells);
+[~, NumOfFrames]=size(FrameRange);      % also, frmcol= #rows in AllSpots cell array
+[asrose, ~]=size(handles.AllSpots.AllSpotsCells);
 
 %aoiinfo2=handles.AllSpots.aoiinfo2;     %'[frm#  ave  x  y  pixnum  aoi#]';
 
-if asrose~=frmcol
+if asrose~=NumOfFrames
     sprintf('Error in AOISpotLanding: FrameRange and AllSpot sizes disagree')
   
 end
-pc=zeros(frmcol,2);                     % Allocate output matrix
-logik=aoiinfo2(:,6)==AOInum;     % Find row of aoiinfo2 with this AOI
+pc = zeros(NumOfFrames,2);                     % Allocate output matrix
+logik = (aoiinfo2(:,6)==AOInum);     % Find row of aoiinfo2 with this AOI
 xycoordzero=aoiinfo2(logik,3:4);   % [x y] coordinate of our AOI
 AmpHighLow=0;
-for frmindex=1:frmcol
+for frmindex=1:NumOfFrames
    
                 % Cycle through all frames
     OptionalXYshift=[0 0];        % Initialize shift of AOI center due to drift

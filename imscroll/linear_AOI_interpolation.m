@@ -31,92 +31,93 @@ function pc=linear_AOI_interpolation(frm,xycenter,radius)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
-            % Define a range of pixels that more than encompases the entire
-            % aoi.  We will integrate only over this limited pixel range.
-xpixels_low=floor(xycenter(1)-radius);   % Integer value for smallest x pixel coordinate 
-xpixels_high=ceil(xycenter(1)+radius);   % Integer value for largest x pixel coordinate 
+% Define a range of pixels that more than encompases the entire
+% aoi.  We will integrate only over this limited pixel range.
+xpixels_low=floor(xycenter(1)-radius);   % Integer value for smallest x pixel coordinate
+xpixels_high=ceil(xycenter(1)+radius);   % Integer value for largest x pixel coordinate
 ypixels_low=floor(xycenter(2)-radius);   % Integer value for smallest y pixel coordinate
 ypixels_high=ceil(xycenter(2)+radius);   % Integer value for largest y pixel coordinate
-                %Initialize output sum of the AOI
-pc=0;       
+%Initialize output sum of the AOI
+pc=0;
 
-  % Use xpL and xpH (L=low H=high) for x coordinates of the pixel edge
-  % Use ypL and ypH (L=low H=high) for y coordinates of the pixel edge
-  % Use xaL and xaH (L=low H=high) for x coordinates of the AOI edge
-  % Use yaL and yaH (L=low H=high) for y coordinates of the AOI edge
-  % Use xoL and xoH for x coordinates of the edges of the region
-  %                    overlapping the AOI and pixel
-  % Use yoL and yoH for x coordinates of the edges of the region
-  %                    overlapping the AOI and pixel
+% Use xpL and xpH (L=low H=high) for x coordinates of the pixel edge
+% Use ypL and ypH (L=low H=high) for y coordinates of the pixel edge
+% Use xaL and xaH (L=low H=high) for x coordinates of the AOI edge
+% Use yaL and yaH (L=low H=high) for y coordinates of the AOI edge
+% Use xoL and xoH for x coordinates of the edges of the region
+%                    overlapping the AOI and pixel
+% Use yoL and yoH for x coordinates of the edges of the region
+%                    overlapping the AOI and pixel
 xaL=xycenter(1)-radius;
 xaH=xycenter(1)+radius;
 yaL=xycenter(2)-radius;
 yaH=xycenter(2)+radius;
-                % Cycle through all the pixels, figuring the fractional
-                % overlap and proportionately adding to the sum.
-                % Note that the PIXEL CENTER HAS THE INTEGER COORDINATE AND
-                % THE PIXEL EDGES ARE AT HALF INTEGERS
+% Cycle through all the pixels, figuring the fractional
+% overlap and proportionately adding to the sum.
+% Note that the PIXEL CENTER HAS THE INTEGER COORDINATE AND
+% THE PIXEL EDGES ARE AT HALF INTEGERS
 for xpindx=xpixels_low:xpixels_high;
     for ypindx=ypixels_low:ypixels_high
-         xpL=xpindx-.5;         % Define x coordinates of the pixel edge
-         xpH=xpindx+.5;
-         ypL=ypindx-.5;
-         ypH=ypindx+.5;         % Define y coordinates of the pixel edge
-                   % Next find the edges of the overlap between the pixel
-                   % and aoi.  This is done be testing whether the pixel is
-                   % cut by the low edge of the aoi, is contained inside
-                   % the aoi, or is cut by the right edge of the aoi.
-         flagx=1;  % flag = 1 means there is nonzero overlap of the pixel and aoi
-         flagy=1;
-                % First define x edges of overlap region
-         if (xpL>xaL) & (xpH<xaH)   % true if x edges are fully within aoi
-             xoL=xpL;               % Edges of overlap are just pixel edges
-             xoH=xpH;
-         elseif (xpL<=xaL) & (xpH>xaL)  % True if low edge of AOI cuts through pixel
-             xoL=xaL;      % Low edge of overlap is low edge of aoi
-             xoH=xpH;      % High edge of overlap is high edge of pixel
-                        % Assumes that pixel is smaller than the AOI (it
-                        % better be)
-         elseif (xpL<xaH) & (xpH>=xaH)  % True if high edge of AOI cuts through pixel
-             xoL=xpL;      % Low edge of overlap is low edge of pixel
-             xoH=xaH;      % High edge of overlap is high edge of aoi
-                        % Assumes that pixel is smaller than the AOI
-         else
-             flagx=0;   % Here is there is no overlap
-             xoL=0;
-             xoH=0;
-         end
-                % Next define y edges of overlap region
-         if (ypL>yaL) & (ypH<yaH)   % true if y edges are fully within aoi
-             yoL=ypL;               % Edges of overlap are just pixel edges
-             yoH=ypH;
-         elseif (ypL<=yaL) & (ypH>yaL)  % True if low edge of AOI cuts through pixel
-             yoL=yaL;      % Low edge of overlap is low edge of aoi
-             yoH=ypH;      % High edge of overlap is high edge of pixel
-                        % Assumes that pixel is smaller than the AOI (it
-                        % better be)
-         elseif (ypL<yaH) & (ypH>=yaH)  % True if high edge of AOI cuts through pixel
-             yoL=ypL;      % Low edge of overlap is low edge of pixel
-             yoH=yaH;      % High edge of overlap is high edge of aoi
-                        % Assumes that pixel is smaller than the AOI
-         else
-             flagy=0;   % Here if there is no overlap
-             yoL=0;
-             yoH=0;
-         end  
-                % Compute the overlap between the pixel and AOI in 
-                %(pixels)^2.  This will be a number between 0 to 1 
-         overlap_area=(xoH-xoL)*(yoH-yoL)*flagx*flagy;
-                % add to the running total of aoi value, using a proportion
-                % of 0 to 1 of the frame value at the pixel being
-                % considered
-            % Checking values:
+        xpL=xpindx-.5;         % Define x coordinates of the pixel edge
+        xpH=xpindx+.5;
+        ypL=ypindx-.5;
+        ypH=ypindx+.5;         % Define y coordinates of the pixel edge
+        % Next find the edges of the overlap between the pixel
+        % and aoi.  This is done be testing whether the pixel is
+        % cut by the low edge of the aoi, is contained inside
+        % the aoi, or is cut by the right edge of the aoi.
+        flagx=1;  % flag = 1 means there is nonzero overlap of the pixel and aoi
+        flagy=1;
+        % First define x edges of overlap region
+        if (xpL>xaL) && (xpH<xaH)   % true if x edges are fully within aoi
+            xoL=xpL;               % Edges of overlap are just pixel edges
+            xoH=xpH;
+        elseif (xpL<=xaL) && (xpH>xaL)  % True if low edge of AOI cuts through pixel
+            xoL=xaL;      % Low edge of overlap is low edge of aoi
+            xoH=xpH;      % High edge of overlap is high edge of pixel
+            % Assumes that pixel is smaller than the AOI (it
+            % better be)
+        elseif (xpL<xaH) && (xpH>=xaH)  % True if high edge of AOI cuts through pixel
+            xoL=xpL;      % Low edge of overlap is low edge of pixel
+            xoH=xaH;      % High edge of overlap is high edge of aoi
+            % Assumes that pixel is smaller than the AOI
+        else
+            flagx=0;   % Here is there is no overlap
+            xoL=0;
+            xoH=0;
+        end
+        % Next define y edges of overlap region
+        if (ypL>yaL) && (ypH<yaH)   % true if y edges are fully within aoi
+            yoL=ypL;               % Edges of overlap are just pixel edges
+            yoH=ypH;
+        elseif (ypL<=yaL) && (ypH>yaL)  % True if low edge of AOI cuts through pixel
+            yoL=yaL;      % Low edge of overlap is low edge of aoi
+            yoH=ypH;      % High edge of overlap is high edge of pixel
+            % Assumes that pixel is smaller than the AOI (it
+            % better be)
+        elseif (ypL<yaH) && (ypH>=yaH)  % True if high edge of AOI cuts through pixel
+            yoL=ypL;      % Low edge of overlap is low edge of pixel
+            yoH=yaH;      % High edge of overlap is high edge of aoi
+            % Assumes that pixel is smaller than the AOI
+        else
+            flagy=0;   % Here if there is no overlap
+            yoL=0;
+            yoH=0;
+        end
+        % Compute the overlap between the pixel and AOI in
+        %(pixels)^2.  This will be a number between 0 to 1
+        overlap_area=(xoH-xoL)*(yoH-yoL)*flagx*flagy;
+        % add to the running total of aoi value, using a proportion
+        % of 0 to 1 of the frame value at the pixel being
+        % considered
+        % Checking values:
         % if overlap_area>0
         %     overlap_area
         %     [xpindx ypindx xoH xoL yoH yoL]
         %     frm(ypindx,xpindx)
         % end
-             
-         pc=pc+frm(ypindx,xpindx)*overlap_area;
+        
+        pc=pc+frm(ypindx,xpindx)*overlap_area;
     end
 end
+

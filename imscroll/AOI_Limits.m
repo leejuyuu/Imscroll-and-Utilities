@@ -1,4 +1,4 @@
-function [xlow xhi ylow yhi]=AOI_Limits(AOICenterxy,AOIhalfwidth)
+function [xlow, xhi, ylow, yhi]=AOI_Limits(AOICenterxy,AOIhalfwidth)
 %
 %function [xlow xhi ylow yhi]=AOI_Limits(AOICenterxy,AOIhalfwidth)
 %
@@ -27,7 +27,7 @@ function [xlow xhi ylow yhi]=AOI_Limits(AOICenterxy,AOIhalfwidth)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-xlow=round(AOICenterxy(1)-AOIhalfwidth+0.5);
-xhi=round(xlow+2*AOIhalfwidth-1);
-ylow=round(AOICenterxy(2)-AOIhalfwidth+0.5);
-yhi=round(ylow+2*AOIhalfwidth-1);
+xlow = round(AOICenterxy(1)-AOIhalfwidth+0.5);
+xhi = round(xlow+2*AOIhalfwidth-1);
+ylow = round(AOICenterxy(2)-AOIhalfwidth+0.5);
+yhi = round(ylow+2*AOIhalfwidth-1);

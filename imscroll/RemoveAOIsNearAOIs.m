@@ -26,46 +26,46 @@ function pc=RemoveAOIsNearAOIs(handles)
 
    
     
-    % Remove AOIs near AOIs
-        
-        filestring=get(handles.InputParms,'String');
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
-                               % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
-                               % be filtered in that we will retain only those AOIs from the current list
-                               % that are not close to AOIs from this reference list we just loaded
-        Refaoiinfo2=aoiinfo2;   % The AOI list that we just loaded is our reference list of AOIs
-        handles.Refaoiinfo2=Refaoiinfo2;    % Save the list of AOIs used as our reference set of AOIs
-        [refrose refcol]=size(Refaoiinfo2);  % rose = number of AOIs in our reference list
-                    
-                   % Now we re-define 'aoiinfo2' to refer to our current
-                   % list of AOIs (that will then be filtered)
-        aoiinfo2=handles.FitData;       % Contains list of current AOIs
-                                    % [framenumber ave x y pixnum aoinumber];
-        [rose col]=size(aoiinfo2);   % Dimensions of our current aoi list            
-                     %Next, fetch the PixelDistance value that will serve
-                     %as our distance criteria for choosing from our
-                     %current AOI list
-       PixelDistance=str2num(get(handles.EditUniqueRadius,'String'));
-     
+% Remove AOIs near AOIs
 
-       for indx=1:refrose
+filestring = get(handles.InputParms,'String');
+eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
+% stored AOIs.  Our current list of AOIs in 'handles.FitData' will
+% be filtered in that we will retain only those AOIs from the current list
+% that are not close to AOIs from this reference list we just loaded
+Refaoiinfo2=aoiinfo2;   % The AOI list that we just loaded is our reference list of AOIs
+handles.Refaoiinfo2=Refaoiinfo2;    % Save the list of AOIs used as our reference set of AOIs
+[refrose, ~]=size(Refaoiinfo2);  % rose = number of AOIs in our reference list
 
-                                    % Cycle through AOIs in our reference list
-                              %  (xycoord,               xylist,        PixelDistance)
-           Farlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
-           aoiinfo2=aoiinfo2(Farlist.logikFar,:); % retain only those current aoiinfo2 entries
-                            % that are more distant than PixelDistance
-           handles.FitData=aoiinfo2;
-           handles.FitData=update_FitData_aoinum(handles.FitData);
-       end
-       handles.FarPixelDistance=PixelDistance;      % Save the distance used to pick AOIs here
-       
-       handles.NearFarFlagg=1;                  % Setting NearFarFlagg=1 then allows user to perform
-                                            % the 'Retain AOIs Near AOIs' operation.  This order of operations
-                                         % is necessary so that size(RefAOINearLogik) properly reflects the total number
-                                         % of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
-                                         % in the current step  (case 20)
-        %guidata(gcbo,handles);
-       
-        %slider1_Callback(handles.ImageNumber, eventdata, handles)
-        pc=handles;
+% Now we re-define 'aoiinfo2' to refer to our current
+% list of AOIs (that will then be filtered)
+aoiinfo2=handles.FitData;       % Contains list of current AOIs
+% [framenumber ave x y pixnum aoinumber];
+% [rose, ~]=size(aoiinfo2);   % Dimensions of our current aoi list
+%Next, fetch the PixelDistance value that will serve
+%as our distance criteria for choosing from our
+%current AOI list
+PixelDistance=str2double(get(handles.EditUniqueRadius,'String'));
+
+
+for indx=1:refrose
+    
+    % Cycle through AOIs in our reference list
+    %  (xycoord,               xylist,        PixelDistance)
+    Farlist=Near_Far_AOIs(Refaoiinfo2(indx,3:4),aoiinfo2(:,3:4), PixelDistance);
+    aoiinfo2=aoiinfo2(Farlist.logikFar,:); % retain only those current aoiinfo2 entries
+    % that are more distant than PixelDistance
+    handles.FitData=aoiinfo2;
+    handles.FitData=update_FitData_aoinum(handles.FitData);
+end
+handles.FarPixelDistance=PixelDistance;      % Save the distance used to pick AOIs here
+
+handles.NearFarFlagg=1;                  % Setting NearFarFlagg=1 then allows user to perform
+% the 'Retain AOIs Near AOIs' operation.  This order of operations
+% is necessary so that size(RefAOINearLogik) properly reflects the total number
+% of AOIs ringing our reference AOIs w/o counting the Near AOIs that we remove
+% in the current step  (case 20)
+%guidata(gcbo,handles);
+
+%slider1_Callback(handles.ImageNumber, eventdata, handles)
+pc=handles;

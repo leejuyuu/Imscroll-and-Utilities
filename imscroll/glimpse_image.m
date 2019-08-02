@@ -39,17 +39,17 @@ function pc=glimpse_image(folder,gheader,image_number)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-fid=fopen([folder  num2str(gheader.filenumber(image_number)) '.glimpse'],'r','b');
+fileID = fopen([folder,  num2str(gheader.filenumber(image_number)), '.glimpse'],'r','b');
          % Above will open the appropriate image-containing file in 'read' 
          % mode as a big endian byte ordering format 
          %
          % Next, position the file position pointer at the location of the
          % desired image   (referenced to 'bof' == beginning of file )
-fseek(fid,gheader.offset(image_number),'bof');
-         % Now retrieve the image
-         %
-pc=fread(fid,[gheader.width,gheader.height],'int16=>int16');
+fseek(fileID,gheader.offset(image_number),'bof');
+         
+% Now retrieve the image
+pc=fread(fileID,[gheader.width,gheader.height],'int16=>int16');
             % Now convert output to same range and data type as the tiff
             % files we deal with
 pc=uint16(pc+32768);
-fclose(fid);
+fclose(fileID);

@@ -1,0 +1,36 @@
+function imageFileProperty = getImageFileProperty(path)
+% imageInfo = getImageInfo(path)
+% returns the information of image sequence file.
+% imageInfo = struct(
+%     'nFrame' number of frames in sequence
+%     'width' and 'height': image width (pixel) and height (pixel)
+[~,~,ext] = fileparts(path);
+if strcmp(ext,'.tif')
+    % Tiff stack
+    imageFileInfo = imfinfo(path);
+    width = imageFileInfo(1).Width;
+    height = imageFileInfo(1).Height;
+    NumberImages = length(imageFileInfo);
+    imageFileProperty = struct(...
+        'filePath', path,...
+        'fileType', 'tiff',...
+        'nFrames', NumberImages,...
+        'width',width,...
+        'height',height);
+    
+elseif strcmp(path(end),'\')
+    % Glimpse binary
+    headerPath = [path,'header.mat'];
+    load(headerPath)
+    imageFileProperty = struct(...
+        'filePath', path,...
+        'fileType', 'glimpse',...
+        'nFrames', vid.nframes,...
+        'width',vid.width,...
+        'height',vid.height,...
+        'gheader',vid);
+else
+    error('Error in getImageFileProperty.m\nimage type not supported in this version%s','')
+end
+
+end
