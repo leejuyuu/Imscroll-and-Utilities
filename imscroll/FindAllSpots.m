@@ -69,11 +69,15 @@ for iFrame = frameRange            % Cycle through all frames, finding the spots
         AllSpots.AllSpotsCells{iFrame,2}=nAOIs;                         % Number of detected spots we store
         AllSpots.AllSpotsCells{iFrame,3}=iFrame;            % Frame number
         
+    else
+        AllSpots.AllSpotsCells{iFrame,1}=[];
+        AllSpots.AllSpotsCells{iFrame,2}=0;                         % Number of detected spots we store
+        AllSpots.AllSpotsCells{iFrame,3}=iFrame;            % Frame number
     end
     
 end
 
 
 fprintf('process finished\n');
-
-pc=FreeAllSpotsMemory(AllSpots);                        % Output structure containing cell array with spot record
+pc = AllSpots;
+% pc=FreeAllSpotsMemory(AllSpots);                        % Output structure containing cell array with spot record
