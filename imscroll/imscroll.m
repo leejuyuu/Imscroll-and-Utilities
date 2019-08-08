@@ -3,7 +3,7 @@ function varargout = imscroll(varargin)
 %    FIG = IMSCROLL launch imscroll GUI.
 %    IMSCROLL('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 30-Jun-2016 17:56:30
+% Last Modified by GUIDE v2.5 08-Aug-2019 16:51:48
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -366,24 +366,20 @@ end
 function varargout = slider1_Callback(h, eventdata, handles,varargin)
 % SLIDER SWITCH: Controls the frame number being displayed
 % Stub for Callback of the uicontrol handles.slider1.
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 
+imagenum = get(handles.ImageNumber,'value');        % Retrieve the value of the slider
+val = round(imagenum);
 
-%images=varargin{1};
-% should pull out the images arguement
-imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
-val= round(imagenum);
+userdat = get(handles.ImageNumber,'UserData');      % userdata contains last value of slider
 
-userdat=get(handles.ImageNumber,'UserData');      % userdata contains last value of slider
+% handles.CurrentField should be [1:100000] at this point
 
 % Ilast will be the element index of
 % handles.CurrentField that corresponds to the last
 % value of the slider,  Icurrent the index of the
 % current frame value of the slider
-[Ylast Ilast]=min(abs(handles.CurrentField-userdat));
-[Ycurrent Icurrent]=min(abs(handles.CurrentField-val));
+[~, Ilast] = min(abs(handles.CurrentField-userdat));
+[~, Icurrent] = min(abs(handles.CurrentField-val));
 
 if imagenum>userdat                                      % userdata contains last value of slider
     
@@ -404,7 +400,7 @@ elseif imagenum < userdat
 end
 
 %val=round(val);
-[Y I]=min(abs(handles.CurrentField-val));       % Find the index I of the element of handles.CurrentField
+[~, I] = min(abs(handles.CurrentField-val));       % Find the index I of the element of handles.CurrentField
 % that is closest to the frame number
 val=handles.CurrentField(I);            % Current slider value will now be an element of the restrictive
 % set of frames listed in
@@ -415,35 +411,11 @@ set(handles.ImageNumber,'value',val)    % Force slider value to reflect current 
 
 set(handles.ImageNumberValue,'String',num2str(val ) );
 axes(handles.axes1);
-%imagesc(images(:,:,val));colormap(gray)
-%dum=imread([folder tiff_name(val)],'tiff');
-%dum=imread([folder cook_name(val)],'tiff');
 
-%avefrm=getframes(dum,images,folder,handles);
 
 avefrm=getframes_v1(handles);
 
-%*************************************
-%{
-if get(handles.BackgroundChoice,'Value')==2
-                            % Here to display background
-    avefrm=rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-elseif get(handles.BackgroundChoice,'Value')==3
-                            % Here to display image-background
-    avefrm=double(avefrm)-double(rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
-elseif get(handles.BackgroundChoice,'Value')==4
-                            % Here to display background with Danny's
-                            % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2
-    
-     avefrm=bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-     
-elseif get(handles.BackgroundChoice,'Value')==5
-     avefrm=double(avefrm)-double(bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight));
-     
-    
-end
-%}
-%***************************
+
 switch get(handles.BackgroundChoice,'Value')
     case 1
     case 2
@@ -463,18 +435,9 @@ switch get(handles.BackgroundChoice,'Value')
 end
 
 
-%dum=imread([folder],'tiff',val);                    %*** NEED TO CHANGE IMREAD
-%[drow dcol]=size(dum);
-%ave=str2double(get(handles.FrameAve,'String'));     % Fetch the number of frames to ave
-%dum=zeros(drow,dcol);                              % for display purposes
-%for aveindx=val:val+ave-1                          % Grab the frames
-%dum=dum+double(imread([folder],'tiff',aveindx));    % ***NEED TO CHANGE IMREAD
-%dum=dum+double( imread([folder tiff_name(aveindx)],'tiff') );
-%dum=dum+double( imread([folder cook_name(aveindx)],'tiff') );
-%end
-%dum=dum/ave;                                        % Normalize the frames
 
-clowval=round(double(min(min(avefrm))));chival=round(double(max(max(avefrm))));     % Frame max and min values,
+clowval=round(double(min(min(avefrm))));
+chival=round(double(max(max(avefrm))));     % Frame max and min values,
 % same as auto values for scaling image
 
 % Now test whether to manually scale images
@@ -491,10 +454,7 @@ else
     
 end
 
-%[mrow ncol]=size(dum);
-% ******* lines to update quickly:
-%h=get(handles.axes1,'children')
-%set(h(end),'cdata',round(rand(200,330)*255))
+
 if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or mesh (0)
     
     if get(handles.Magnify,'Value')==0      % check whether to plot full screen (0) or mag (1)
@@ -504,9 +464,7 @@ if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or
         axes(handles.axes1);                        % sets the active figure to bthe gui
         imagesc(avefrm,[clowval chival] );colormap(gray(256));axis('equal')
     else                                    % Here to magnify image
-        %imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256))
-        %eval( ['rangeyx=' get(handles.MagRangeYX,'String') ])
-        %ymin=rangeyx
+        
         
         % ALSO SEE AOINumberDisplay CALLBACK FOR DISPLAY OF aoiImageSet
         limitsxy=eval( get(handles.MagRangeYX,'String') );                 % Will be axis limits of magnified FOV
@@ -515,13 +473,10 @@ if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or
         end
         axes(handles.axes1);                            % active figure is now the in the gui
         imagesc(avefrm,[clowval chival] );axis('equal');colormap(gray(256));axis(limitsxy)
-        %    eval(['imagesc(avefrm' get(handles.MagRangeYX,'String') ',[' num2str(clowval) ' ' num2str(chival) '])' ]);axis('equal');colormap(gray(256))
-    end
+        end
     pixnum=str2double(get(handles.PixelNumber,'String'));
     
-    %draw_diamond(str2double(get(handles.Xspot,'String')),str2double(get(handles.Yspot,'String')),2,.5,[0 0 1]);
-    %draw_box([str2double(get(handles.Xspot,'String')) str2double(get(handles.Yspot,'String'))],(pixnum-1)/2,...
-    %                              (pixnum-1)/2,'b')
+     
     aoiinfo=handles.FitData;            % [frm#  ave  X   Y   pixnum   AOI#]
     [maoi naoi]=size(aoiinfo);          % handles.FitData contains the aoiinfo collected
     % with the 'AOI' button
@@ -5771,3 +5726,10 @@ function Filter_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in UpdateGraph.
+function UpdateGraph_Callback(hObject, eventdata, handles)
+% hObject    handle to UpdateGraph (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
