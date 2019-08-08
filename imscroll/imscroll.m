@@ -3,7 +3,7 @@ function varargout = imscroll(varargin)
 %    FIG = IMSCROLL launch imscroll GUI.
 %    IMSCROLL('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 08-Aug-2019 16:51:48
+% Last Modified by GUIDE v2.5 08-Aug-2019 17:22:50
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -5847,3 +5847,35 @@ else                                        %Here to plot mesh
     mesh(double(aoi));
 end
 set(handles.AOInum_Output,'String', int2str(maoi))
+
+
+% --- Executes on button press in Centering.
+function Centering_Callback(hObject, eventdata, handles)
+% hObject    handle to Centering (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Load an AOI set and recenter the aois with the gaussian
+% fit centers from a single frame fit
+filestring=get(handles.OutputFilename,'String');
+% Load aoifits from same directory where we store it
+load([handles.FileLocations.data, filestring], '-mat');
+
+% Reset filename where we store or retrieve the 'aoifits' structure
+set(handles.OutputFilename,'String','default.dat');
+
+% Replace the current aoiinfo2
+% data set with that from aoifits
+% (they are likely the same)
+handles.FitData = aoifits.aoiinfo2;                  
+
+% Replace the center positions
+% with the gaussian fit centers
+[nAOIs, ~] = size(handles.FitData);    % AOInum will be the number of AOIs
+handles.FitData(:,3:4) = aoifits.data(1:nAOIs,4:5);    
+handles.FitData(:,1) = aoifits.data(1,2);
+handles.FitData(:,2) = aoifits.parameter(1);     % match 'ave' with Gaussian fit data
+set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
+guidata(gcbo,handles)
+
+UpdateGraph_Callback(hObject, eventdata, handles)
