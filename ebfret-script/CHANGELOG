@@ -1,0 +1,62 @@
+Changelog for hFRET project
+===========================
+
+HEAD
+----
+
+* Added hstep_ml.m: A new method for doing hyperparameter updates. Instead of using the method of moments, this routine maximizes the total evidence over all traces with respect to the hyperparameters:
+
+	Grad_u Sum_n L_n = 0 
+
+* Added tracePlotter.m: A simple GUI that allows visualisation of VBEM output for all traces in a dataset.
+
+* Added load_traces.m: A function to load in one or more datasets, remove photobleaching, as well as traces below a minimum length. 
+
+
+0.3 (still need to tag!)
+------------------------
+
+* get_ML_par: Parameter update for beta was based on wrong identity for mu_var. Previous update:
+
+      beta = 1 /(mu_var*lambda_mean)
+  
+  New update:
+
+      beta = 1 / (mu_var * W * (v-2))
+
+* synth_data_hFRET_subpop: Generates a set of synthetic traces with parameters drawn from specified priors.
+
+* Added hFRET_subpop.m: New script to detect subpopulations.
+  1. Loads in traces from a number of '.dat' files (CSV format T rows, 2*N columns)
+  2. Removes photobleaching from traces by calling _photobleach_index_
+  3. Runs VBEM on each trace to get an initial set of output parameters for a number of states ranging from 1:K
+  4. Runs _get_ML_par_ to construct first guess for hyperparameters _u_ for number of states running from 1:K
+  5. For each configuration _s_, construct guesses for subpopulation hyperparameters by combining subblocks of guesses obtained in step 4
+  6. Run 1:R hFRET iterations for each configuration _s_
+     * Calculate max evidence parameters for each trace using VBEM
+     * Calculate new hyperparameters from VBEM parameters using method of moments 
+
+* Added hFRET_subpop_par.m and hFRET_subpop_cont.m: Parallelized version, and a script to resume a previously saved run.  
+
+* Added photobleach_index: Script to detect photobleaching point in a donor or acceptor signal. 
+
+  1. Calculates running average moving forward through trace
+  2. Calculates running average running backward through trace
+  3. Take deviation between signal and forward/backward average
+  4. Look for correlated spike in deviation to identify bleaching point
+
+* get_ML_par.m: Added optional argument LP for weighting of updates using evidence
+
+
+0.2 (still need to tag!)
+------------------------
+* Created *util/* directory for supporting functions 
+* Moved scripts into separate dir. Removed all non-essential files
+
+
+0.1
+---
+
+* Initial Import of Jonbron's hFRET code
+
+
