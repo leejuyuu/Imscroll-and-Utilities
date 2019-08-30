@@ -5890,4 +5890,4 @@ function changeDataDirButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 dir = uigetdir(handles.dataDir.String, 'Choose directory to save data: ');
-set(handles.dataDir,'String', dir);
+set(handles.dataDir,'String', [dir, '\']);
