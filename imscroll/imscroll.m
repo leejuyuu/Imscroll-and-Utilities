@@ -237,7 +237,7 @@ if nargin <= 1  % LAUNCH GUI
     load filelocations.dat -mat;                % Load the FileLocations stucture whose members list
     % file locations to place
     % and retrieve files
-    % FileLocations.data
+    % dataDir.String
     % FileLocations.avis
     %FileLocations.mapping
     %FileLocations.imscroll
@@ -729,7 +729,7 @@ xypt(2)=str2double(get(handles.Yspot,'String'));    % (set earlier through ginpu
 argouts=gauss2dxy_seq(folder,frms,xypt,pixnum);        % Fit the spot
 % Save the data
 %save p:\matlab12\larry\data\argout.dat argouts
-eval(['save ' handles.FileLocations.data 'argout.dat argouts']);
+eval(['save ' handles.dataDir.String 'argout.dat argouts']);
 axes(handles.axes2);
 plot(argouts(:,1),argouts(:,4),'r',argouts(:,1),argouts(:,6),'b')
 
@@ -1240,7 +1240,7 @@ argoutsBackgroundData=DataOutput2d.BackgroundData;
 
 aoifits.data=argoutsImageData;
 aoifits.BackgroundData=argoutsBackgroundData;
-save([handles.FileLocations.data, outputName],'aoifits')
+save([handles.dataDir.String, outputName],'aoifits')
 handles.aoifits1=aoifits;                        % store our structure in the handles structure
 handles.aoifits2=aoifits;
 if get(handles.BackgroundAOIs,'Value')==1
@@ -1455,7 +1455,7 @@ if argnum ==1                                           % load the Fit Parameter
     guidata(gcbo,handles)
 elseif argnum==2                                        % load an AOI set
     filestring=get(handles.OutputFilename,'String');
-    eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads 'aoifits' structure from a prior
+    eval(['load ' handles.dataDir.String filestring ' -mat'])    % loads 'aoifits' structure from a prior
     % fit to aois
     
     % Reset filename where we store or retrieve the 'aoifits' structure
@@ -1481,7 +1481,7 @@ elseif argnum==3                                        % map the present AOI se
     % (output is x2y2  coordinates)
     % Save the current AOI locations before mapping
     aoiinfo2=handles.FitData;
-    eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
+    eval(['save ' handles.dataDir.String 'premapAOIs.dat' ' aoiinfo2']);
     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
     % Stored as [mxx21 mxy21 bx;
     %            myx21 myy21 by]
@@ -1514,7 +1514,7 @@ elseif argnum==3                                        % map the present AOI se
     guidata(gcbo,handles)
     % Save the current AOI locations after mapping
     aoiinfo2=handles.FitData;
-    eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
+    eval(['save ' handles.dataDir.String 'postmapAOIs.dat aoiinfo2']);
     set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
     set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text field (ready to re-load)
     
@@ -1525,7 +1525,7 @@ elseif argnum==4                                        % Invert the map: go fro
     %
     % Save the current AOI locations before mapping
     aoiinfo2=handles.FitData;
-    eval(['save ' handles.FileLocations.data 'premapAOIs.dat' ' aoiinfo2']);
+    eval(['save ' handles.dataDir.String 'premapAOIs.dat' ' aoiinfo2']);
     fitparmvector=get(handles.FitDisplay,'UserData');     % Fetch the mapping parameters
     % Stored as [mxx21 mxy21 bx;
     %            myx21 myy21 by]
@@ -1560,7 +1560,7 @@ elseif argnum==4                                        % Invert the map: go fro
     guidata(gcbo,handles)
     % Save the current AOI locations after mapping
     aoiinfo2=handles.FitData;
-    eval(['save ' handles.FileLocations.data 'postmapAOIs.dat aoiinfo2']);
+    eval(['save ' handles.dataDir.String 'postmapAOIs.dat aoiinfo2']);
     set(handles.ButtonChoice,'Value',7);           % Make ButtonChoice menu ready to reload mapped AOIs
     set(handles.InputParms,'String','postmapAOIs.dat')     % Put name of postmap AOI file into editable text fi
     
@@ -1583,14 +1583,14 @@ elseif argnum==6
     % was clicked (e.g for oligo binding and such
     filestring=get(handles.OutputFilename,'String');
     %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-    %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
-    eval(['save ' handles.FileLocations.data filestring ' aoiinfo2']);
+    %eval(['save ' handles.dataDir.String '\' filestring ' aoiinfo2']);
+    eval(['save ' handles.dataDir.String filestring ' aoiinfo2']);
     
     set(handles.OutputFilename,'String','default.dat');
 elseif argnum==7
     filestring=get(handles.InputParms,'String');    % Get filename from editable text region
     
-    eval(['load ' handles.FileLocations.data filestring ' -mat'])        % Load the aoiinfo2 variable from a prior instance
+    eval(['load ' handles.dataDir.String filestring ' -mat'])        % Load the aoiinfo2 variable from a prior instance
     % where the user marked the frm #
     % at which spots appeared.  This allows a user to
     % continue marking spots in a sequence that was
@@ -1781,7 +1781,7 @@ elseif argnum==11                                        % load an AOI set
     filestring=get(handles.OutputFilename,'String');
     % Load aoifits from same directory where
     % we store it
-    eval(['load ' handles.FileLocations.data filestring ' -mat']);
+    eval(['load ' handles.dataDir.String filestring ' -mat']);
     %eval(['load ' filestring ' -mat'])              % loads 'aoifits' structure from a prior
     % fit to aois
     % Reset filename where we store or retrieve the 'aoifits' structure
@@ -2138,7 +2138,7 @@ if get(handles.ImageSource,'Value')==4
     aoiinfo2=handles.aoiImageSet.aoiinfoTotx(:,1:6);
     handles.FitData=handles.aoiImageSet.aoiinfoTotx(:,1:6);
     outputName=get(handles.OutputFilename,'String');            % Get the name of the output file
-    eval(['save ' handles.FileLocations.data outputName ' aoiinfo2 aoiImageSet']);      % Save the current parameters in data directory
+    eval(['save ' handles.dataDir.String outputName ' aoiinfo2 aoiImageSet']);      % Save the current parameters in data directory
     % Then update the image display showing an AOI from the aoiImageSet
     guidata(gcbo,handles)
     AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
@@ -3661,15 +3661,15 @@ switch SpotsButtonChoice
         % Here to save a file containing the AllSpots structure
         filestring=get(handles.OutputFilename,'String');
         %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-        %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
+        %eval(['save ' handles.dataDir.String '\' filestring ' aoiinfo2']);
         AllSpots=FreeAllSpotsMemory(handles.AllSpots);   % Get rid of zero entries in the spot list
         % prior to saving the AllSpots structure
-        eval(['save ' handles.FileLocations.data filestring ' AllSpots']);
+        eval(['save ' handles.dataDir.String filestring ' AllSpots']);
         set(handles.OutputFilename,'String','default.dat');
     case 5
         % Here to load a file containing the AllSpots structure
         filestring=get(handles.InputParms,'String');
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])
+        eval(['load ' handles.dataDir.String filestring ' -mat'])
         handles.AllSpots=AllSpots;
         guidata(gcbo,handles);
         %*******************************************************************************************
@@ -3678,15 +3678,15 @@ switch SpotsButtonChoice
         % Here to save a file containing the AllSpotsLow structure
         filestring=get(handles.OutputFilename,'String');
         %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-        %eval(['save ' handles.FileLocations.data '\' filestring ' aoiinfo2']);
+        %eval(['save ' handles.dataDir.String '\' filestring ' aoiinfo2']);
         AllSpotsLow=FreeAllSpotsMemory(handles.AllSpotsLow);   % Get rid of zero entries in the spot list
         % prior to saving the AllSpots structure
-        eval(['save ' handles.FileLocations.data filestring ' AllSpotsLow']);
+        eval(['save ' handles.dataDir.String filestring ' AllSpotsLow']);
         set(handles.OutputFilename,'String','default.dat');
     case 7
         % Here to load a file containing the AllSpotsLow structure
         filestring=get(handles.InputParms,'String');
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])
+        eval(['load ' handles.dataDir.String filestring ' -mat'])
         handles.AllSpotsLow=AllSpotsLow;
         guidata(gcbo,handles);
         %**************************************************************************
@@ -4868,7 +4868,7 @@ switch MenuValue
         % Remove AOIs near AOIs
         
         filestring=get(handles.InputParms,'String');
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
+        eval(['load ' handles.dataDir.String filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
         % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
         % be filtered in that we will retain only those AOIs from the current list
         % that are not close to AOIs from this reference list we just loaded
@@ -4914,7 +4914,7 @@ switch MenuValue
         end
         
         filestring=get(handles.InputParms,'String');
-        eval(['load ' handles.FileLocations.data filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
+        eval(['load ' handles.dataDir.String filestring ' -mat'])    % loads a reference 'aoiinfo2' list of
         % stored AOIs.  Our current list of AOIs in 'handles.FitData' will
         % be filtered in that we will retain only those AOIs from the current list
         % that are not close to AOIs from this reference list we just loaded
@@ -4985,7 +4985,7 @@ switch MenuValue
         folderaoiinfo=get(handles.InputParms,'String');
         % Load variable 'aoiinfo2' containing the frm# for spots
         % in the folder2 sequence file.
-        eval(['load ' handles.FileLocations.data folderaoiinfo ' -mat']);
+        eval(['load ' handles.dataDir.String folderaoiinfo ' -mat']);
         InputAoiinfo2=aoiinfo2;
         bkaoiinfo2Structure=BackgroundAOICircle(InputAoiinfo2, AOIsize, AOIdistance);
         handles.FitData=bkaoiinfo2Structure.aoiinfo2;
@@ -5862,7 +5862,7 @@ function Centering_Callback(hObject, eventdata, handles)
 % fit centers from a single frame fit
 filestring=get(handles.OutputFilename,'String');
 % Load aoifits from same directory where we store it
-load([handles.FileLocations.data, filestring], '-mat');
+load([handles.dataDir.String, filestring], '-mat');
 
 % Reset filename where we store or retrieve the 'aoifits' structure
 set(handles.OutputFilename,'String','default.dat');
@@ -5889,5 +5889,5 @@ function changeDataDirButton_Callback(hObject, eventdata, handles)
 % hObject    handle to changeDataDirButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-dir = uigetdir(handles.dataDir, 'Choose directory to save data: ');
+dir = uigetdir(handles.dataDir.String, 'Choose directory to save data: ');
 set(handles.dataDir,'String', dir);
