@@ -1,5 +1,5 @@
 function [newVb, newVit, selection] = selectK(runs)
-load('runstemp0810.mat');
+% load('runstemp0810.mat');
 maxK = length(runs(:,1));
 nMols = length(runs(1).vb);
 selection = ones(1,nMols);
