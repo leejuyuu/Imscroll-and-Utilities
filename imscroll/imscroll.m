@@ -3,7 +3,7 @@ function varargout = imscroll(varargin)
 %    FIG = IMSCROLL launch imscroll GUI.
 %    IMSCROLL('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 08-Aug-2019 17:22:50
+% Last Modified by GUIDE v2.5 30-Aug-2019 20:14:16
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -247,6 +247,8 @@ if nargin <= 1  % LAUNCH GUI
     %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
     %     mapping:'p:\matlab12\larry\fig-files\imscroll'
     handles.FileLocations=FileLocations;
+    
+    set(handles.dataDir,'String', FileLocations.data)
     % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings
     load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat')
     set(handles.MagChoice,'UserData',MagxyCoord);
@@ -1442,7 +1444,8 @@ if argnum ==1                                           % load the Fit Parameter
     
     filestring=get(handles.InputParms,'String');
     
-    eval(['load ' handles.FileLocations.mapping filestring ' -mat'])                        % loads 'fitparmvector', 2x3
+    load(['data\mapping\', filestring], '-mat')
+    % loads 'fitparmvector', 2x3
     % [mxx21 mxy21 bx21; myx21 myy21 by21]'
     % and mappingpoints =
     % [frm#1   ave1  x1  y1  pixnum1  aoinum1   frm#2  ave2 x2 y2 pixnum2 aoinum2]
@@ -5879,3 +5882,12 @@ set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
 guidata(gcbo,handles)
 
 UpdateGraph_Callback(hObject, eventdata, handles)
+
+
+% --- Executes on button press in changeDataDirButton.
+function changeDataDirButton_Callback(hObject, eventdata, handles)
+% hObject    handle to changeDataDirButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+dir = uigetdir(handles.dataDir, 'Choose directory to save data: ');
+set(handles.dataDir,'String', dir);
