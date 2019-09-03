@@ -2,7 +2,8 @@ function EB_fitting(csvpath)
 
 maxState = 4;
 restarts = 2;
-[~, dataDir] = loadCommonDirPath();
+dir = uigetdir();
+dataDir = [dir, '\'];
 [~,~,parametersIn] = xlsread(csvpath);
 nFile = length(parametersIn(:,1))-1;
 for iFile = 2:nFile + 1
