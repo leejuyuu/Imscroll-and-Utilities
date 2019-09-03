@@ -3,7 +3,9 @@ addpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilitie
 
 [~,~,parametersIn] = xlsread(csvpath);
 
-[mapDir, dataDir] = loadCommonDirPath();
+[mapDir, ~] = loadCommonDirPath();
+dir = uigetdir();
+dataDir = [dir, '\'];
 mapMatrix = loadMapMatrix(mapDir,mapFileName);
 nFile = length(parametersIn(:,1))-1;
 for iFile = 2:nFile + 1
