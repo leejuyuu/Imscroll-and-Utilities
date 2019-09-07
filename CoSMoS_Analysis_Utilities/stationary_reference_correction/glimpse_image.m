@@ -42,4 +42,8 @@ end
             % Now convert output to same range and data type as the tiff
             % files we deal with
 pc=uint16(pc+32768);
+
+% Flipping serves no specific purpose except to meet my earlier obtained
+% mapping files on Andor Solis
+pc = flip(pc);
 fclose(fid);
