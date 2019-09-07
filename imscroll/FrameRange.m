@@ -23,27 +23,49 @@ function pc=FrameRange(handles)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
-            % Here to find spots over the specified frame range
-      set(handles.FramesPickSpots,'String','...')
-      set(handles.SpotsButton,'String','...')
-      pause(0.1)
-      AllSpots=FindAllSpots(handles,3500);     % 500=max # of spots to retain for each frame
-                % AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
-                % AllSpots.AllSpotsCells{m,3}= frame #
-      if get(handles.HighLowAllSpots,'Value')==0
-                % Here if toggle button is not depressed
-                % => get AllSpots for with high threshold for detection
-          handles.AllSpots=AllSpots;
-      else
-                % Here if toggle button is depressed
-                % => get AllSpots for with low threshold for detection
-          handles.AllSpotsLow=AllSpots;
-      end
-      set(handles.FramesPickSpots,'String','Frames')
-      set(handles.SpotsButton,'String','Frames')
-      set(handles.MapSpots,'Visible','on')  
-      
-      handles.AllSpotsLow=AllSpots;     % We later invoke AOISpotLanding() function, and it
-                                % requires that we also have AllSpotsLow defined 
-      pc=handles;
-     % guidata(gcbo,handles)
+% Here to find spots over the specified frame range
+set(handles.FramesPickSpots,'String','...')
+set(handles.SpotsButton,'String','...')
+pause(0.1)
+fileType = get(handles.ImageSource,'Value');
+switch fileType
+    case 1
+        imagePath = handles.TiffFolder;
+    case 3
+        imagePath = handles.gfolder;
+    otherwise
+        error('Error in FrameRange, the image type is not supported in this version')
+end
+
+imageFileProperty = getImageFileProperty(imagePath);
+aoiProcessParameters = getAoiProcessParameters(handles);
+spotPickingParameters = getSpotPickingParameters(handles);
+
+%  Check whether the image magnified (restrct range for finding spots)
+if get(handles.Magnify,'Value')
+    region = cell(eval(get(handles.MagRangeYX,'String')));
+else
+    region = {1, imageFileProperty.width, 1, imageFileProperty.height};
+end
+AllSpots = FindAllSpots(imageFileProperty,...
+    region,aoiProcessParameters,spotPickingParameters);
+% AllSpots=FindAllSpots(handles,3500);     % 500=max # of spots to retain for each frame
+% AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
+% AllSpots.AllSpotsCells{m,3}= frame #
+if get(handles.HighLowAllSpots,'Value')==0
+    % Here if toggle button is not depressed
+    % => get AllSpots for with high threshold for detection
+    handles.AllSpots=AllSpots;
+else
+    % Here if toggle button is depressed
+    % => get AllSpots for with low threshold for detection
+    handles.AllSpotsLow=AllSpots;
+end
+set(handles.FramesPickSpots,'String','Frames')
+set(handles.SpotsButton,'String','Frames')
+set(handles.MapSpots,'Visible','on')
+
+handles.AllSpotsLow=AllSpots;     % We later invoke AOISpotLanding() function, and it
+% requires that we also have AllSpotsLow defined
+pc=handles;
+% guidata(gcbo,handles)
