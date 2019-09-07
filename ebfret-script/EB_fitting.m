@@ -16,7 +16,7 @@ for iFile = 2:nFile + 1
     
     redInput = num2cell(redTracesOut',1);
     redruns = eb_fret(redInput, [1:maxState], restarts);
-    toc
+    
     % save('runstemp0810','runs');
     [redVb, redVit, redSelection] = selectK(redruns);
     redVit = scaleVitBack(redVit, redscale);
