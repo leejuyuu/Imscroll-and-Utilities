@@ -20,15 +20,15 @@ for iFile = 2:nFile + 1
     A = load([dataDir, parametersIn{iFile,1},'_aoi.dat'],'-mat');
     input.aois = A.aoiinfo2;
     
-%     A = load([ImagePath(1:end-4),'.dat'],'-mat');
+    %     A = load([ImagePath(1:end-4),'.dat'],'-mat');
     input.time = importTimeBase(ImagePath);
     [driftlist,param] = makeDriftlistLimited(parametersIn{iFile,2},...
         parametersIn{iFile,3},parametersIn{iFile,3}+parametersIn{iFile,4}-1,...
-    input.time,driftfit);
-save([dataDir, parametersIn{iFile,1},'_driftlist.dat'],'driftlist');
-save([dataDir, parametersIn{iFile,1},'_driftparam.dat'],'param');
-
-
+        input.time,driftfit);
+    save([dataDir, parametersIn{iFile,1},'_driftlist.dat'],'driftlist');
+    save([dataDir, parametersIn{iFile,1},'_driftparam.dat'],'param');
+    
+    
     nAOIs = length(input.aois(:,1));
     aoifits = create_AOIfits_Structure_woHandle(ImagePath,input.aois);
     imageFileProperty = getImageFileProperty(ImagePath);
@@ -72,7 +72,7 @@ save([dataDir, parametersIn{iFile,1},'_driftparam.dat'],'param');
         'green',traceGreen,...
         'red',traceRed...
         );
-    save([dataDir, parametersIn{iFile,1},'_traces.dat'],'traces');    
+    save([dataDir, parametersIn{iFile,1},'_traces.dat'],'traces');
     %%
     highParameters = struct(...
         'noiseDiameter',1,...
