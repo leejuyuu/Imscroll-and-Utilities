@@ -43,7 +43,8 @@ AllSpots.ParametersDescripton='[NoiseDiameter  SpotDiameter  SpotBrightness] use
 % AllSpots.aoiinfo2=handles.FitData;       % List of AOIs user has chosen
 % AllSpots.aoiinfo2Description='[frm#  ave  x  y  pixnum  aoi#]';
 [xlow,xhigh,ylow,yhigh] = region{:};
-for iFrame = frameRange            % Cycle through all frames, finding the spots
+for i = 1:length(frameRange)          % Cycle through all frames, finding the spots
+    iFrame = frameRange(i);
     if iFrame/500==round(iFrame/500)
         fprintf('processing frame %d\n', iFrame);
     end
@@ -65,14 +66,14 @@ for iFrame = frameRange            % Cycle through all frames, finding the spots
         pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
         pk(:,2)=pk(:,2)+ylow-1;
         
-        AllSpots.AllSpotsCells{iFrame,1}=pk;
-        AllSpots.AllSpotsCells{iFrame,2}=nAOIs;                         % Number of detected spots we store
-        AllSpots.AllSpotsCells{iFrame,3}=iFrame;            % Frame number
+        AllSpots.AllSpotsCells{i,1}=pk;
+        AllSpots.AllSpotsCells{i,2}=nAOIs;                         % Number of detected spots we store
+        AllSpots.AllSpotsCells{i,3}=iFrame;            % Frame number
         
     else
-        AllSpots.AllSpotsCells{iFrame,1}=[];
-        AllSpots.AllSpotsCells{iFrame,2}=0;                         % Number of detected spots we store
-        AllSpots.AllSpotsCells{iFrame,3}=iFrame;            % Frame number
+        AllSpots.AllSpotsCells{i,1}=[];
+        AllSpots.AllSpotsCells{i,2}=0;                         % Number of detected spots we store
+        AllSpots.AllSpotsCells{i,3}=iFrame;            % Frame number
     end
     
 end
