@@ -43,7 +43,8 @@ spotPickingParameters = getSpotPickingParameters(handles);
 
 %  Check whether the image magnified (restrct range for finding spots)
 if get(handles.Magnify,'Value')
-    region = cell(eval(get(handles.MagRangeYX,'String')));
+    region = eval(get(handles.MagRangeYX,'String'));
+    region = num2cell(region);
 else
     region = {1, imageFileProperty.width, 1, imageFileProperty.height};
 end
