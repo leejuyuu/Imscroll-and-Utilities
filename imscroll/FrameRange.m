@@ -27,15 +27,7 @@ function pc=FrameRange(handles)
 set(handles.FramesPickSpots,'String','...')
 set(handles.SpotsButton,'String','...')
 pause(0.1)
-fileType = get(handles.ImageSource,'Value');
-switch fileType
-    case 1
-        imagePath = handles.TiffFolder;
-    case 3
-        imagePath = handles.gfolder;
-    otherwise
-        error('Error in FrameRange, the image type is not supported in this version')
-end
+imagePath = getImagePathFromHandles(handles)
 
 imageFileProperty = getImageFileProperty(imagePath);
 aoiProcessParameters = getAoiProcessParameters(handles);
