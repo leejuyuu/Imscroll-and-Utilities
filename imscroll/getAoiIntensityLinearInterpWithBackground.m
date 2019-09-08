@@ -20,8 +20,8 @@ function pc = getAoiIntensityLinearInterpWithBackground(imageFileProperty,aoiinf
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 ...............................................................................
     
-tiffObj = TIFFStack(imageFileProperty.filePath);
-warning('off','last')
+% tiffObj = TIFFStack(imageFileProperty.filePath);
+% warning('off','last')
 nAOIs = length(aoiinfo(:,1));
 
 aoiWidth = aoiinfo(1,5);
@@ -44,8 +44,8 @@ for iFrame = 1:nFrames
     end
     
     % Get the next averaged frame to process
-    currentFrameImage = uint32(sum(uint32(tiffObj(:,:,iFrame:iFrame+frameAverage-1)),3))/frameAverage;
-    
+%     currentFrameImage = uint32(sum(uint32(tiffObj(:,:,iFrame:iFrame+frameAverage-1)),3))/frameAverage;
+    currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame
         
         intensity(iAOI,iFrame) = double(linear_AOI_interpolation2(...
@@ -68,7 +68,7 @@ for frameindex=1:nFrames
 end
 pc.BackgroundTrace =backgroundIntensity;
 pc.beforeBackground = intensity;
-delete(tiffObj);
-warning('on','last')
+% delete(tiffObj);
+% warning('on','last')
 end
  
