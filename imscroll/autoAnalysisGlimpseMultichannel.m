@@ -2,7 +2,7 @@ function autoAnalysisGlimpseMultichannel(csvpath)
 addpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\CoSMoS_Analysis_Utilities')
 
 channelConfig = readtable(csvpath, 'Sheet', 'channels');
-
+nChannels = height(channelConfig);
 [~,~,parametersIn] = xlsread(csvpath);
 
 [mapDir, ~] = loadCommonDirPath();
@@ -11,7 +11,7 @@ channelConfig = readtable(csvpath, 'Sheet', 'channels');
 dataDir = 'D:\TYL\PriA_project\Analysis_Results\20190907\imscroll\';
 % imageMainDir = uigetdir('','Select Image Directory');
 % imageMainDir = [imageMainDir, '\'];
-imageMainDir = 'D:\TYL\PriA_project\Expt_data\20190907\L3\';
+imageMainDir = 'D:\TYL\PriA_project\Expt_data\20190907\L4\';
 % mapMatrix = loadMapMatrix(mapDir,mapFileName);
 nFile = length(parametersIn(:,1))-1;
 for iFile = 2:nFile + 1
@@ -28,7 +28,7 @@ for iFile = 2:nFile + 1
     
     sub_dir_names = list_subdirectories(fileImageDir);
     
-    image
+    
     A = load([fileImageDir,'\', sub_dir_names{1}, '\header.mat']);
     ttb = A.vid.ttb;
     AOIImagePath = [fileImageDir,'\', sub_dir_names{1}, '\'];
@@ -53,12 +53,12 @@ for iFile = 2:nFile + 1
     
     shiftedXY = batchShitfAOI(aoiinfo(:,[3 4]),aoiinfo(1,1),...
         aoiProcessParameters.frameRange,driftlist);
-    isGoodAOI = cell(1, 3);
+    isGoodAOI = cell(1, nChannels);
     [~,~, isGoodAOI{1}] =...
         removeOutOfEdgeAOIs(shiftedXY,aoiinfo,AOIimageFileProperty);
     
-    map = cell(1, 3);
-    for iChannel = 2:3
+    map = cell(1, nChannels);
+    for iChannel = 2:nChannels
                 
         map{iChannel} = ...
             loadMapMatrix(mapDir, char(channelConfig{iChannel, 'mapFileName'}));
@@ -77,10 +77,11 @@ for iFile = 2:nFile + 1
     aoiinfo = aoiinfo(isGoodAOI, :);
     nAOIs = length(aoiinfo(:,1));
        
-    
-    for iChannel = 1:3
-        iChannelName = char(channelConfig{1, 'name'});
+    channelsInfo = cell(nChannels,2);
+    for iChannel = 1:nChannels
+        iChannelName = char(channelConfig{iChannel, 'name'});
         imagePath = [fileImageDir,'\', sub_dir_names{channelConfig{iChannel, 'order'}}, '\'];
+        channelsInfo(iChannel, :) = {iChannelName, imagePath};
         imageFileProperty = getImageFileProperty(imagePath);
         if iChannel == 1
             iaoiinfo = aoiinfo;
@@ -96,8 +97,9 @@ for iFile = 2:nFile + 1
     end
     save([dataDir, parametersIn{iFile,1},'_intcorrected.dat'],'aoifits');      
     save([dataDir, parametersIn{iFile,1},'_traces.dat'],'traces');
+    save([dataDir, parametersIn{iFile,1},'_channels.dat'],'channelsInfo');
     
-    for iChannel = 2:3
+    for iChannel = 2:nChannels
         iChannelName = char(channelConfig{iChannel, 'name'});
         highParameters = struct(...
             'noiseDiameter',1,...
