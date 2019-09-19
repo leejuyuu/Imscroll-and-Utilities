@@ -308,7 +308,7 @@ if nargin <= 1  % LAUNCH GUI
     handles.NearFarFlagg=0;                 % NearFarFlagg=0 prevents user from performing 'Retain AOIs Near AOIs' until
     % the user has first performed
     % 'Remove AOIs Near AOIs
-    
+    set(handles.ImageSource,'Value',3)
     guidata(fig, handles);
     
     if nargout > 0
