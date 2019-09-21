@@ -6,12 +6,12 @@ nChannels = height(channelConfig);
 [~,~,parametersIn] = xlsread(csvpath);
 
 [mapDir, ~] = loadCommonDirPath();
-% dataDir = uigetdir('','Select Data Directory');
-% dataDir = [dataDir, '\'];
-dataDir = 'D:\TYL\PriA_project\Analysis_Results\20190907\imscroll\';
-% imageMainDir = uigetdir('','Select Image Directory');
-% imageMainDir = [imageMainDir, '\'];
-imageMainDir = 'D:\TYL\PriA_project\Expt_data\20190907\L4\';
+dataDir = uigetdir('','Select Data Directory');
+dataDir = [dataDir, '\'];
+% dataDir = 'D:\TYL\PriA_project\Analysis_Results\20190907\imscroll\';
+imageMainDir = uigetdir('','Select Image Directory');
+imageMainDir = [imageMainDir, '\'];
+% imageMainDir = 'D:\TYL\PriA_project\Expt_data\20190907\L4\';
 % mapMatrix = loadMapMatrix(mapDir,mapFileName);
 nFile = length(parametersIn(:,1))-1;
 for iFile = 2:nFile + 1
@@ -113,9 +113,9 @@ for iFile = 2:nFile + 1
             );
         switch iChannelName
             case 'green'
-                region = {121, 378, 1, 256};
+                region = {121, 378, 257, 512};
             case 'red'
-                region = {127, 38, 257, 512};
+                region = {127, 38, 1, 256};
             otherwise
                 error('error in autoAnalysisGlimpseMultichannel\n%s',...
                     'channel not supported')
