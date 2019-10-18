@@ -18,7 +18,7 @@ for iMol = 1:nMols
             % frames in total.
             isSmallOccupancy = false;
             for i = 1:iK
-                isSmallOccupancy = sum(runs(iK).vit(iMol).z == i) < 40;
+                isSmallOccupancy = sum(runs(iK).vit(iMol).z == i) < 20;
             if isSmallOccupancy
                 break
             end
