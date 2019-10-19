@@ -33,17 +33,28 @@ fid=fopen([folder '\' num2str(gheader.filenumber(image_number)) '.glimpse'],'r',
          % desired image   (referenced to 'bof' == beginning of file )
 fseek(fid,gheader.offset(image_number),'bof');
          % Now retrieve the image
-         
-if isfield(gheader,'width')  
-    pc=fread(fid,[gheader.width,gheader.height],'int16=>int16');
-else
-    pc=fread(fid,[gheader.wi,gheader.ht],'int16=>int16');
-end
-            % Now convert output to same range and data type as the tiff
-            % files we deal with
-pc=uint16(pc+32768);
+ if gheader.depth == 1
+     if isfield(gheader,'width')
+         pc=fread(fid,[gheader.width,gheader.height],'int16=>int16');
+     else
+         pc=fread(fid,[gheader.wi,gheader.ht],'int16=>int16');
+     end
+     % Now convert output to same range and data type as the tiff
+     % files we deal with
+     pc=uint16(pc+32768);
+
+ elseif gheader.depth == 0
+     if isfield(gheader,'width')
+         pc=fread(fid,[gheader.width,gheader.height],'int8=>int8');
+     else
+         pc=fread(fid,[gheader.wi,gheader.ht],'int8=>int8');
+     end
+
+ else
+     error('image depth error')
+ end
 
 % Flipping serves no specific purpose except to meet my earlier obtained
 % mapping files on Andor Solis
-pc = flip(pc);
+
 fclose(fid);
