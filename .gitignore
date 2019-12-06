@@ -12,3 +12,9 @@
 *.xlsx
 
 *.tif
+
+*.xml
+
+*.prj
+
+./resources/
