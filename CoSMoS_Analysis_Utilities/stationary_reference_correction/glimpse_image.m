@@ -25,7 +25,7 @@ function pc=glimpse_image(folder,gheader,image_number)
 %               retrieve and output from the glimpse-saved sequence
 %
 %
-fid=fopen([folder '\' num2str(gheader.filenumber(image_number)) '.glimpse'],'r','b');
+fid=fopen([folder '/' num2str(gheader.filenumber(image_number)) '.glimpse'],'r','b');
          % Above will open the appropriate image-containing file in 'read' 
          % mode as a big endian byte ordering format 
          %

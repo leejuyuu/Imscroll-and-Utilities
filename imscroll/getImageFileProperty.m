@@ -18,7 +18,7 @@ if strcmp(ext,'.tif')
         'width',width,...
         'height',height);
     
-elseif strcmp(path(end),'\')
+elseif strcmp(path(end),'\') || strcmp(path(end),'/')
     % Glimpse binary
     headerPath = [path,'header.mat'];
     load(headerPath)

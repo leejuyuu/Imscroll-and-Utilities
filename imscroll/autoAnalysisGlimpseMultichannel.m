@@ -1,5 +1,5 @@
 function autoAnalysisGlimpseMultichannel(csvpath)
-addpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\CoSMoS_Analysis_Utilities')
+% addpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\CoSMoS_Analysis_Utilities')
 
 channelConfig = readtable(csvpath, 'Sheet', 'channels');
 nChannels = height(channelConfig);
@@ -7,10 +7,10 @@ nChannels = height(channelConfig);
 
 [mapDir, ~] = loadCommonDirPath();
 dataDir = uigetdir('','Select Data Directory');
-dataDir = [dataDir, '\'];
+dataDir = [dataDir, '/'];
 % dataDir = 'D:\TYL\PriA_project\Analysis_Results\20190907\imscroll\';
 imageMainDir = uigetdir('','Select Image Directory');
-imageMainDir = [imageMainDir, '\'];
+imageMainDir = [imageMainDir, '/'];
 % imageMainDir = 'D:\TYL\PriA_project\Expt_data\20190907\L4\';
 % mapMatrix = loadMapMatrix(mapDir,mapFileName);
 nFile = length(parametersIn(:,1))-1;
@@ -29,9 +29,9 @@ for iFile = 2:nFile + 1
     sub_dir_names = list_subdirectories(fileImageDir);
     
     
-    A = load([fileImageDir,'\', sub_dir_names{1}, '\header.mat']);
+    A = load([fileImageDir,'/', sub_dir_names{1}, '/header.mat']);
     ttb = A.vid.ttb;
-    AOIImagePath = [fileImageDir,'\', sub_dir_names{1}, '\'];
+    AOIImagePath = [fileImageDir,'/', sub_dir_names{1}, '/'];
     
     
     
@@ -80,7 +80,7 @@ for iFile = 2:nFile + 1
     channelsInfo = cell(nChannels,2);
     for iChannel = 1:nChannels
         iChannelName = char(channelConfig{iChannel, 'name'});
-        imagePath = [fileImageDir,'\', sub_dir_names{channelConfig{iChannel, 'order'}}, '\'];
+        imagePath = [fileImageDir,'/', sub_dir_names{channelConfig{iChannel, 'order'}}, '/'];
         channelsInfo(iChannel, :) = {iChannelName, imagePath};
         imageFileProperty = getImageFileProperty(imagePath);
         if iChannel == 1
@@ -120,7 +120,7 @@ for iFile = 2:nFile + 1
                 error('error in autoAnalysisGlimpseMultichannel\n%s',...
                     'channel not supported')
         end
-        imagePath = [fileImageDir,'\', sub_dir_names{channelConfig{iChannel, 'order'}}, '\'];
+        imagePath = [fileImageDir,'/', sub_dir_names{channelConfig{iChannel, 'order'}}, '/'];
         imageFileProperty = getImageFileProperty(imagePath);        
         AllSpotsHigh = FindAllSpots(imageFileProperty,region,aoiProcessParameters,highParameters);
         AllSpotsLow = FindAllSpots(imageFileProperty,region,aoiProcessParameters,lowParameters);
