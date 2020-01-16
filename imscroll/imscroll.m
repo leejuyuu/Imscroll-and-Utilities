@@ -368,7 +368,7 @@ end
 function varargout = slider1_Callback(h, eventdata, handles,varargin)
 % SLIDER SWITCH: Controls the frame number being displayed
 % Stub for Callback of the uicontrol handles.slider1.
-
+disableDefaultInteractivity(handles.axes1);
 imagenum = get(handles.ImageNumber,'value');        % Retrieve the value of the slider
 val = round(imagenum);
 
@@ -1446,7 +1446,7 @@ if argnum ==1                                           % load the Fit Parameter
     
     filestring=get(handles.InputParms,'String');
     
-    load(['data\mapping\', filestring], '-mat')
+    load(['./data/mapping/', filestring], '-mat')
     % loads 'fitparmvector', 2x3
     % [mxx21 mxy21 bx21; myx21 myy21 by21]'
     % and mappingpoints =
@@ -4256,7 +4256,7 @@ switch MenuValue
     case 4
         % Here to create a mapping file using the current
         % Field1 and Field2 aoi lists
-        filename=[handles.FileLocations.mapping 'fitparms.dat'];
+        filename=[handles.FileLocations.mapping 'FitParms.dat'];
         mp=MakeMappingFile(handles.Field1, handles.Field2, filename);
         % Save the two aoi lists in field1 and field2
         aoiinfo2=handles.Field1;        %[frm  ave  x  y  pixnum  aoi#]
