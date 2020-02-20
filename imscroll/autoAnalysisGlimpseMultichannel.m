@@ -111,11 +111,12 @@ for iFile = 2:nFile + 1
             'spotDiameter',5,...
             'spotBightness',parametersIn{iFile,iChannel*2+2}...
             );
+        A = load('/run/media/tzu-yu/main/git_repos/Imscroll-and-Utilities/imscroll/gui_files/MagxyCoord.dat', '-mat');
         switch iChannelName
             case 'green'
-                region = {121, 378, 257, 512};
+                region = num2cell(A.MagxyCoord(3,:));
             case 'red'
-                region = {127, 38, 1, 256};
+                region = num2cell(A.MagxyCoord(8,:));
             otherwise
                 error('error in autoAnalysisGlimpseMultichannel\n%s',...
                     'channel not supported')
