@@ -114,9 +114,9 @@ for iFile = 2:nFile + 1
         A = load('/run/media/tzu-yu/main/git_repos/Imscroll-and-Utilities/imscroll/gui_files/MagxyCoord.dat', '-mat');
         switch iChannelName
             case 'green'
-                region = num2cell(A.MagxyCoord(3,:));
-            case 'red'
                 region = num2cell(A.MagxyCoord(8,:));
+            case 'red'
+                region = num2cell(A.MagxyCoord(3,:));
             otherwise
                 error('error in autoAnalysisGlimpseMultichannel\n%s',...
                     'channel not supported')
