@@ -1,8 +1,8 @@
 function open_glimpse_file_one_group()
 % cd('D:\matlab_CoSMoS');
 % cd('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities');
-cd('/mnt/main/git_repos/Imscroll-and-Utilities');
-path(pathdef, genpath(cd));
+% cd('/mnt/main/git_repos/Imscroll-and-Utilities');
+% path(pathdef, genpath(cd));
 master_folder = uigetdir();
 sub_dir_names = list_subdirectories(master_folder);
 

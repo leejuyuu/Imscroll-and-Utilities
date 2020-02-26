@@ -1,6 +1,6 @@
 clear;clc;close all;
-path(pathdef,genpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\imscroll'))
-cd ('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\imscroll')
+% path(pathdef,genpath('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\imscroll'))
+% cd ('D:\TYL\Google Drive\Research\All software editing\Imscroll-and-Utilities\imscroll')
 NumofFiles = 1;
 i = 1;
 %{
