@@ -61,7 +61,7 @@ else
         % Here if user did not set the small AOI size for integration
         % when gaussian fitting with a fixed sigma
         parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
-        guidata(gcbo,parenthandles)
+        guidata(parenthandles.FitAOIs,parenthandles)
     elseif isempty(parenthandles.Pixnums)
         % Here if parenthandles.Pixnums exists but is empty.  Set to
         % pixnum for first aoi

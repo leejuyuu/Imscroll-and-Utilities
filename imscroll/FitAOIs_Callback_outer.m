@@ -36,7 +36,7 @@ if get(handles.BackgroundAOIs,'Value')==1
     set(handles.BackgroundAOIs,'Value',0);        % Reset radio button
     handles.BackgroundAOIsData=aoifits;
 end
-guidata(gcbo,handles);
+guidata(handles.FitAOIs,handles);
 %parenthandles=handles;
 % Pass the handle to the
 % main gui figure as input
