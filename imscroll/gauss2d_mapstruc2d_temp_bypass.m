@@ -57,16 +57,12 @@ else
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
-    if ~isfield(parenthandles,'Pixnums')
+    if ~isfield(parenthandles,'Pixnums') || isempty(parenthandles.Pixnums)
         % Here if user did not set the small AOI size for integration
+        % or parenthandles.Pixnums exists but is empty, 
         % when gaussian fitting with a fixed sigma
         parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
         guidata(parenthandles.FitAOIs,parenthandles)
-    elseif isempty(parenthandles.Pixnums)
-        % Here if parenthandles.Pixnums exists but is empty.  Set to
-        % pixnum for first aoi
-        parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
-        guidata(gcbo,parenthandles)
     end
     % get the first averaged frame/aoi
     firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
