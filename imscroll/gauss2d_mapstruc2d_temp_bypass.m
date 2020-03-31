@@ -60,7 +60,12 @@ elseif fitChoice == 1
         parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
         guidata(parenthandles.FitAOIs,parenthandles)
     end
-    % get the first averaged frame/aoi
+    
+    
+    %Now loop through the remaining frames
+    for framemapindx=1:nFrame
+        if framemapindx == 1
+        % get the first averaged frame/aoi
     firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
     
     [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
@@ -103,9 +108,7 @@ elseif fitChoice == 1
                 
     end             % End of aoiindx loop through all the aois for the first frame
     
-    
-    %Now loop through the remaining frames
-    for framemapindx=2:nFrame        
+        else
         
         if framemapindx/10==round(framemapindx/10)
             framemapindx
@@ -152,6 +155,7 @@ elseif fitChoice == 1
                 LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
                 
             end
+        end
         end
         
     end           % end of for loop framemapindx
