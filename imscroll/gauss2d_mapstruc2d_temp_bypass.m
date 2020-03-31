@@ -129,21 +129,7 @@ else
                 % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
                 FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
                 %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
-            case 2
-                % Here if we only integrate the aoi, not fitting
-                % the spot to a gaussian.  Note that we
-                % retain the original aoi coordinates, but
-                % have a zero offset in our output matrix
-                FirstImageData=[aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 sum(sum(firstaoi))];
-                
-            case 5
-                % Here to just integrate the AOI using a
-                % linear interpolation for when the AOI
-                % only partially overlaps pixels
-                shiftedx=mapstruc_cell{1,aoiindx}.aoiinf(3);
-                shiftedy=mapstruc_cell{1,aoiindx}.aoiinf(4);
-                FirstImageData=double([aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1:5) 0 double(linear_AOI_interpolation(firstfrm,[shiftedx shiftedy],pixnum/2)) ]);
-                
+            
             otherwise
                 error('the chosen fitting method isn''t supported in this version')
         end            %END of switch
