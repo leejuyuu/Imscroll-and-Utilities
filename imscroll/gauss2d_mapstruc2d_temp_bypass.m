@@ -76,9 +76,14 @@ elseif fitChoice == 1
     
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
+        if framemapindx/10==round(framemapindx/10)
+            framemapindx
+        end
+        % Get the averaged image of this frame to process
+        currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
         if framemapindx == 1
-            % get the first averaged frame/aoi
-            firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
+            
+            
             for aoiindx = 1:nAOI
                 
                 % Limits for the aoi
@@ -88,7 +93,7 @@ elseif fitChoice == 1
                 [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
                 LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
                 
-                firstaoi = firstfrm(ylow:yhi,xlow:xhi);
+                firstaoi = currentfrm(ylow:yhi,xlow:xhi);
                 inputarg0 = guessStartingParameters(firstaoi);
                 
                 % Now fit the first frame aoi
@@ -107,13 +112,6 @@ elseif fitChoice == 1
             end             % End of aoiindx loop through all the aois for the first frame
             
         else
-            
-            if framemapindx/10==round(framemapindx/10)
-                framemapindx
-            end
-            % Get the next averaged frame to process
-            currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-            
             for aoiindx2=1:nAOI   % Loop through all the aois for this frame
                 
                 pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
