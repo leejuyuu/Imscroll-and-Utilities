@@ -85,7 +85,7 @@ elseif fitChoice == 1
         [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
         LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
         
-        firstaoi = firstfrm(ylow:yhi,xlow:xhi);       
+        firstaoi = firstfrm(ylow:yhi,xlow:xhi);        
         inputarg0 = guessStartingParameters(firstaoi);
           
         % Now fit the first frame aoi
@@ -105,8 +105,7 @@ elseif fitChoice == 1
     
     
     %Now loop through the remaining frames
-    for framemapindx=2:nFrame
-        
+    for framemapindx=2:nFrame        
         
         if framemapindx/10==round(framemapindx/10)
             framemapindx
@@ -157,12 +156,9 @@ elseif fitChoice == 1
         
     end           % end of for loop framemapindx
     
-    
-    
     % Pre-Allocate space
-    
-        pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
-        pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
+    pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
+    pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
     
     % ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
     % Reshaping data matrices for output
