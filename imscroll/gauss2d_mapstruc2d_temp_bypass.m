@@ -115,8 +115,7 @@ elseif fitChoice == 1
             %(aoiindx, DataIndx, FrameIndx)
         end             %END of for loop aoiindx2
         
-        if framemapindx == 1            
-        else
+        if framemapindx ~= 1
             if get(parenthandles.TrackAOIs,'Value')==1
                 
                 % Here for moving aoi (last output aoixy)
