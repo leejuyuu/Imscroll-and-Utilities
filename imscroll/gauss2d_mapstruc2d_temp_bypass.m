@@ -71,8 +71,8 @@ elseif fitChoice == 1
         
     % Pre-Allocate space
     
-        ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
-        BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
+    ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
+    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
     
     % Pre-Allocate space
     LastxyLowHigh = zeros(nAOI,4);          % When gaussian tracking an aoi we must use the last xy location
@@ -102,18 +102,18 @@ elseif fitChoice == 1
         mn = double( mean(mean(firstaoi)) );
         inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
                         
-                % Now fit the first frame aoi
-                outarg=gauss2dfit(double(firstaoi),double(inputarg0));
-                % Reference aoixy to original frame pixels for
-                % storage in output array.
-                %pc.ImageData=[mapstruc(1).aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(firstaoi))];
-                % [(aoi #)               amp          xzero         yzero       sigma      offset    (int intensity) ]
-                %aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
-                % aoiinf is a column vector with (number of rows)= number of frames to be processed
-                % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
-                % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
-                FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
-                %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
+        % Now fit the first frame aoi
+        outarg=gauss2dfit(double(firstaoi),double(inputarg0));
+        % Reference aoixy to original frame pixels for
+        % storage in output array.
+        %pc.ImageData=[mapstruc(1).aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(firstaoi))];
+        % [(aoi #)               amp          xzero         yzero       sigma      offset    (int intensity) ]
+        %aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
+        % aoiinf is a column vector with (number of rows)= number of frames to be processed
+        % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
+        % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
+        FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
+        %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
                                
         ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
                 
@@ -173,16 +173,12 @@ elseif fitChoice == 1
             inputarg0=[mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
             
             % Now fit the current aoi
-            
-            
-                    
-                    outarg=gauss2dfit(double(currentaoi),double(inputarg0));
-                    %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-                    %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
-                           
+            outarg=gauss2dfit(double(currentaoi),double(inputarg0));
+            %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+            %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+            %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+            ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+            %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
             
         end             %END of for loop aoiindx2
         
