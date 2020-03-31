@@ -9,9 +9,9 @@ function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles,imageFile
 % mapstruc_cell{i,j} will be a 2D cell array of structures, each structure with
 %  the form (i runs over frames, j runs over aois)
 %    mapstruc_cell(i,j).aoiinf [frame# ave aoix aoiy pixnum aoinumber]
-%               .startparm (=1 use last [amp sigma offset], but aoixy from mapstruc_cell 
+%               .startparm (=1 use last [amp sigma offset], but aoixy from mapstruc_cell
 %                           =2 use last [amp aoix aoiy sigma offset] (moving aoi)
-%                           =-1 guess new [amp sigma offset], but aoixy from mapstruc_cell 
+%                           =-1 guess new [amp sigma offset], but aoixy from mapstruc_cell
 %                           =-2 guess new [amp sigma offset], aoixy from last output
 %                                                                  (moving aoi)
 %               .folder 'p:\image_data\may16_04\b7p18c.tif'
@@ -21,7 +21,7 @@ function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles,imageFile
 % dum == a dummy zeroed frame for fetching and averaging images
 % images == a m x n x numb array of input images
 % folder == the folder location of the images to be read
-%       
+%
 % parenthandles == the handles arrary from the top level gui
 % handles == the handles array from the GUI
 %
@@ -49,13 +49,13 @@ if fitChoice == 5
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
 elseif fitChoice == 1
-        
+    
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
     if ~isfield(parenthandles,'Pixnums') || isempty(parenthandles.Pixnums)
         % Here if user did not set the small AOI size for integration
-        % or parenthandles.Pixnums exists but is empty, 
+        % or parenthandles.Pixnums exists but is empty,
         % when gaussian fitting with a fixed sigma
         parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
         guidata(parenthandles.FitAOIs,parenthandles)
@@ -65,97 +65,97 @@ elseif fitChoice == 1
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
         if framemapindx == 1
-        % get the first averaged frame/aoi
-    firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
-    
-    [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
-        
-    % Pre-Allocate space
-    
-    ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
-    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
-    
-    % Pre-Allocate space
-    LastxyLowHigh = zeros(nAOI,4);          
-    % When gaussian tracking an aoi we must use the last xy location
-    % as input to the next xy fit.  Hence we store the last set of xy values
-    % for just one frame.
-    
-    for aoiindx = 1:nAOI
-        
-        % Limits for the aoi
-        aoiy = mapstruc_cell{1,aoiindx}.aoiinf(4);  % Y (row) Center of aoi
-        aoix = mapstruc_cell{1,aoiindx}.aoiinf(3);  % X (col)center of aoifram
-        pixnum = mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
-        [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
-        LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
-        
-        firstaoi = firstfrm(ylow:yhi,xlow:xhi);        
-        inputarg0 = guessStartingParameters(firstaoi);
-          
-        % Now fit the first frame aoi
-        outarg=gauss2dfit(double(firstaoi),double(inputarg0));
-        % Reference aoixy to original frame pixels for
-        % storage in output array.
-        
-        % aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
-        % aoiinf is a column vector with (number of rows)= number of frames to be processed
-        % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
-        % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
-        FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
-                               
-        ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
+            % get the first averaged frame/aoi
+            firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
+            
+            [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
+            
+            % Pre-Allocate space
+            
+            ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
+            BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
+            
+            % Pre-Allocate space
+            LastxyLowHigh = zeros(nAOI,4);
+            % When gaussian tracking an aoi we must use the last xy location
+            % as input to the next xy fit.  Hence we store the last set of xy values
+            % for just one frame.
+            
+            for aoiindx = 1:nAOI
                 
-    end             % End of aoiindx loop through all the aois for the first frame
-    
+                % Limits for the aoi
+                aoiy = mapstruc_cell{1,aoiindx}.aoiinf(4);  % Y (row) Center of aoi
+                aoix = mapstruc_cell{1,aoiindx}.aoiinf(3);  % X (col)center of aoifram
+                pixnum = mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
+                [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
+                LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
+                
+                firstaoi = firstfrm(ylow:yhi,xlow:xhi);
+                inputarg0 = guessStartingParameters(firstaoi);
+                
+                % Now fit the first frame aoi
+                outarg=gauss2dfit(double(firstaoi),double(inputarg0));
+                % Reference aoixy to original frame pixels for
+                % storage in output array.
+                
+                % aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
+                % aoiinf is a column vector with (number of rows)= number of frames to be processed
+                % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
+                % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
+                FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
+                
+                ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
+                
+            end             % End of aoiindx loop through all the aois for the first frame
+            
         else
-        
-        if framemapindx/10==round(framemapindx/10)
-            framemapindx
-        end
-        % Get the next averaged frame to process
-        currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-        
-        for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
-            pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
-            
-            TempLastxy=LastxyLowHigh(aoiindx2,:);
-            xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
-            
-            currentaoi=currentfrm(ylow:yhi,xlow:xhi);                
-            
-            inputarg0 = guessStartingParameters(currentaoi);
-            
-            % Now fit the current aoi
-            outarg=gauss2dfit(double(currentaoi),double(inputarg0));
-            ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
-            
-        end             %END of for loop aoiindx2
-        
-        
-        if get(parenthandles.TrackAOIs,'Value')==1
-            
-            % Here for moving aoi (last output aoixy)
-            % Save the last fit xy locations
-            for aoiindx3=1:nAOI
-                lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
-                pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
-                [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
-                LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
-                
+            if framemapindx/10==round(framemapindx/10)
+                framemapindx
             end
-        else
-            % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
-            for aoiindx4=1:nAOI
-                aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
-                aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
-                pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
-                [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
-                LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
+            % Get the next averaged frame to process
+            currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
+            
+            for aoiindx2=1:nAOI   % Loop through all the aois for this frame
                 
+                pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
+                
+                TempLastxy=LastxyLowHigh(aoiindx2,:);
+                xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
+                
+                currentaoi=currentfrm(ylow:yhi,xlow:xhi);
+                
+                inputarg0 = guessStartingParameters(currentaoi);
+                
+                % Now fit the current aoi
+                outarg=gauss2dfit(double(currentaoi),double(inputarg0));
+                ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+                
+            end             %END of for loop aoiindx2
+            
+            
+            if get(parenthandles.TrackAOIs,'Value')==1
+                
+                % Here for moving aoi (last output aoixy)
+                % Save the last fit xy locations
+                for aoiindx3=1:nAOI
+                    lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
+                    pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
+                    [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
+                    LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
+                    
+                end
+            else
+                % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
+                for aoiindx4=1:nAOI
+                    aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
+                    aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
+                    pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
+                    [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
+                    LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
+                    
+                end
             end
-        end
         end
         
     end           % end of for loop framemapindx
