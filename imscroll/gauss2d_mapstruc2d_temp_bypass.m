@@ -49,11 +49,7 @@ if fitChoice == 5
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
 elseif fitChoice == 1
-    FirstImageData = [];
-    FirstBackgroundData = [];
-    Radius=parenthandles.RollingBallRadius;
-    Height=parenthandles.RollingBallHeight;
-    
+        
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
@@ -127,8 +123,6 @@ elseif fitChoice == 1
         end
         % Get the next averaged frame to process
         currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-        
-            BackgroundCurrentFrame=currentfrm;
         
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
