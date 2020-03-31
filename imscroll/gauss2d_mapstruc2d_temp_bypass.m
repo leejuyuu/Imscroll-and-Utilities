@@ -86,13 +86,8 @@ elseif fitChoice == 1
         LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
         
         firstaoi = firstfrm(ylow:yhi,xlow:xhi);       
-        
-        % starting parameters for fit
-        %[ ampl xzero yzero sigma offset]
-        mx = double( max(max(firstaoi)) );
-        mn = double( mean(mean(firstaoi)) );
-        inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
-                        
+        inputarg0 = guessStartingParameters(firstaoi);
+          
         % Now fit the first frame aoi
         outarg=gauss2dfit(double(firstaoi),double(inputarg0));
         % Reference aoixy to original frame pixels for
@@ -126,13 +121,9 @@ elseif fitChoice == 1
             TempLastxy=LastxyLowHigh(aoiindx2,:);
             xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
             
-            currentaoi=currentfrm(ylow:yhi,xlow:xhi);            
+            currentaoi=currentfrm(ylow:yhi,xlow:xhi);                
             
-            % For now, always guess at starting parameters
-            
-            mx=double( max(max(currentaoi)) );
-            mn=double( mean(mean(currentaoi)) );
-            inputarg0=[mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
+            inputarg0 = guessStartingParameters(currentaoi);
             
             % Now fit the current aoi
             outarg=gauss2dfit(double(currentaoi),double(inputarg0));
@@ -187,3 +178,13 @@ else
     error('the chosen fitting method isn''t supported in this version')
 end
 end
+
+function inputarg0 = guessStartingParameters(aoiImage)
+% starting parameters for fit
+%[ ampl xzero yzero sigma offset]
+pixnum = length(aoiImage(:, 1));
+mx = double( max(max(aoiImage)) );
+mn = double( mean(mean(aoiImage)) );
+inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
+end
+
