@@ -91,6 +91,8 @@ elseif fitChoice == 1
                 pixnum = mapstruc_cell{1,aoiindx2}.aoiinf(5); % Width of aoi
                 [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
                 LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];                
+                TempLastxy=LastxyLowHigh(aoiindx2,:);
+                xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
             else                
                 TempLastxy=LastxyLowHigh(aoiindx2,:);
                 xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);                
