@@ -64,9 +64,8 @@ elseif fitChoice == 1
     [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
     
     % Pre-Allocate space
-    
-    ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
-    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
+    ImageDataParallel = zeros(nAOI, 8, nFrame);
+    BackgroundDataParallel = zeros(nAOI, 8, nFrame);
     
     % Pre-Allocate space
     LastxyLowHigh = zeros(nAOI,4);
@@ -143,8 +142,8 @@ elseif fitChoice == 1
     end           % end of for loop framemapindx
     
     % Pre-Allocate space
-    pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
-    pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
+    pc.ImageData = zeros(nAOI*nFrame, 8);
+    pc.BackgroundData = zeros(nAOI*nFrame, 8);
     
     % ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
     % Reshaping data matrices for output
