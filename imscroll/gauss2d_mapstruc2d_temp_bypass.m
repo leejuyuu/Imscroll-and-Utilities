@@ -75,8 +75,9 @@ elseif fitChoice == 1
     BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
     
     % Pre-Allocate space
-    LastxyLowHigh = zeros(nAOI,4);          % When gaussian tracking an aoi we must use the last xy location
-    LastxyLowHighSmall = zeros(nAOI,4);     % as input to the next xy fit.  Hence we store the last set of xy values
+    LastxyLowHigh = zeros(nAOI,4);          
+    % When gaussian tracking an aoi we must use the last xy location
+    % as input to the next xy fit.  Hence we store the last set of xy values
     % for just one frame.
     
     for aoiindx = 1:nAOI
@@ -87,15 +88,10 @@ elseif fitChoice == 1
         pixnum = mapstruc_cell{1,aoiindx}.aoiinf(5); % Width of aoi
         [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
         LastxyLowHigh(aoiindx,:) = [xlow xhi ylow yhi];
-        % Use the next AOI limits for integration of a small AOI when
-        % fitting a gaussian (with fixed sigma) to the larger AOI
-        [xlowsmall, xhismall, ylowsmall, yhismall] = AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
-        LastxyLowHighSmall(aoiindx,:) = [xlowsmall xhismall ylowsmall yhismall];
         
         firstaoi = firstfrm(ylow:yhi,xlow:xhi);
-        % Again, use the following AOI for integration of a small AOI when
-        % fitting a gaussian (with fixed sigma) to the larger AOI
-        firstaoismall = firstfrm(ylowsmall:yhismall,xlowsmall:xhismall);
+       
+        
         % starting parameters for fit
         %[ ampl xzero yzero sigma offset]
         mx = double( max(max(firstaoi)) );
@@ -157,14 +153,9 @@ elseif fitChoice == 1
             
             TempLastxy=LastxyLowHigh(aoiindx2,:);
             xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
-            TempLastxySmall=LastxyLowHighSmall(aoiindx2,:);
-            xlowsmall=TempLastxySmall(1);xhismall=TempLastxySmall(2);
-            ylowsmall=TempLastxySmall(3);yhismall=TempLastxySmall(4);
-            currentaoi=currentfrm(ylow:yhi,xlow:xhi);
-            % Again, use the following AOIfor integration of a small AOI when
-            % fitting a gaussian (with fixed sigma) to the larger AOI
             
-            currentaoismall=currentfrm(ylowsmall:yhismall,xlowsmall:xhismall);
+            currentaoi=currentfrm(ylow:yhi,xlow:xhi);
+            
             
             % For now, always guess at starting parameters
             
@@ -192,8 +183,7 @@ elseif fitChoice == 1
                 pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
                 [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
                 LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
-                [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],parenthandles.Pixnums(1)/2);
-                LastxyLowHighSmall(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
+                
             end
         else
             % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
@@ -203,10 +193,7 @@ elseif fitChoice == 1
                 pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
                 [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
                 LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
-                % Use the next AOI limits for integration of a small AOI when
-                % fitting a gaussian (with fixed sigma) to the larger AOI
-                [xlowsmall, xhismall, ylowsmall, yhismall]=AOI_Limits([aoix aoiy],parenthandles.Pixnums(1)/2);
-                LastxyLowHighSmall(aoiindx4,:)=[xlowsmall xhismall ylowsmall yhismall];
+                
             end
         end
         
