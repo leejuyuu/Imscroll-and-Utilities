@@ -74,6 +74,15 @@ elseif fitChoice == 1
     % as input to the next xy fit.  Hence we store the last set of xy values
     % for just one frame.
     
+    for aoiindx2=1:nAOI
+        % Limits for the aoi
+        aoiy = mapstruc_cell{1,aoiindx2}.aoiinf(4);  % Y (row) Center of aoi
+        aoix = mapstruc_cell{1,aoiindx2}.aoiinf(3);  % X (col)center of aoifram
+        pixnum = mapstruc_cell{1,aoiindx2}.aoiinf(5); % Width of aoi
+        [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
+        LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];
+    end
+    
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
         if framemapindx/10==round(framemapindx/10)
@@ -84,14 +93,6 @@ elseif fitChoice == 1
         
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
-            if framemapindx == 1
-                % Limits for the aoi
-                aoiy = mapstruc_cell{1,aoiindx2}.aoiinf(4);  % Y (row) Center of aoi
-                aoix = mapstruc_cell{1,aoiindx2}.aoiinf(3);  % X (col)center of aoifram
-                pixnum = mapstruc_cell{1,aoiindx2}.aoiinf(5); % Width of aoi
-                [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
-                LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];   
-            end
             TempLastxy=LastxyLowHigh(aoiindx2,:);
             xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
             
