@@ -97,7 +97,7 @@ elseif fitChoice == 1
             
             currentaoi=currentfrm(ylow:yhi,xlow:xhi);
             
-            inputarg0 = guessStartingParameters(currentaoi);
+            inputarg0 = guessStartingParameters(double(currentaoi));
             
             % Now fit the current aoi
             outarg=gauss2dfit(double(currentaoi),double(inputarg0));
@@ -160,12 +160,26 @@ else
 end
 end
 
-function inputarg0 = guessStartingParameters(aoiImage)
-% starting parameters for fit
-%[ ampl xzero yzero sigma offset]
-pixnum = length(aoiImage(:, 1));
-mx = double( max(max(aoiImage)) );
-mn = double( mean(mean(aoiImage)) );
-inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
+function startParams = guessStartingParameters(aoiImage)
+% Set the starting parameters for 2D gaussian fitting
+%
+% Input arg:
+%     aoiImage: N x N double array, the image of the AOI at a certain frame,
+%               N is the width of the AOI
+% Return:
+%     startParams: 1 x 5 double array, corresponding to the 5 fitting 
+%                  parameters of the 2D gaussian
+%                  [amplitude xzero yzero sigma offset]
+%
+aoiWidth = length(aoiImage(:, 1));
+maxIntensity = max(aoiImage(:));
+meanIntensity = mean(mean(aoiImage));
+startParams = [...
+    maxIntensity-meanIntensity,...  % amplitude
+    aoiWidth/2,...  % xzero
+    aoiWidth/2,...  % yzero
+    aoiWidth/4,...  % sigma
+    meanIntensity,...  % offset
+    ];
 end
 
