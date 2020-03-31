@@ -61,26 +61,24 @@ elseif fitChoice == 1
         guidata(parenthandles.FitAOIs,parenthandles)
     end
     
+    [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
+    
+    % Pre-Allocate space
+    
+    ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
+    BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
+    
+    % Pre-Allocate space
+    LastxyLowHigh = zeros(nAOI,4);
+    % When gaussian tracking an aoi we must use the last xy location
+    % as input to the next xy fit.  Hence we store the last set of xy values
+    % for just one frame.
     
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
         if framemapindx == 1
             % get the first averaged frame/aoi
             firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
-            
-            [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
-            
-            % Pre-Allocate space
-            
-            ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
-            BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
-            
-            % Pre-Allocate space
-            LastxyLowHigh = zeros(nAOI,4);
-            % When gaussian tracking an aoi we must use the last xy location
-            % as input to the next xy fit.  Hence we store the last set of xy values
-            % for just one frame.
-            
             for aoiindx = 1:nAOI
                 
                 % Limits for the aoi
