@@ -48,7 +48,7 @@ if fitChoice == 5
     
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
-else
+elseif fitChoice == 1
     FirstImageData = [];
     FirstBackgroundData = [];
     Radius=parenthandles.RollingBallRadius;
@@ -67,25 +67,13 @@ else
     % get the first averaged frame/aoi
     firstfrm = fetchframes_mapstruc_cell_v1(1,mapstruc_cell,parenthandles);
     
-    
-    
-    
     [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
-    
-    
-    
-    
-    
-    
+        
     % Pre-Allocate space
-    if fitChoice==4
-        ImageDataParallel(:,:,nFrame)=zeros(nAOI,9);    % (aoiindx,DataEntryIndx,FrmIndx)
-        % Stacked matrices with each matrix containing the data for all the aois in one frame.
-        BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,9);
-    else
+    
         ImageDataParallel(:,:,nFrame)=zeros(nAOI,8);
         BackgroundDataParallel(:,:,nFrame)=zeros(nAOI,8);
-    end
+    
     % Pre-Allocate space
     LastxyLowHigh = zeros(nAOI,4);          % When gaussian tracking an aoi we must use the last xy location
     LastxyLowHighSmall = zeros(nAOI,4);     % as input to the next xy fit.  Hence we store the last set of xy values
@@ -113,10 +101,7 @@ else
         mx = double( max(max(firstaoi)) );
         mn = double( mean(mean(firstaoi)) );
         inputarg0 = [mx-mn pixnum/2 pixnum/2 pixnum/4 mn];
-        switch fitChoice
-            
-            case 1                                % Here to fit and integrate the spot
-                
+                        
                 % Now fit the first frame aoi
                 outarg=gauss2dfit(double(firstaoi),double(inputarg0));
                 % Reference aoixy to original frame pixels for
@@ -129,20 +114,9 @@ else
                 % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
                 FirstImageData=[aoiindx   mapstruc_cell{1,aoiindx}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
                 %pc.ImageData=[pc.ImageData;aoiindx mapstruc_cell{1,aoiindx}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(firstaoi))];
-            
-            otherwise
-                error('the chosen fitting method isn''t supported in this version')
-        end            %END of switch
-        
+                               
         ImageDataParallel(aoiindx,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
-        
-        if fitChoice==6
-            % Here only if FirstBackgroundData actually contains computed entries
-            % If we are computing background, just
-            % place the first data into
-            
-            BackgroundDataParallel(aoiindx,:,1)=FirstBackgroundData; % (aoiindx,  DataIndx,  FrameIndx)
-        end
+                
     end             % End of aoiindx loop through all the aois for the first frame
     
     
@@ -157,23 +131,8 @@ else
         end
         % Get the next averaged frame to process
         currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-        if fitChoice==6
-            
-            % Here if user wants the background computed (this
-            % requires a couple seconds, so we only compute it if
-            % the user wants it
-            if any(get(parenthandles.BackgroundChoice,'Value')==[2 3])
-                % Here to use rolling ball background
-                BackgroundCurrentFrame=rolling_ball(currentfrm,Radius,Height);
-            else
-                % Here to use Danny's newer background subtraction
-                BackgroundCurrentFrame=bkgd_image(currentfrm,Radius,Height);
-            end
-            
-        else
-            BackgroundCurrentFrame=currentfrm;
-        end
         
+            BackgroundCurrentFrame=currentfrm;
         
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
@@ -215,12 +174,7 @@ else
             
             % Now fit the current aoi
             
-            %     switch (fitChoice)
-            switch fitChoice
-                
-                case 1                                % Here to fit and integrate the spot
-                    
-                    
+            
                     
                     outarg=gauss2dfit(double(currentaoi),double(inputarg0));
                     %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
@@ -228,32 +182,7 @@ else
                     %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
                     ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
                     %       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow-1 outarg(3)+ylow-1 outarg(4) outarg(5) sum(sum(currentaoi))];
-                case 2
-                    % Here if we only integrate the aoi, not fitting
-                    % the spot to a gaussian.  Note that we
-                    % retain the original aoi coordinates, but
-                    % have a zero offset in our output matrix
-                    %****         pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 sum(sum(currentaoi))];
-                    
-                case 5
-                    % Here to just integrate the AOI using a
-                    % linear interpolation for when the AOI
-                    % only partially overlaps pixels
-                    shiftedx=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3);
-                    shiftedy=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(4);
-                    %****       pc.ImageData(rowindex,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                    %****pc.ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                    %****ImageData((framemapindx-1)*naois+aoiindx2,:)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                    ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1:5) 0 double(linear_AOI_interpolation(currentfrm,[shiftedx shiftedy],pixnum/2))];
-                    
-                otherwise
-                    error('the chosen fitting method isn''t supported in this version')
-                    
-            end            %END of switch
-            
+                           
             
         end             %END of for loop aoiindx2
         
@@ -290,16 +219,10 @@ else
     
     
     % Pre-Allocate space
-    if fitChoice==4
-        pc.ImageData(nAOI*nFrame,:)=zeros(1,9);    % (aoiindx,DataEntryIndx,FrmIndx)
-        % Stacked matrices with
-        % each matrix containing the data for all the aois
-        % in one frame.
-        pc.BackgroundData(nAOI*nFrame,:)=zeros(1,9);
-    else
+    
         pc.ImageData(nAOI*nFrame,:)=zeros(1,8);
         pc.BackgroundData(nAOI*nFrame,:)=zeros(1,8);
-    end
+    
     % ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
     % Reshaping data matrices for output
     % The form ImageData and BackgroundData matrices was required to
@@ -309,5 +232,8 @@ else
         pc.ImageData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=ImageDataParallel(:,:,frameindex);
         pc.BackgroundData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=BackgroundDataParallel(:,:,frameindex);
     end
+else
+    
+    error('the chosen fitting method isn''t supported in this version')
 end
 end
