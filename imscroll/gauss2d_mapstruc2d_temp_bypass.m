@@ -90,15 +90,12 @@ elseif fitChoice == 1
                 aoix = mapstruc_cell{1,aoiindx2}.aoiinf(3);  % X (col)center of aoifram
                 pixnum = mapstruc_cell{1,aoiindx2}.aoiinf(5); % Width of aoi
                 [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
-                LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];
-            else
-                
-                pixnum=mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5); % Width of current aoi
-                
+                LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];                
+            else                
                 TempLastxy=LastxyLowHigh(aoiindx2,:);
-                xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
-                
+                xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);                
             end
+            
             currentaoi=currentfrm(ylow:yhi,xlow:xhi);
             
             inputarg0 = guessStartingParameters(currentaoi);
