@@ -92,11 +92,11 @@ elseif fitChoice == 1
                 [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
                 LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];
                 
-                firstaoi = currentfrm(ylow:yhi,xlow:xhi);
-                inputarg0 = guessStartingParameters(firstaoi);
+                currentaoi = currentfrm(ylow:yhi,xlow:xhi);
+                inputarg0 = guessStartingParameters(currentaoi);
                 
                 % Now fit the first frame aoi
-                outarg=gauss2dfit(double(firstaoi),double(inputarg0));
+                outarg=gauss2dfit(double(currentaoi),double(inputarg0));
                 % Reference aoixy to original frame pixels for
                 % storage in output array.
                 
@@ -104,7 +104,7 @@ elseif fitChoice == 1
                 % aoiinf is a column vector with (number of rows)= number of frames to be processed
                 % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
                 % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
-                FirstImageData=[aoiindx2   mapstruc_cell{1,aoiindx2}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(firstaoi))];
+                FirstImageData=[aoiindx2   mapstruc_cell{1,aoiindx2}.aoiinf(1)   outarg(1)   outarg(2)+xlow   outarg(3)+ylow   outarg(4)   outarg(5)   sum(sum(currentaoi))];
                 
                 ImageDataParallel(aoiindx2,:,1)=FirstImageData;  %(aoiindx, DataIndx, FrameIndx)
                 
