@@ -3,6 +3,13 @@ function FitAOIs_Callback_outer(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %global argouts imageset folderpass %parenthandles
+
+% Find out if user wants a fixed or moving aoi, startparm=1 for fixed, startparm=2 for moving
+startparameter = get(handles.StartParameters,'Value');
+if startparameter ~= 1
+    error('Error in build_2d_mapstruc_aois_frms:\n    Moving AOI while gaussian fitting is not supported in this version.%s', '');
+end
+
 aoifits = create_AOIfits_Structure(handles);
 outputName = get(handles.OutputFilename,'String');
 imagePath = getImagePathFromHandles(handles);
