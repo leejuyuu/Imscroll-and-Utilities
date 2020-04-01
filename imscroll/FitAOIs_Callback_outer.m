@@ -5,12 +5,11 @@ function FitAOIs_Callback_outer(hObject, eventdata, handles, varargin)
 %global argouts imageset folderpass %parenthandles
 aoifits = create_AOIfits_Structure(handles);
 outputName = get(handles.OutputFilename,'String');
-imagePath = getImagePathFromHandles(handles)
+imagePath = getImagePathFromHandles(handles);
 
 imageFileProperty = getImageFileProperty(imagePath);
-% Build a 2D mapstruc to direct data processing
-mapstruc2d = build_2d_mapstruc_aois_frms(handles);
-DataOutput2d=gauss2d_mapstruc2d_temp_bypass(mapstruc2d,handles,imageFileProperty); % Process the data (integrate, fit etc)
+
+DataOutput2d=gauss2d_mapstruc2d_temp_bypass(handles,imageFileProperty); % Process the data (integrate, fit etc)
 % V.2 is parallel processing
 
 argoutsImageData=DataOutput2d.ImageData;

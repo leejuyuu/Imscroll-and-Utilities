@@ -1,4 +1,4 @@
-function pc=gauss2d_mapstruc2d_temp_bypass(mapstruc_cell,parenthandles,imageFileProperty)
+function pc=gauss2d_mapstruc2d_temp_bypass(parenthandles,imageFileProperty)
 %
 % function gauss2d_mapstruc2d_v2(mapstruc_cell,parenthandles,handles)
 %
@@ -49,6 +49,8 @@ if fitChoice == 5
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
 elseif fitChoice == 1
+    % Build a 2D mapstruc to direct data processing
+    mapstruc_cell = build_2d_mapstruc_aois_frms(parenthandles);
     isTrackAOI = logical(get(parenthandles.TrackAOIs,'Value'));
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
