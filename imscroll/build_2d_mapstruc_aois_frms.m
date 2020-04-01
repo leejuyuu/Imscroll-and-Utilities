@@ -47,7 +47,7 @@ nFrames = length(frameRange);
 frameAverage = round(str2double(get(handles.FrameAve,'String')));  % Number of frames to average
 aoiinf = handles.FitData;                         % AOIs selected earlier (AOI button, tag=CollectAOI)
 %[framenumber ave x y pixnum aoinumber];
-[maoi, naoi] = size(aoiinf);                       % maoi is the number of aois
+[maoi, ~] = size(aoiinf);                       % maoi is the number of aois
 % Now successively fit each AOI over the
 mapstruc_cell = cell(nFrames,maoi);                 % cell array of structures, runs over(aois,frames)
 % specified frame range
@@ -68,21 +68,7 @@ end
 
 for iAOI = 1:maoi                                 % For loop over the different AOIs
    
-    if naoi==7
-        % naoi== # of columns in aoiinfo2
-        % Here for Danny's case where we add an extra
-        % column to aoiinfo2 and wish to integrate
-        % according to the specified pixnum (rather than
-        % the pixnum set in the gui.  The 7th column merely
-        % identifies the original AOI number for which the
-        % intermediate and large AOIs were constructed to
-        % surround.
-        %[(frms columun vec)  ave         x                            y                           pixnum                       aoinum]
-        aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), aoiinf(iAOI,5), aoiinf(iAOI,6)];
-        oneaoiinf = repmat(aaa,nFrames,1);
-        oneaoiinf(:,1) = frameRange;
-%         oneaoiinf=[frms  ave*tempOnes aoiinf(iAOI,3)*tempOnes aoiinf(iAOI,4)*tempOnes aoiinf(iAOI,5)*tempOnes aoiinf(iAOI,6)*tempOnes];
-    else
+    
         
         aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), pixnum, aoiinf(iAOI,6)];
         oneaoiinf = repmat(aaa,nFrames,1);
@@ -90,7 +76,7 @@ for iAOI = 1:maoi                                 % For loop over the different 
         
 %         oneaoiinf=[frms  ave*tempOnes aoiinf(iAOI,3)*tempOnes aoiinf(iAOI,4)*tempOnes pixnum*tempOnes aoiinf(iAOI,6)*tempOnes];
     
-    end
+    
     % build column of mapstruc_cell.  Column is an array of structures
     % for a single aoi, all frames
    
