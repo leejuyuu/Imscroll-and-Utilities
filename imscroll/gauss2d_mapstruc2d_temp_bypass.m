@@ -92,10 +92,19 @@ elseif fitChoice == 1
         
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
+            if get(parenthandles.TrackAOIs,'Value')==1 && framemapindx ~= 1 && framemapindx ~= 2
+                coord = ImageDataParallel(aoiindx2,4:5,framemapindx - 1);
+            else
+                coord = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3:4);
+            end
+            
+            
             TempLastxy=LastxyLowHigh(aoiindx2,:);
             xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
             
-            currentaoi=currentfrm(ylow:yhi,xlow:xhi);
+            currentaoi1=currentfrm(ylow:yhi,xlow:xhi);
+            
+            [currentaoi, ~] = getAOIsubImageAndCenterDuplicate(currentfrm, coord, pixnum/2);
             
             inputarg0 = guessStartingParameters(double(currentaoi));
             
