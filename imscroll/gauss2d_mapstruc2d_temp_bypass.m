@@ -98,9 +98,14 @@ elseif fitChoice == 1
             % aoiinf is a column vector with (number of rows)= number of frames to be processed
             % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
             % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
+            sumIntensity = sum(currentaoi(:));
+            % Shift the x, y coordinates from origin in AOI to origin at image
+            outarg(2:3) = outarg(2:3) + aoi_origin';
+            ImageDataParallel(aoiindx2, 1, framemapindx) = aoiindx2;
+            ImageDataParallel(aoiindx2, 2, framemapindx) = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1);
+            ImageDataParallel(aoiindx2, 3:7, framemapindx) = outarg(:);
+            ImageDataParallel(aoiindx2, 8, framemapindx) = sumIntensity;
             
-            ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+aoi_origin(1) outarg(3)+aoi_origin(2) outarg(4) outarg(5) sum(sum(currentaoi))];
-            %(aoiindx, DataIndx, FrameIndx)
         end             %END of for loop aoiindx2
      end           % end of for loop framemapindx
     
