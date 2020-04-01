@@ -75,8 +75,12 @@ elseif fitChoice == 1
             framemapindx
         end
         % Get the averaged image of this frame to process
-        currentfrm=fetchframes_mapstruc_cell_v1(framemapindx,mapstruc_cell,parenthandles);
-        
+        currentFrameNumber = mapstruc_cell{framemapindx,1}.aoiinf(1);
+        frameAverage = mapstruc_cell{framemapindx,1}.aoiinf(2);
+        currentfrm = getAveragedImage(...
+            imageFileProperty,...
+            currentFrameNumber,...
+            frameAverage);
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
             if isTrackAOI && framemapindx ~= 1 && framemapindx ~= 2
@@ -98,7 +102,7 @@ elseif fitChoice == 1
             % Shift the x, y coordinates from origin in AOI to origin at image
             outarg(2:3) = outarg(2:3) + aoi_origin';
             ImageDataParallel(aoiindx2, 1, framemapindx) = aoiindx2;
-            ImageDataParallel(aoiindx2, 2, framemapindx) = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1);
+            ImageDataParallel(aoiindx2, 2, framemapindx) = currentFrameNumber;
             ImageDataParallel(aoiindx2, 3:7, framemapindx) = outarg(:);
             ImageDataParallel(aoiindx2, 8, framemapindx) = sumIntensity;
             
