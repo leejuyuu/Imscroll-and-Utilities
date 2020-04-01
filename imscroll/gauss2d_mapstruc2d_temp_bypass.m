@@ -103,8 +103,8 @@ elseif fitChoice == 1
             xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
             
             currentaoi1=currentfrm(ylow:yhi,xlow:xhi);
-            
-            [currentaoi, ~] = getAOIsubImageAndCenterDuplicate(currentfrm, coord, pixnum/2);
+            pixnum = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5);
+            [currentaoi, aoi_origin] = getAOIsubImageAndCenterDuplicate(currentfrm, coord, pixnum/2);
             
             inputarg0 = guessStartingParameters(double(currentaoi));
             
@@ -119,7 +119,7 @@ elseif fitChoice == 1
             % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
             % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
             
-            ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+xlow outarg(3)+ylow outarg(4) outarg(5) sum(sum(currentaoi))];
+            ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+aoi_origin(1) outarg(3)+aoi_origin(2) outarg(4) outarg(5) sum(sum(currentaoi))];
             %(aoiindx, DataIndx, FrameIndx)
         end             %END of for loop aoiindx2
         
