@@ -75,14 +75,13 @@ for iAOI = 1:maoi
     % for a single aoi, all frames
     
     % Initialize the structure
-    % oneAoiinf has row number = number of fitted frames
-    [nFrame, ~]=size(oneaoiinf);
-    mapstruc_cell_column = cell(nFrame,1);
+    
+    mapstruc_cell_column = cell(nFrames,1);
     mapstruc_cell_column(:) = {struct()};
     if inputstartparm == 2
         % == 2 for moving aois, in which case we will shift the xy coordinates
         % using the handles.DriftList table
-        frameRange = oneaoiinf(:,1)';
+        
         for iFrame = frameRange
             
             isEntryEqualiFrame=(iFrame==oneaoiinf(:,1));
@@ -91,7 +90,7 @@ for iAOI = 1:maoi
         end
     end
     
-    for iFrame = 1:nFrame
+    for iFrame = 1:nFrames
         mapstruc_cell_column{iFrame}.aoiinf = oneaoiinf(iFrame,:);
     end
 
