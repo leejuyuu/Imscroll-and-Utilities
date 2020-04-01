@@ -54,16 +54,8 @@ mapstruc_cell = cell(nFrames,maoi);                 % cell array of structures, 
 
 % Find out if user wants a fixed or moving aoi, startparm=1 for fixed, startparm=2 for moving
 startparameter = get(handles.StartParameters,'Value');
-switch startparameter                          % This switch is not necessary yet, but will be when
-    % more choises are added
-    case 1
-        inputstartparm = 1;                      % Fixed AOI
-    case 2
-        inputstartparm = 2;                      % Moving AOI
-    case 3
-        inputstartparm = 2;
-    case 4
-        inputstartparm = 2;
+if startparameter ~= 1
+    error('Error in build_2d_mapstruc_aois_frms:\n    Moving AOI while gaussian fitting is not supported in this version.%s', '');
 end
 
 for iAOI = 1:maoi
@@ -78,17 +70,6 @@ for iAOI = 1:maoi
     
     mapstruc_cell_column = cell(nFrames,1);
     mapstruc_cell_column(:) = {struct()};
-    if inputstartparm == 2
-        % == 2 for moving aois, in which case we will shift the xy coordinates
-        % using the handles.DriftList table
-        
-        for iFrame = frameRange
-            
-            isEntryEqualiFrame=(iFrame==oneaoiinf(:,1));
-            oneaoiinf(isEntryEqualiFrame,3:4)=oneaoiinf(isEntryEqualiFrame,3:4)+...
-                ShiftAOI(oneaoiinf(1,6),iFrame,handles.FitData,handles.DriftList);
-        end
-    end
     
     for iFrame = 1:nFrames
         mapstruc_cell_column{iFrame}.aoiinf = oneaoiinf(iFrame,:);
