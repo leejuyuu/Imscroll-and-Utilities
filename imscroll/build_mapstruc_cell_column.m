@@ -1,4 +1,4 @@
-function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,folder,folderuse,handles)
+function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,handles)
 %
 % function build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse)
 %
@@ -42,11 +42,7 @@ function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,f
 % oneAoiinf has row number = number of fitted frames
 [nFrame, ~]=size(oneAoiinf);
 mapstruc_cell_column = cell(nFrame,1);
-mapstruc_cell_column(:) = {struct(...
-    'startparm',startparm,...
-    'folder',folder,...
-    'folderuse',folderuse...
-    )};
+mapstruc_cell_column(:) = {struct()};
 if startparm == 2
     % == 2 for moving aois, in which case we will shift the xy coordinates
     % using the handles.DriftList table

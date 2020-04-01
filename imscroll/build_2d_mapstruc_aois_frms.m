@@ -37,15 +37,6 @@ function mapstruc_cell = build_2d_mapstruc_aois_frms(handles)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-
-folder=handles.TiffFolder;
-% next four lines because 'folder' cannot be empty, or we get an error
-% message when referencing folder(1,:) in build_mapstruc.m
-[aa, bb] = size(folder);
-if (aa==0) && (bb==0);
-    folder = 'folder not specified';
-end
-
 % Fetch the pixel number (aoi width)
 pixnum = str2double(get(handles.PixelNumber,'String')); 
 
@@ -74,10 +65,7 @@ switch startparameter                          % This switch is not necessary ye
     case 4
         inputstartparm = 2;
 end
-% Defines source of images (=1 for tiff folder, 2 for ram images, 3 for glimpse folder)
-imageType = get(handles.ImageSource,'Value');
 
-tempOnes = ones(nFrames,1);
 for iAOI = 1:maoi                                 % For loop over the different AOIs
    
     if naoi==7
@@ -106,7 +94,7 @@ for iAOI = 1:maoi                                 % For loop over the different 
     % build column of mapstruc_cell.  Column is an array of structures
     % for a single aoi, all frames
    
-    mapstruc_cell(:,iAOI)=build_mapstruc_cell_column(oneaoiinf,inputstartparm,folder,imageType,handles);
+    mapstruc_cell(:,iAOI)=build_mapstruc_cell_column(oneaoiinf,inputstartparm,handles);
 
 end
 
