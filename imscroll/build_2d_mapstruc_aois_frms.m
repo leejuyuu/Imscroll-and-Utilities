@@ -66,16 +66,10 @@ switch startparameter                          % This switch is not necessary ye
         inputstartparm = 2;
 end
 
-for iAOI = 1:maoi                                 % For loop over the different AOIs
-   
-    
-        
-        aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), pixnum, aoiinf(iAOI,6)];
-        oneaoiinf = repmat(aaa,nFrames,1);
-        oneaoiinf(:,1) = frameRange;
-        
-%         oneaoiinf=[frms  ave*tempOnes aoiinf(iAOI,3)*tempOnes aoiinf(iAOI,4)*tempOnes pixnum*tempOnes aoiinf(iAOI,6)*tempOnes];
-    
+for iAOI = 1:maoi
+    aaa = [1, frameAverage, aoiinf(iAOI,3), aoiinf(iAOI,4), pixnum, aoiinf(iAOI,6)];
+    oneaoiinf = repmat(aaa,nFrames,1);
+    oneaoiinf(:,1) = frameRange;
     
     % build column of mapstruc_cell.  Column is an array of structures
     % for a single aoi, all frames
