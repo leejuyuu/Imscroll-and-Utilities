@@ -49,7 +49,7 @@ if fitChoice == 5
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
 elseif fitChoice == 1
-    
+    isTrackAOI = logical(get(parenthandles.TrackAOIs,'Value'));
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
@@ -77,7 +77,7 @@ elseif fitChoice == 1
         
         for aoiindx2=1:nAOI   % Loop through all the aois for this frame
             
-            if get(parenthandles.TrackAOIs,'Value')==1 && framemapindx ~= 1 && framemapindx ~= 2
+            if isTrackAOI && framemapindx ~= 1 && framemapindx ~= 2
                 coord = ImageDataParallel(aoiindx2,4:5,framemapindx - 1);
             else
                 coord = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3:4);
