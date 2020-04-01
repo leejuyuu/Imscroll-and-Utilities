@@ -61,7 +61,7 @@ elseif fitChoice == 1
         guidata(parenthandles.FitAOIs,parenthandles)
     end
     
-    [nFrame, nAOI] = size(mapstruc_cell);      % naois =number of aois, nfrms=number of frames
+    [nFrame, nAOI] = size(mapstruc_cell);
     
     % Pre-Allocate space
     ImageDataParallel = zeros(nAOI, 8, nFrame);
@@ -89,15 +89,9 @@ elseif fitChoice == 1
             inputarg0 = guessStartingParameters(double(currentaoi));
             
             % Now fit the current aoi
-            outarg=gauss2dfit(double(currentaoi),double(inputarg0));
+            outarg=gauss2dfit(double(currentaoi),double(inputarg0));            
             
-            % Reference aoixy to original frame pixels for
-            % storage in output array.
-            
-            % aoiinf = %[(frms columun vec)  ave         x         y                           pixnum                       aoinum]
-            % aoiinf is a column vector with (number of rows)= number of frames to be processed
-            % The x and y coordinates already contain the shift from DriftList (see build_mapstruc.m)
-            % [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
+            % ImageDataParallel: [aoi#     frm#       amp    xo    yo    sigma  offset (int inten)]
             sumIntensity = sum(currentaoi(:));
             % Shift the x, y coordinates from origin in AOI to origin at image
             outarg(2:3) = outarg(2:3) + aoi_origin';
@@ -106,8 +100,8 @@ elseif fitChoice == 1
             ImageDataParallel(aoiindx2, 3:7, framemapindx) = outarg(:);
             ImageDataParallel(aoiindx2, 8, framemapindx) = sumIntensity;
             
-        end             %END of for loop aoiindx2
-     end           % end of for loop framemapindx
+        end
+    end
     
     % Pre-Allocate space
     pc.ImageData = zeros(nAOI*nFrame, 8);
