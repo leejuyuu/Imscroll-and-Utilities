@@ -47,26 +47,28 @@ aoiProcessParameters = getAoiProcessParameters(parenthandles);
 if fitChoice == 5
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
-elseif fitChoice == 1
-    % Build a 2D mapstruc to direct data processing
-    mapstruc_cell = build_2d_mapstruc_aois_frms(parenthandles);
+elseif fitChoice == 1    
     isTrackAOI = logical(get(parenthandles.TrackAOIs,'Value'));
     if get(parenthandles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
+    aoiinfo = parenthandles.FitData;
     if ~isfield(parenthandles,'Pixnums') || isempty(parenthandles.Pixnums)
         % Here if user did not set the small AOI size for integration
         % or parenthandles.Pixnums exists but is empty,
         % when gaussian fitting with a fixed sigma
-        parenthandles.Pixnums(1) = mapstruc_cell{1,1}.aoiinf(5); % Width of aoi in first aoi
+        parenthandles.Pixnums(1) = aoiinfo(1, 5); % Width of aoi in first aoi
         guidata(parenthandles.FitAOIs,parenthandles)
     end
     
-    [nFrame, nAOI] = size(mapstruc_cell);
+    nAOI = length(aoiinfo(:, 1));
+    nFrame = length(aoiProcessParameters.frameRange);
     
     % Pre-Allocate space
     ImageDataParallel = zeros(nAOI, 8, nFrame);
     BackgroundDataParallel = zeros(nAOI, 8, nFrame);
+    
+    frameAverage = aoiProcessParameters.frameAverage;
     
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
@@ -74,8 +76,8 @@ elseif fitChoice == 1
             framemapindx
         end
         % Get the averaged image of this frame to process
-        currentFrameNumber = mapstruc_cell{framemapindx,1}.aoiinf(1);
-        frameAverage = mapstruc_cell{framemapindx,1}.aoiinf(2);
+        currentFrameNumber = aoiProcessParameters.frameRange(framemapindx);
+        
         currentfrm = getAveragedImage(...
             imageFileProperty,...
             currentFrameNumber,...
@@ -85,10 +87,10 @@ elseif fitChoice == 1
             if isTrackAOI && framemapindx ~= 1 && framemapindx ~= 2
                 coord = ImageDataParallel(aoiindx2,4:5,framemapindx - 1);
             else
-                coord = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3:4);
+                coord = aoiinfo(aoiindx2, 3:4);
             end
             
-            pixnum = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5);
+            pixnum = aoiinfo(aoiindx2, 5);
             [currentaoi, aoi_origin] = getAOIsubImageAndCenterDuplicate(currentfrm, coord, pixnum/2);
 
             inputarg0 = guessStartingParameters(double(currentaoi));
