@@ -43,9 +43,8 @@ function pc=gauss2d_mapstruc2d_temp_bypass(parenthandles,imageFileProperty)
 
 
 fitChoice = get(parenthandles.FitChoice,'Value');
+aoiProcessParameters = getAoiProcessParameters(parenthandles);
 if fitChoice == 5
-    aoiProcessParameters = getAoiProcessParameters(parenthandles);
-    
     pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
         aoiProcessParameters,parenthandles.DriftList);
 elseif fitChoice == 1
