@@ -1,4 +1,4 @@
-function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,handles)
+function mapstruc_cell_column = build_mapstruc_cell_column(oneaoiinf,inputstartparm,handles)
 %
 % function build_mapstruc_cell_column(aoiinf,startparm,folder,folderuse)
 %
@@ -38,26 +38,6 @@ function mapstruc_cell_column = build_mapstruc_cell_column(oneAoiinf,startparm,h
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
-% Initialize the structure
-% oneAoiinf has row number = number of fitted frames
-[nFrame, ~]=size(oneAoiinf);
-mapstruc_cell_column = cell(nFrame,1);
-mapstruc_cell_column(:) = {struct()};
-if startparm == 2
-    % == 2 for moving aois, in which case we will shift the xy coordinates
-    % using the handles.DriftList table
-    frameRange = oneAoiinf(:,1)';
-    for iFrame = frameRange
-        
-        isEntryEqualiFrame=(iFrame==oneAoiinf(:,1));
-        oneAoiinf(isEntryEqualiFrame,3:4)=oneAoiinf(isEntryEqualiFrame,3:4)+...
-            ShiftAOI(oneAoiinf(1,6),iFrame,handles.FitData,handles.DriftList);
-    end
-end
-
-for iFrame = 1:nFrame
-    mapstruc_cell_column{iFrame}.aoiinf = oneAoiinf(iFrame,:);
-end
 
 end
  

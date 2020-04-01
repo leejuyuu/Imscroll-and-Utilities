@@ -73,8 +73,29 @@ for iAOI = 1:maoi
     
     % build column of mapstruc_cell.  Column is an array of structures
     % for a single aoi, all frames
-   
-    mapstruc_cell(:,iAOI)=build_mapstruc_cell_column(oneaoiinf,inputstartparm,handles);
+    
+    % Initialize the structure
+    % oneAoiinf has row number = number of fitted frames
+    [nFrame, ~]=size(oneaoiinf);
+    mapstruc_cell_column = cell(nFrame,1);
+    mapstruc_cell_column(:) = {struct()};
+    if inputstartparm == 2
+        % == 2 for moving aois, in which case we will shift the xy coordinates
+        % using the handles.DriftList table
+        frameRange = oneaoiinf(:,1)';
+        for iFrame = frameRange
+            
+            isEntryEqualiFrame=(iFrame==oneaoiinf(:,1));
+            oneaoiinf(isEntryEqualiFrame,3:4)=oneaoiinf(isEntryEqualiFrame,3:4)+...
+                ShiftAOI(oneaoiinf(1,6),iFrame,handles.FitData,handles.DriftList);
+        end
+    end
+    
+    for iFrame = 1:nFrame
+        mapstruc_cell_column{iFrame}.aoiinf = oneaoiinf(iFrame,:);
+    end
+
+    mapstruc_cell(:,iAOI)=mapstruc_cell_column;
 
 end
 
