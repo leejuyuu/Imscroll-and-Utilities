@@ -67,21 +67,6 @@ elseif fitChoice == 1
     ImageDataParallel = zeros(nAOI, 8, nFrame);
     BackgroundDataParallel = zeros(nAOI, 8, nFrame);
     
-    % Pre-Allocate space
-    LastxyLowHigh = zeros(nAOI,4);
-    % When gaussian tracking an aoi we must use the last xy location
-    % as input to the next xy fit.  Hence we store the last set of xy values
-    % for just one frame.
-    
-    for aoiindx2=1:nAOI
-        % Limits for the aoi
-        aoiy = mapstruc_cell{1,aoiindx2}.aoiinf(4);  % Y (row) Center of aoi
-        aoix = mapstruc_cell{1,aoiindx2}.aoiinf(3);  % X (col)center of aoifram
-        pixnum = mapstruc_cell{1,aoiindx2}.aoiinf(5); % Width of aoi
-        [xlow, xhi, ylow, yhi] = AOI_Limits([aoix aoiy],pixnum/2);
-        LastxyLowHigh(aoiindx2,:) = [xlow xhi ylow yhi];
-    end
-    
     %Now loop through the remaining frames
     for framemapindx=1:nFrame
         if framemapindx/10==round(framemapindx/10)
@@ -98,14 +83,9 @@ elseif fitChoice == 1
                 coord = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(3:4);
             end
             
-            
-            TempLastxy=LastxyLowHigh(aoiindx2,:);
-            xlow=TempLastxy(1);xhi=TempLastxy(2);ylow=TempLastxy(3);yhi=TempLastxy(4);
-            
-            currentaoi1=currentfrm(ylow:yhi,xlow:xhi);
             pixnum = mapstruc_cell{framemapindx,aoiindx2}.aoiinf(5);
             [currentaoi, aoi_origin] = getAOIsubImageAndCenterDuplicate(currentfrm, coord, pixnum/2);
-            
+
             inputarg0 = guessStartingParameters(double(currentaoi));
             
             % Now fit the current aoi
@@ -122,33 +102,7 @@ elseif fitChoice == 1
             ImageDataParallel(aoiindx2,:,framemapindx)=[aoiindx2 mapstruc_cell{framemapindx,aoiindx2}.aoiinf(1) outarg(1) outarg(2)+aoi_origin(1) outarg(3)+aoi_origin(2) outarg(4) outarg(5) sum(sum(currentaoi))];
             %(aoiindx, DataIndx, FrameIndx)
         end             %END of for loop aoiindx2
-        
-        if framemapindx ~= 1
-            if get(parenthandles.TrackAOIs,'Value')==1
-                
-                % Here for moving aoi (last output aoixy)
-                % Save the last fit xy locations
-                for aoiindx3=1:nAOI
-                    lastoutput=ImageDataParallel(aoiindx3,:,framemapindx);
-                    pixnum=mapstruc_cell{framemapindx,aoiindx3}.aoiinf(5); % Width of aoi
-                    [Txlow, Txhi, Tylow, Tyhi]=AOI_Limits([lastoutput(4) lastoutput(5)],pixnum/2);
-                    LastxyLowHigh(aoiindx3,:)=[Txlow Txhi Tylow Tyhi];
-                    
-                end
-            else
-                % Here for non-moving aoi, just use fixed aoi coordinates stored in the mapstruc_cell{frm#,aoi#}
-                for aoiindx4=1:nAOI
-                    aoiy=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(4);  % Y (row) Center of aoi
-                    aoix=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(3);  % X (col)center of aoifram
-                    pixnum=mapstruc_cell{framemapindx,aoiindx4}.aoiinf(5); % Width of aoi
-                    [xlow, xhi, ylow, yhi]=AOI_Limits([aoix aoiy],pixnum/2);
-                    LastxyLowHigh(aoiindx4,:)=[xlow xhi ylow yhi];
-                    
-                end
-            end
-        end
-        
-    end           % end of for loop framemapindx
+     end           % end of for loop framemapindx
     
     % Pre-Allocate space
     pc.ImageData = zeros(nAOI*nFrame, 8);
