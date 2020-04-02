@@ -26,31 +26,19 @@ elseif fitChoice == 1
     if get(handles.BackgroundChoice,'Value') ~= 1
         error('background choice is not supported in this version')
     end
-    aoiinfo = handles.FitData;
+    
     DataOutput2d = fitAoisTo2dGaussian(...
-        aoiinfo,...
+        handles.FitData,...
         aoiProcessParameters,...
         imageFileProperty,...
         isTrackAOI...
         );
-    
-    
 else
-    
     error('the chosen fitting method isn''t supported in this version')
 end
-argoutsImageData=DataOutput2d.ImageData;
-argoutsBackgroundData=DataOutput2d.BackgroundData;
 
-
-% Start a gui for display of the fit results
-% argouts=[ aoinumber framenumber amplitude xcenter ycenter sigma offset integrated_aoi]
-% Save the data after each aoi is processed
-% First assign the ImageData
-
-
-aoifits.data=argoutsImageData;
-aoifits.BackgroundData=argoutsBackgroundData;
+aoifits.data=DataOutput2d.ImageData;
+aoifits.BackgroundData=DataOutput2d.BackgroundData;
 save([handles.dataDir.String, outputName],'aoifits')
 handles.aoifits1=aoifits;                        % store our structure in the handles structure
 handles.aoifits2=aoifits;
@@ -63,9 +51,10 @@ if get(handles.BackgroundAOIs,'Value')==1
     handles.BackgroundAOIsData=aoifits;
 end
 guidata(handles.FitAOIs,handles);
-%parenthandles=handles;
+
 % Pass the handle to the
 % main gui figure as input
 % to the subgui plotargout
 
+% Start a gui for display of the fit results
 plotargout(handles.figure1)
