@@ -41,36 +41,37 @@ y1 = aoiinfo2_field1(:, 4);
 x2 = aoiinfo2_field2(:, 3);
 y2 = aoiinfo2_field2(:, 4);
 
-if nAOIs>=3
-    fittedCoeffs = zeros(2, 3);
-    allStartCoeffs = zeros(2, 2);
-    for i = 1:2
-        startCoeff = [0, 0, 0];  % [A, B, C] or [D, E, F]
-        if i == 1
-            % Get starting coefficient for fitting by assuming there is no y
-            % contribution. So the equation become x2 = A * x1 + C. Find A and
-            % C by 1st order polynomial fitting.
-            startCoeff([i, 3]) = polyfit(x1, x2, 1);
-            dependent_var = x2;
-        else
-            % Similar fashion, but assume no x contribution instead.
-            startCoeff([i, 3]) = polyfit(y1, y2, 1);
-            dependent_var = y2;
-        end
-        % Save the starting coefficients for plotting
-        allStartCoeffs(i, :) = startCoeff([i, 3]);
-        
-        % Introduce contribution from another axis, and then Optimize the
-        % coefficients.
-        fittedCoeffs(i, :) = mappingfit_fminsearch([x1, y1], dependent_var,startCoeff);
-    end    
-    
-    fitparmvector = fittedCoeffs;
-    save(filename, 'fitparmvector', 'mappingpoints');    
-else
-    sprintf('aoiinfo2 matrix must contain at least 3 aois')
-    
+if nAOIs < 3
+    error('Error in MakeMappingFile:\naoiinfo2 matrix must contain at least 3 AOIs for mapping%s','')
 end
+
+
+fittedCoeffs = zeros(2, 3);
+allStartCoeffs = zeros(2, 2);
+for i = 1:2
+    startCoeff = [0, 0, 0];  % [A, B, C] or [D, E, F]
+    if i == 1
+        % Get starting coefficient for fitting by assuming there is no y
+        % contribution. So the equation become x2 = A * x1 + C. Find A and
+        % C by 1st order polynomial fitting.
+        startCoeff([i, 3]) = polyfit(x1, x2, 1);
+        dependent_var = x2;
+    else
+        % Similar fashion, but assume no x contribution instead.
+        startCoeff([i, 3]) = polyfit(y1, y2, 1);
+        dependent_var = y2;
+    end
+    % Save the starting coefficients for plotting
+    allStartCoeffs(i, :) = startCoeff([i, 3]);
+    
+    % Introduce contribution from another axis, and then Optimize the
+    % coefficients.
+    fittedCoeffs(i, :) = mappingfit_fminsearch([x1, y1], dependent_var,startCoeff);
+end
+
+fitparmvector = fittedCoeffs;
+save(filename, 'fitparmvector', 'mappingpoints');
+
 pc.fitparmvector=fittedCoeffs;
 pc.mappingpoints=mappingpoints;
 
