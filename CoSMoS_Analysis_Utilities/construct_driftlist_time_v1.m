@@ -210,32 +210,7 @@ else
     fity=polyfit((vid.ttb(crange)-mn)',cumy(crange),Polyorderxy(2));
     valy=polyval(fity,vid.ttb(crange)-mn);
 end
-%{
-                        % Plot the concatenated xy coord and fits against time
-figure(27);plot(vid.ttb(crange),cumx(crange),'b',vid.ttb(crange),valx,'r');
-gtext(['xdrift, polyfit order:' num2str(Polyorderxy(1))])
-xlabel('glimpse time (ms)');ylabel('x pixel')
-figure(28);plot(vid.ttb(crange),cumy(crange),'b',vid.ttb(crange),valy,'r');
-gtext(['ydrift, polyfit order:' num2str(Polyorderxy(2))])
-xlabel('glimpse time (ms)');ylabel('y pixel')
-                        % Plot the concatenated xy coord and fits against normalized time
-tm=( vid.ttb-vid.ttb(1) )*1e-3;     % tm is time is sec with tm=0 at first corrected frame
-figure(29);plot(tm(crange),cumx(crange),'b',tm(crange),valx,'r');
-%gtext(['xdrift, polyfit order:' num2str(Polyorderxy(1))])
-xlabel('time (s)');ylabel('x pixel')
-figure(30);plot(tm(crange),cumy(crange),'b',tm(crange),valy,'r');
-%gtext(['ydrift, polyfit order:' num2str(Polyorderxy(2))])
-xlabel('time (s)');ylabel('y pixel')
-                        % Plot the concatenated xy coord and fits against frames
 
-figure(31);plot(crange,cumx(crange),'b',crange,valx,'r');
-%gtext(['xdrift, polyfit order:' num2str(Polyorderxy(1))])
-xlabel('frames');ylabel('x pixel')
-figure(32);plot(crange,cumy(crange),'b',crange,valy,'r');
-%gtext(['ydrift, polyfit order:' num2str(Polyorderxy(2))])
-xlabel('frames)');ylabel('y pixel')
-                
-%}
 % Construct the cumulative driftlist from the polynomial fits
 cumdriftlist=zeros(SequenceLength,4);
 cumdriftlist(:,1)=[[1:SequenceLength]'];
