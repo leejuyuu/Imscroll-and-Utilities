@@ -1,4 +1,4 @@
-function pc=mappingfit_fminsearch(indata,varargin)
+function pc=mappingfit_fminsearch(indata,startCoeff)
 %
 % function mappingfit(indata,<inputarg0>)
 %
@@ -35,20 +35,4 @@ function pc=mappingfit_fminsearch(indata,varargin)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-inlength=length(varargin);
-                                                % Grab the starting
-                                                % parameters if they are
-                                                % present
-if inlength>0
-    inputarg0=varargin{1}(:);                   %mxx21=varargin{1}(1);
-                                                %mxy21=varargin{1}(2);
-                                                %bx=varargin{1}(3);
-                                                
-end
-options=optimset('Display','off');              % suppress the screen printing 
-                                                %during the lsqcurvefit()
-                                                %call
-                                             
-%pc =lsqcurvefit('mappingfunc',inputarg0,indata{1},indata{2},-10000*ones(1,3),10000*ones(1,3),options);
- 
-pc=fminsearch('mappingfunc_fminsearch',inputarg0,[],indata{1},indata{2});
+pc=fminsearch('mappingfunc_fminsearch',startCoeff(:),[],indata{1},indata{2});
