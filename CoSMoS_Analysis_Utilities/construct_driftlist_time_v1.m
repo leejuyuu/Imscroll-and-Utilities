@@ -157,7 +157,7 @@ for iAOI1=1:nAOIs
     % are at unuseable frame numbers
     % Remove diff outside useRange
     lowuserange=xy_cell{iAOI1}.userange(1);
-    hiuserange=xy_cell{iAOI1}.userange(2);
+    hiuserange=xy_cell{iAOI1}.userange(2);    
     diffx1(1:lowuserange, iAOI1)=0;
     diffx1(hiuserange+1:SequenceLength, iAOI1)=0;
     diffy1(1:lowuserange, iAOI1)=0;
@@ -194,7 +194,7 @@ dy(isnan(dy))=0;
 cumx=cumsum(dx);
 cumy=cumsum(dy);
 % Fit the cumulative traces to polynomials
-crange=[CorrectionRange(1):CorrectionRange(2)];
+crange=CorrectionRange(1):CorrectionRange(2);
 % Note that the fit is to the time, not the frame number
 if inlength>0
     % Here to apply Savitsky-Golay smoothing to the
@@ -213,7 +213,7 @@ end
 
 % Construct the cumulative driftlist from the polynomial fits
 cumdriftlist=zeros(SequenceLength,4);
-cumdriftlist(:,1)=[[1:SequenceLength]'];
+cumdriftlist(:,1)=1:SequenceLength;
 cumdriftlist(crange,2)=valx;
 cumdriftlist(crange,3)=valy;
 
@@ -229,9 +229,9 @@ cumdriftlist=cumdriftlist(1:ActualSequenceLength,:);
 
 ddx=diff(valx);
 ddy=diff(valy);
-drange=[CorrectionRange(1)+1:CorrectionRange(2)];
+drange=CorrectionRange(1)+1:CorrectionRange(2);
 diffdriftlist=zeros(SequenceLength,4);
-diffdriftlist(:,1)=[[1:SequenceLength]'];
+diffdriftlist(:,1)=1:SequenceLength;
 diffdriftlist(drange,2)=ddx;
 diffdriftlist(drange,3)=ddy;
 diffdriftlist(1:ActualSequenceLength,4)=vid.ttb;             % Place the time base into the 4th column
