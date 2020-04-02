@@ -30,7 +30,12 @@ function pc=MakeMappingFile(aoiinfo2_field1, aoiinfo2_field2, filename)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 % Define the mappingpoints matrix
-[nAOIs, ~]=size(aoiinfo2_field1);
+field1_nAOIs = length(aoiinfo2_field1(:, 1));
+field2_nAOIs = length(aoiinfo2_field2(:, 1));
+if field1_nAOIs ~= field2_nAOIs
+   error(['Error in MakeMappingFile:\n',...
+       'The numbers of AOIs in the two fields are not equal.%s'], '');
+end
 aoiinfo2_field1=update_FitData_aoinum(aoiinfo2_field1);       % Update the numbering of the AOIs in the map
 aoiinfo2_field2=update_FitData_aoinum(aoiinfo2_field2);
 mappingpoints=[aoiinfo2_field1 aoiinfo2_field2];    % There will be an error if the two aoiinfo2
@@ -41,7 +46,7 @@ y1 = aoiinfo2_field1(:, 4);
 x2 = aoiinfo2_field2(:, 3);
 y2 = aoiinfo2_field2(:, 4);
 
-if nAOIs < 3
+if field1_nAOIs < 3
     error('Error in MakeMappingFile:\naoiinfo2 matrix must contain at least 3 AOIs for mapping%s','')
 end
 
