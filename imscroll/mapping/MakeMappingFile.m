@@ -41,35 +41,31 @@ y1 = aoiinfo2_field1(:, 4);
 x2 = aoiinfo2_field2(:, 3);
 y2 = aoiinfo2_field2(:, 4);
 
-if nAOIs>=3               % Map the two fields if we have 3 or more points
-    %  x2= mx21*x1 + bx21
-    %  y2= my21*y1 + by21
-    % first polyfit(x1,x2)=[slope intercept] as
-    % first guess
-    fitparmx21=polyfit(x1, x2, 1);
-    
-    % Input guess is [mxx21 mxy21 bx] with
-    % mxy21 = 0 at first
-    %****fitparmx21more=mappingfit(inarray,[fitparmx21(1) 0 fitparmx21(2) ]);
-    fitparmx21more=mappingfit_fminsearch([x1, y1], x2,[fitparmx21(1) 0 fitparmx21(2) ]);
-    
-    % then polyfit(y1,y2)
-    fitparmy21=polyfit(y1, y2, 1);
-    
-    
-    % Input guess is [myx21 myy21 bx] with
-    % myx21 = 0 at first
-    %***fitparmy21more=mappingfit(inarray,[0 fitparmx21(1) fitparmx21(2) ]);
-    fitparmy21more=mappingfit_fminsearch([x1, y1], y2,[0 fitparmy21(1) fitparmy21(2) ]);
-    
-    % Place fitparm into 'Value' of FitDisplay
-    % as a two row matrix
-    
-    fitparmvector=[fitparmx21more';fitparmy21more'];
-    fitparmvectorLess = [fitparmx21';fitparmy21'];
-    
+if nAOIs>=3
+    fittedCoeffs = zeros(2, 3);
+    allStartCoeffs = zeros(2, 2);
+    for i = 1:2
+        startCoeff = [0, 0, 0];  % [A, B, C] or [D, E, F]
+        if i == 1
+            % Get starting coefficient for fitting by assuming there is no y
+            % contribution. So the equation become x2 = A * x1 + C. Find A and
+            % C by 1st order polynomial fitting.
+            startCoeff([i, 3]) = polyfit(x1, x2, 1);
+            dependent_var = x2;
+        else
+            % Similar fashion, but assume no x contribution instead.
+            startCoeff([i, 3]) = polyfit(y1, y2, 1);
+            dependent_var = y2;
+        end
+        % Save the starting coefficients for plotting
+        allStartCoeffs(i, :) = startCoeff([i, 3]);
+        
+        % Introduce contribution from another axis, and then Optimize the
+        % coefficients.
+        fittedCoeffs(i, :) = mappingfit_fminsearch([x1, y1], dependent_var,startCoeff);
+    end
     % display as row [mxx21 mxy21 bx21 myx21 myy21 by21]'
-    
+    fitparmvector = fittedCoeffs;
     %save p:\matlab12\larry\fig-files\imscroll\mapping\fitparms.dat fitparmvector mappingpoints
     eval(['save ' filename ' fitparmvector mappingpoints']);
     mappingpoints;
@@ -77,10 +73,10 @@ else
     sprintf('aoiinfo2 matrix must contain at least 3 aois')
     
 end
-pc.fitparmvector=fitparmvector;
+pc.fitparmvector=fittedCoeffs;
 pc.mappingpoints=mappingpoints;
 
-plotMappingResult(pc, fitparmvectorLess)
+plotMappingResult(pc, allStartCoeffs)
 end
 
 function plotMappingResult(pc, fitparmvectorLess)
