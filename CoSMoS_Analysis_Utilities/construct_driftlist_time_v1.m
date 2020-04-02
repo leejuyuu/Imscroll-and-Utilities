@@ -129,8 +129,8 @@ SequenceLength=SequenceLength+20;
 % is no coordinate tracked for that aoi
 x1=cell(1,nAOIs);
 y1=cell(1,nAOIs);
-diffx1=cell(1,nAOIs);
-diffy1=cell(1,nAOIs);
+diffx1=zeros(SequenceLength,nAOIs);
+diffy1=zeros(SequenceLength,nAOIs);
 for iAOI1=1:nAOIs
     lolimit=xy_cell{iAOI1}.range(1);
     hilimit=xy_cell{iAOI1}.range(2);
@@ -158,44 +158,38 @@ for iAOI1=1:nAOIs
         
     end
     % And form the deltax and deltay lists
-    diffx1{iAOI1}=[0; diff(x1{iAOI1}(:,2))];             % [(dx between frames)]
-    diffy1{iAOI1}=[0; diff(y1{iAOI1}(:,2))];             % [(dy between frames)]
+    diffx1(2:end, iAOI1)= diff(x1{iAOI1}(:,2));             % [(dx between frames)]
+    diffy1(2:end, iAOI1)= diff(y1{iAOI1}(:,2));             % [(dy between frames)]
 
     % Now we must zero out the dx1 and dy1 entries that
     % are at unuseable frame numbers
     % Remove diff outside useRange
     lowuserange=xy_cell{iAOI1}.userange(1);
     hiuserange=xy_cell{iAOI1}.userange(2);
-    diffx1{iAOI1}(1:lowuserange)=0;
-    diffx1{iAOI1}(hiuserange+1:SequenceLength)=0;
-    diffy1{iAOI1}(1:lowuserange)=0;
-    diffy1{iAOI1}(hiuserange+1:SequenceLength)=0;
+    diffx1(1:lowuserange, iAOI1)=0;
+    diffx1(hiuserange+1:SequenceLength, iAOI1)=0;
+    diffy1(1:lowuserange, iAOI1)=0;
+    diffy1(hiuserange+1:SequenceLength, iAOI1)=0;
 
 end
 
 % initialize numerator and denominator of dx, dy
-dxnum=zeros(SequenceLength,1);
-dynum=zeros(SequenceLength,1);
-dxdenom=zeros(SequenceLength,1);
-dydenom=zeros(SequenceLength,1);
+
 % dx and dy entries from frame M represent the difference in
 % spot coordinates between the frame M-1 and M
 
+% Each entry in denominator will equal the number
+% of nonzero elements in the dx or dy cell arrays
+% so that we average only over those regions with
+% multiple tracked aois (if only one element exists
+% the denominator will be 1, and if no elements
+% exit we should be at a frame number in a range we
+% are not correcting drift)
 
-for dxyindx=1:nAOIs
-    
-    dxnum=dxnum+diffx1{dxyindx};
-    dynum=dynum+diffy1{dxyindx};
-    % Each entry in denominator will equal the number
-    % of nonzero elements in the dx or dy cell arrays
-    % so that we average only over those regions with
-    % multiple tracked aois (if only one element exists
-    % the denominator will be 1, and if no elements
-    % exit we should be at a frame number in a range we
-    % are not correcting drift)
-    dxdenom=dxdenom+(diffx1{dxyindx}~=0);
-    dydenom=dydenom+(diffy1{dxyindx}~=0);
-end
+dxnum = sum(diffx1, 2);
+dynum = sum(diffy1, 2);
+dxdenom = sum(diffx1~=0, 2);
+dydenom = sum(diffy1~=0, 2);
 dx=dxnum.*dxdenom.^(-1);
 dy=dynum.*dydenom.^(-1);
 % At various places we divided by zero, resulting
