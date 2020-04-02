@@ -1,4 +1,7 @@
-function pc=gauss2d_mapstruc2d_temp_bypass(parenthandles,imageFileProperty)
+function DataOutput2d=gauss2d_mapstruc2d_temp_bypass(aoiinfo,...
+                                  aoiProcessParameters,...
+                                  imageFileProperty,...
+                                  isTrackAOI)
 %
 % function gauss2d_mapstruc2d_v2(mapstruc_cell,parenthandles,handles)
 %
@@ -41,30 +44,11 @@ function pc=gauss2d_mapstruc2d_temp_bypass(parenthandles,imageFileProperty)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 
+DataOutput2d = fitAoisTo2dGaussian(aoiinfo,...
+                                  aoiProcessParameters,...
+                                  imageFileProperty,...
+                                  isTrackAOI);
 
-fitChoice = get(parenthandles.FitChoice,'Value');
-aoiProcessParameters = getAoiProcessParameters(parenthandles);
-if fitChoice == 5
-    pc = getAoiIntensityLinearInterp(imageFileProperty,parenthandles.FitData,...
-        aoiProcessParameters,parenthandles.DriftList);
-elseif fitChoice == 1    
-    isTrackAOI = logical(get(parenthandles.TrackAOIs,'Value'));
-    if get(parenthandles.BackgroundChoice,'Value') ~= 1
-        error('background choice is not supported in this version')
-    end
-    aoiinfo = parenthandles.FitData;
-    pc = fitAoisTo2dGaussian(...
-        aoiinfo,...
-        aoiProcessParameters,...
-        imageFileProperty,...
-        isTrackAOI...
-        );
-    
-    
-else
-    
-    error('the chosen fitting method isn''t supported in this version')
-end
 end
 
 function startParams = guessStartingParameters(aoiImage)

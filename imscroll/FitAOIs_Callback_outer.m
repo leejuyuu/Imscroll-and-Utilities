@@ -16,9 +16,29 @@ imagePath = getImagePathFromHandles(handles);
 
 imageFileProperty = getImageFileProperty(imagePath);
 
-DataOutput2d=gauss2d_mapstruc2d_temp_bypass(handles,imageFileProperty); % Process the data (integrate, fit etc)
-% V.2 is parallel processing
-
+fitChoice = get(handles.FitChoice,'Value');
+aoiProcessParameters = getAoiProcessParameters(handles);
+if fitChoice == 5
+    DataOutput2d = getAoiIntensityLinearInterp(imageFileProperty,handles.FitData,...
+        aoiProcessParameters,handles.DriftList);
+elseif fitChoice == 1    
+    isTrackAOI = logical(get(handles.TrackAOIs,'Value'));
+    if get(handles.BackgroundChoice,'Value') ~= 1
+        error('background choice is not supported in this version')
+    end
+    aoiinfo = handles.FitData;
+    DataOutput2d = gauss2d_mapstruc2d_temp_bypass(...
+        aoiinfo,...
+        aoiProcessParameters,...
+        imageFileProperty,...
+        isTrackAOI...
+        );
+    
+    
+else
+    
+    error('the chosen fitting method isn''t supported in this version')
+end
 argoutsImageData=DataOutput2d.ImageData;
 argoutsBackgroundData=DataOutput2d.BackgroundData;
 
