@@ -127,8 +127,7 @@ SequenceLength=SequenceLength+20;
 % These will run from frame 1 out to
 % frame=SequenceLength, filling in zeros where there
 % is no coordinate tracked for that aoi
-x1=cell(1,nAOIs);
-y1=cell(1,nAOIs);
+
 diffx1=zeros(SequenceLength,nAOIs);
 diffy1=zeros(SequenceLength,nAOIs);
 for iAOI1=1:nAOIs
@@ -144,22 +143,15 @@ for iAOI1=1:nAOIs
     %end
     % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
     dat=xy_cell{iAOI1}.dat;
-    if lolimit==1
-        % Here if low frame limit of xy coordinates =1
-        %
-        % x1{}=[(frame#) (x coord of spot} (glimpse time)], y1{}= ""
-        % fill in zeros as coord if spot not tracked for
-        % some frames
-        x1{iAOI1}=[dat(:,2) dat(:,4) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-        y1{iAOI1}=[dat(:,2) dat(:,5) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-    else
-        x1{iAOI1}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,4) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-        y1{iAOI1}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,5) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-        
-    end
+    
+    x1 = zeros(SequenceLength, 1);
+    y1 = zeros(SequenceLength, 1);
+    x1(lolimit:hilimit) = dat(:,4);
+    y1(lolimit:hilimit) = dat(:,5);
+    
     % And form the deltax and deltay lists
-    diffx1(2:end, iAOI1)= diff(x1{iAOI1}(:,2));             % [(dx between frames)]
-    diffy1(2:end, iAOI1)= diff(y1{iAOI1}(:,2));             % [(dy between frames)]
+    diffx1(2:end, iAOI1)= diff(x1);             % [(dx between frames)]
+    diffy1(2:end, iAOI1)= diff(y1);             % [(dy between frames)]
 
     % Now we must zero out the dx1 and dy1 entries that
     % are at unuseable frame numbers
@@ -194,10 +186,8 @@ dx=dxnum.*dxdenom.^(-1);
 dy=dynum.*dydenom.^(-1);
 % At various places we divided by zero, resulting
 % in NaN.  We now zero out those entries
-logikx=isnan(dx);
-dx(logikx)=0;
-logiky=isnan(dy);
-dy(logiky)=0;
+dx(isnan(dx))=0;
+dy(isnan(dy))=0;
 % Sum the frame differences to a cumulative track
 % of the exemplary x and y coordinate drifting in
 % the file
