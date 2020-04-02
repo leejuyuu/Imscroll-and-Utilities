@@ -53,13 +53,6 @@ elseif fitChoice == 1
         error('background choice is not supported in this version')
     end
     aoiinfo = parenthandles.FitData;
-    if ~isfield(parenthandles,'Pixnums') || isempty(parenthandles.Pixnums)
-        % Here if user did not set the small AOI size for integration
-        % or parenthandles.Pixnums exists but is empty,
-        % when gaussian fitting with a fixed sigma
-        parenthandles.Pixnums(1) = aoiinfo(1, 5); % Width of aoi in first aoi
-        guidata(parenthandles.FitAOIs,parenthandles)
-    end
     
     nAOI = length(aoiinfo(:, 1));
     nFrame = length(aoiProcessParameters.frameRange);
