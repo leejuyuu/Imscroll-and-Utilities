@@ -1,4 +1,4 @@
-function pc=mappingfit_fminsearch(indata,startCoeff)
+function pc=mappingfit_fminsearch(field1_xy, field2_x_or_y, startCoeff)
 %
 % function mappingfit(indata,<inputarg0>)
 %
@@ -35,10 +35,10 @@ function pc=mappingfit_fminsearch(indata,startCoeff)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-fun = @(coeff) mappingfunc_fminsearch(coeff, indata{1}, indata{2});
+fun = @(coeff) mappingfunc_fminsearch(field1_xy, field2_x_or_y, coeff);
 pc = fminsearch(fun, startCoeff(:));
 
-function pc=mappingfunc_fminsearch(inarg,xdata,ydata)
+function pc=mappingfunc_fminsearch(field1_xy, field2_x_or_y, coeff)
 %
 % function mappingfunc_fminsearch(inarg,xdata,ydata
 %
@@ -58,5 +58,6 @@ function pc=mappingfunc_fminsearch(inarg,xdata,ydata)
 % ydata== 1 x n list of either x2(:) or y2(:) output points
 % see also mappingfunc_rot_mag_trans.m for fit to a transformation that is
 % strictly a translation, magnification and rotation (4 free parameters)
-
-pc= sum( (ydata -(inarg(1)*xdata(:,1) + inarg(2)*xdata(:,2) + inarg(3)) ).^2);
+x1 = field1_xy(:, 1);
+y1 = field1_xy(:, 2);
+pc= sum( (field2_x_or_y -(coeff(1)*x1 + coeff(2)*y1 + coeff(3)) ).^2);
