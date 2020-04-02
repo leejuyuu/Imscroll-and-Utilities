@@ -98,9 +98,9 @@ if inlength>0
     SG_FrameY=SG_Smooth(4);                      %
     
 end
-sz=max(size(xy_cell));      % sz = number of tracked aois used in making this driftlist
+nAOIs = length(xy_cell);
 
-for indx=1:sz
+for indx=1:nAOIs
     if ~isfield(xy_cell{indx},'ttb')
         % Here if the 'ttb' field was not defined => just set it
         % equal to the vid.ttb time base from the input vid
@@ -111,7 +111,7 @@ for indx=1:sz
         xy_cell{indx}.ttb=[frms vid.ttb(frms)'];     % [(frm #)  (time from glimpse file)]
     end
 end
-[rosecell aoinum]=size(xy_cell);
+
 % Replace SequenceLength by SequenceLength+20, then
 % shorten it again at end of program so that we do
 % not have to treat special cases such as when the
@@ -122,21 +122,18 @@ end
 ActualSequenceLength=SequenceLength;
 SequenceLength=SequenceLength+20;
 
-% aoinum is the number of aois tracked for correcting drift
-% rosecell should be equal to 1
-
 % First form the x1 and y1 coordinate lists for the
 % various aois
 % These will run from frame 1 out to
 % frame=SequenceLength, filling in zeros where there
 % is no coordinate tracked for that aoi
-x1=cell(1,aoinum);
-y1=cell(1,aoinum);
-dx1=cell(1,aoinum);
-dy1=cell(1,aoinum);
-for x1y1indx=1:aoinum
-    lolimit=xy_cell{x1y1indx}.range(1);
-    hilimit=xy_cell{x1y1indx}.range(2);
+x1=cell(1,nAOIs);
+y1=cell(1,nAOIs);
+diffx1=cell(1,nAOIs);
+diffy1=cell(1,nAOIs);
+for iAOI1=1:nAOIs
+    lolimit=xy_cell{iAOI1}.range(1);
+    hilimit=xy_cell{iAOI1}.range(2);
     % if hilimit==SequenceLength
     % just in case tracking went to very end of file,
     % shorten it by one so some of the upcoming
@@ -146,39 +143,40 @@ for x1y1indx=1:aoinum
     %   hilimit=hilimit-1;
     %end
     % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
-    dat=xy_cell{x1y1indx}.dat;
+    dat=xy_cell{iAOI1}.dat;
     if lolimit==1
         % Here if low frame limit of xy coordinates =1
         %
         % x1{}=[(frame#) (x coord of spot} (glimpse time)], y1{}= ""
         % fill in zeros as coord if spot not tracked for
         % some frames
-        x1{x1y1indx}=[dat(:,2) dat(:,4) xy_cell{x1y1indx}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-        y1{x1y1indx}=[dat(:,2) dat(:,5) xy_cell{x1y1indx}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
+        x1{iAOI1}=[dat(:,2) dat(:,4) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
+        y1{iAOI1}=[dat(:,2) dat(:,5) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
     else
-        x1{x1y1indx}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,4) xy_cell{x1y1indx}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
-        y1{x1y1indx}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,5) xy_cell{x1y1indx}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
+        x1{iAOI1}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,4) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
+        y1{iAOI1}=[[1:lolimit-1]' zeros(lolimit-1,2); dat(:,2) dat(:,5) xy_cell{iAOI1}.ttb(:,2); [hilimit+1:SequenceLength]' zeros(length(hilimit+1:SequenceLength),2)];
         
     end
     % And form the deltax and deltay lists
-    dx1{x1y1indx}=[0; diff(x1{x1y1indx}(:,2))];             % [(dx between frames)]
-    dy1{x1y1indx}=[0; diff(y1{x1y1indx}(:,2))];             % [(dy between frames)]
+    diffx1{iAOI1}=[0; diff(x1{iAOI1}(:,2))];             % [(dx between frames)]
+    diffy1{iAOI1}=[0; diff(y1{iAOI1}(:,2))];             % [(dy between frames)]
 end
 % Now we must zero out the dx1 and dy1 entries that
 % are at unuseable frame numbers
-for dxyzindx=1:aoinum
+% Remove diff outside useRange
+for dxyzindx=1:nAOIs
     lowuserange=xy_cell{dxyzindx}.userange(1);
     hiuserange=xy_cell{dxyzindx}.userange(2);
     if ( lowuserange~=1 )
-        dx1{dxyzindx}(1:lowuserange)=0;
-        dx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-        dy1{dxyzindx}(1:lowuserange)=0;
-        dy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
+        diffx1{dxyzindx}(1:lowuserange)=0;
+        diffx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
+        diffy1{dxyzindx}(1:lowuserange)=0;
+        diffy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
     else
         % Here if lowuserange==1 (we then DO NOT need to zero out dx1 and dy1
         % for frames 1 up to lowuserane)
-        dx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-        dy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
+        diffx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
+        diffy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
     end
 end
 % initialize numerator and denominator of dx, dy
@@ -190,10 +188,10 @@ dydenom=zeros(SequenceLength,1);
 % spot coordinates between the frame M-1 and M
 
 
-for dxyindx=1:aoinum
+for dxyindx=1:nAOIs
     
-    dxnum=dxnum+dx1{dxyindx};
-    dynum=dynum+dy1{dxyindx};
+    dxnum=dxnum+diffx1{dxyindx};
+    dynum=dynum+diffy1{dxyindx};
     % Each entry in denominator will equal the number
     % of nonzero elements in the dx or dy cell arrays
     % so that we average only over those regions with
@@ -201,8 +199,8 @@ for dxyindx=1:aoinum
     % the denominator will be 1, and if no elements
     % exit we should be at a frame number in a range we
     % are not correcting drift)
-    dxdenom=dxdenom+(dx1{dxyindx}~=0);
-    dydenom=dydenom+(dy1{dxyindx}~=0);
+    dxdenom=dxdenom+(diffx1{dxyindx}~=0);
+    dydenom=dydenom+(diffy1{dxyindx}~=0);
 end
 dx=dxnum.*dxdenom.^(-1);
 dy=dynum.*dydenom.^(-1);
