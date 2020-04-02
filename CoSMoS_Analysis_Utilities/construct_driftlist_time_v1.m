@@ -160,25 +160,19 @@ for iAOI1=1:nAOIs
     % And form the deltax and deltay lists
     diffx1{iAOI1}=[0; diff(x1{iAOI1}(:,2))];             % [(dx between frames)]
     diffy1{iAOI1}=[0; diff(y1{iAOI1}(:,2))];             % [(dy between frames)]
+
+    % Now we must zero out the dx1 and dy1 entries that
+    % are at unuseable frame numbers
+    % Remove diff outside useRange
+    lowuserange=xy_cell{iAOI1}.userange(1);
+    hiuserange=xy_cell{iAOI1}.userange(2);
+    diffx1{iAOI1}(1:lowuserange)=0;
+    diffx1{iAOI1}(hiuserange+1:SequenceLength)=0;
+    diffy1{iAOI1}(1:lowuserange)=0;
+    diffy1{iAOI1}(hiuserange+1:SequenceLength)=0;
+
 end
-% Now we must zero out the dx1 and dy1 entries that
-% are at unuseable frame numbers
-% Remove diff outside useRange
-for dxyzindx=1:nAOIs
-    lowuserange=xy_cell{dxyzindx}.userange(1);
-    hiuserange=xy_cell{dxyzindx}.userange(2);
-    if ( lowuserange~=1 )
-        diffx1{dxyzindx}(1:lowuserange)=0;
-        diffx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-        diffy1{dxyzindx}(1:lowuserange)=0;
-        diffy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-    else
-        % Here if lowuserange==1 (we then DO NOT need to zero out dx1 and dy1
-        % for frames 1 up to lowuserane)
-        diffx1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-        diffy1{dxyzindx}(hiuserange+1:SequenceLength)=0;
-    end
-end
+
 % initialize numerator and denominator of dx, dy
 dxnum=zeros(SequenceLength,1);
 dynum=zeros(SequenceLength,1);
