@@ -7,7 +7,6 @@ nFrame = length(aoiProcessParameters.frameRange);
 
 % Pre-Allocate space
 ImageDataParallel = zeros(nAOI, 8, nFrame);
-BackgroundDataParallel = zeros(nAOI, 8, nFrame);
 
 frameAverage = aoiProcessParameters.frameAverage;
 
@@ -52,8 +51,7 @@ for framemapindx=1:nFrame
 end
 
 % Pre-Allocate space
-pc.ImageData = zeros(nAOI*nFrame, 8);
-pc.BackgroundData = zeros(nAOI*nFrame, 8);
+pc = zeros(nAOI*nFrame, 8);
 
 % ImageDataParallel(aoiindx,DataEntryIndx,FrmIndx)
 % Reshaping data matrices for output
@@ -61,8 +59,7 @@ pc.BackgroundData = zeros(nAOI*nFrame, 8);
 % satisfy the parallel processing loop requirements for indexing
 
 for frameindex=1:nFrame
-    pc.ImageData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=ImageDataParallel(:,:,frameindex);
-    pc.BackgroundData((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=BackgroundDataParallel(:,:,frameindex);
+    pc((frameindex-1)*nAOI+1:(frameindex-1)*nAOI+nAOI,:)=ImageDataParallel(:,:,frameindex);
 end
 
 end

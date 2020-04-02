@@ -21,6 +21,8 @@ aoiProcessParameters = getAoiProcessParameters(handles);
 if fitChoice == 5
     DataOutput2d = getAoiIntensityLinearInterp(imageFileProperty,handles.FitData,...
         aoiProcessParameters,handles.DriftList);
+    aoifits.data=DataOutput2d.ImageData;
+    aoifits.BackgroundData=DataOutput2d.BackgroundData;
 elseif fitChoice == 1    
     isTrackAOI = logical(get(handles.TrackAOIs,'Value'));
     if get(handles.BackgroundChoice,'Value') ~= 1
@@ -33,12 +35,13 @@ elseif fitChoice == 1
         imageFileProperty,...
         isTrackAOI...
         );
+    aoifits.data=DataOutput2d;
+    aoifits.BackgroundData=[];
 else
     error('the chosen fitting method isn''t supported in this version')
 end
 
-aoifits.data=DataOutput2d.ImageData;
-aoifits.BackgroundData=DataOutput2d.BackgroundData;
+
 save([handles.dataDir.String, outputName],'aoifits')
 handles.aoifits1=aoifits;                        % store our structure in the handles structure
 handles.aoifits2=aoifits;
