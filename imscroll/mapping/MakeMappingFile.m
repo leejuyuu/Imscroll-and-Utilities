@@ -60,7 +60,7 @@ if nAOIs>=3               % Map the two fields if we have 3 or more points
     % Input guess is [myx21 myy21 bx] with
     % myx21 = 0 at first
     %***fitparmy21more=mappingfit(inarray,[0 fitparmx21(1) fitparmx21(2) ]);
-    fitparmy21more=mappingfit_fminsearch([x1, y1], y2,[0 fitparmx21(1) fitparmx21(2) ]);
+    fitparmy21more=mappingfit_fminsearch([x1, y1], y2,[0 fitparmy21(1) fitparmy21(2) ]);
     
     % Place fitparm into 'Value' of FitDisplay
     % as a two row matrix
