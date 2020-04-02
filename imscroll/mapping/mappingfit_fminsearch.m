@@ -36,7 +36,7 @@ function pc=mappingfit_fminsearch(field1_xy, field2_x_or_y, startCoeff)
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
 fun = @(coeff) mappingfunc_fminsearch(field1_xy, field2_x_or_y, coeff);
-pc = fminsearch(fun, startCoeff(:));
+pc = fminsearch(fun, startCoeff);
 
 function pc=mappingfunc_fminsearch(field1_xy, field2_x_or_y, coeff)
 %

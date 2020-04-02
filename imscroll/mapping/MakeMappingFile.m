@@ -63,12 +63,10 @@ if nAOIs>=3
         % Introduce contribution from another axis, and then Optimize the
         % coefficients.
         fittedCoeffs(i, :) = mappingfit_fminsearch([x1, y1], dependent_var,startCoeff);
-    end
-    % display as row [mxx21 mxy21 bx21 myx21 myy21 by21]'
+    end    
+    
     fitparmvector = fittedCoeffs;
-    %save p:\matlab12\larry\fig-files\imscroll\mapping\fitparms.dat fitparmvector mappingpoints
-    eval(['save ' filename ' fitparmvector mappingpoints']);
-    mappingpoints;
+    save(filename, 'fitparmvector', 'mappingpoints');    
 else
     sprintf('aoiinfo2 matrix must contain at least 3 aois')
     
