@@ -100,19 +100,6 @@ if inlength>0
 end
 nAOIs = length(xy_cell);
 
-for indx=1:nAOIs
-    if ~isfield(xy_cell{indx},'ttb')
-        % Here if the 'ttb' field was not defined => just set it
-        % equal to the vid.ttb time base from the input vid
-        % structure
-        frms=xy_cell{indx}.dat(:,2);        % frame numbers for which data is defined
-        % for this aoi
-        
-        xy_cell{indx}.ttb=[frms vid.ttb(frms)'];     % [(frm #)  (time from glimpse file)]
-    end
-end
-
-
 % First form the x1 and y1 coordinate lists for the
 % various aois
 % These will run from frame 1 out to
