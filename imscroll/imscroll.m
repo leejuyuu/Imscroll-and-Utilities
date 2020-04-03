@@ -4215,7 +4215,7 @@ switch MenuValue
         % Grab radius off of editable text region
         Unique_Landing_Radius=str2num(get(handles.EditUniqueRadius,'String'));
         % Alter list of AOIs
-        handles.FitData=Remove_Close_AOIs_v1(handles.FitData,Unique_Landing_Radius);
+        handles.FitData=removeCloseAOIs(handles.FitData,Unique_Landing_Radius);
         guidata(gcbo,handles);      % Update the handles structure
         slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated aoiset
         

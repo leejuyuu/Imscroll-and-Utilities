@@ -1,4 +1,4 @@
-function new_aoiinfo2 = Remove_Close_AOIs_v1(aoiinfo2, radius)
+function new_aoiinfo2 = removeCloseAOIs(aoiinfo2, radius)
 %
 % new_aoiinfo2 = Remove_Close_AOIs_v1(aoiinfo2, radius)
 % 
