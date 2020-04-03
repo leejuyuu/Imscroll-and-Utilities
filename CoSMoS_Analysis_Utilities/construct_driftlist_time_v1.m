@@ -112,15 +112,6 @@ for indx=1:nAOIs
     end
 end
 
-% Replace SequenceLength by SequenceLength+20, then
-% shorten it again at end of program so that we do
-% not have to treat special cases such as when the
-% use range of an aoi runs to the end of the file.
-% This way, we never have xy_cell{}.userange running
-% to the very end of a file, and all expressions
-% can be treated the same.
-ActualSequenceLength=SequenceLength;
-SequenceLength=SequenceLength+20;
 
 % First form the x1 and y1 coordinate lists for the
 % various aois
@@ -133,14 +124,7 @@ diffy1=zeros(SequenceLength,nAOIs);
 for iAOI1=1:nAOIs
     lolimit=xy_cell{iAOI1}.range(1);
     hilimit=xy_cell{iAOI1}.range(2);
-    % if hilimit==SequenceLength
-    % just in case tracking went to very end of file,
-    % shorten it by one so some of the upcoming
-    % expressions don't fail
-    % NO:  fixed by replacing SequenceLength by
-    % SequenceLength+20, then shortening it at the end
-    %   hilimit=hilimit-1;
-    %end
+    
     % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
     dat=xy_cell{iAOI1}.dat;
     
@@ -217,14 +201,10 @@ cumdriftlist(:,1)=1:SequenceLength;
 cumdriftlist(crange,2)=valx;
 cumdriftlist(crange,3)=valy;
 
-cumdriftlist(1:ActualSequenceLength,4)=vid.ttb;          % Place the time base into the 4th column
+cumdriftlist(1:SequenceLength,4)=vid.ttb;          % Place the time base into the 4th column
 % (time base of the glimpse file used for
 % constructing this drift list.
 
-% Now truncate the driftlist to match the actual
-% length of the image sequence file (see note at
-% top of program
-cumdriftlist=cumdriftlist(1:ActualSequenceLength,:);
 % Construct the difference driftlist from the polynomial fits
 
 ddx=diff(valx);
@@ -234,15 +214,11 @@ diffdriftlist=zeros(SequenceLength,4);
 diffdriftlist(:,1)=1:SequenceLength;
 diffdriftlist(drange,2)=ddx;
 diffdriftlist(drange,3)=ddy;
-diffdriftlist(1:ActualSequenceLength,4)=vid.ttb;             % Place the time base into the 4th column
+diffdriftlist(1:SequenceLength,4)=vid.ttb;             % Place the time base into the 4th column
 % (time base of the glimpse file used for
 % constructing this drift list.
 % Output the driftlist
 %
-% Now truncate the driftlist to match the actual
-% length of the image sequence file (see note at
-% top of program)
-diffdriftlist=diffdriftlist(1:ActualSequenceLength,:);
 pc.cumdriftlist=cumdriftlist;
 pc.diffdriftlist=diffdriftlist;
 
@@ -250,7 +226,7 @@ pc.cumdriftlist_description='[ (frame#)  (cumulative x)  (cumulative y)  (glimps
 pc.diffdriftlist_description='[ (frame#)  dx  dy   (glimpse time)], e.g. dx(N) = cumulative x(N) - cumulative x(N-1)';
 pc.xy_cell=xy_cell;
 pc.vid=vid;
-pc.SequenceLentgh=ActualSequenceLength;
+pc.SequenceLentgh=SequenceLength;
 pc.CorrectionRange=CorrectionRange;
 
 
