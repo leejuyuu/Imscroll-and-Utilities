@@ -16,6 +16,7 @@ drifts_time = construct_driftlist_time_v1(...
 drifts = driftlist_time_interp(drifts_time.cumdriftlist,driftParam(1).vid);
 driftlist = drifts.diffdriftlist;
 
+verifyEqual(testCase, drifts.diffdriftlist, correct_driftlist);
 verifyEqual(testCase, driftlist, correct_driftlist);
 
 end
