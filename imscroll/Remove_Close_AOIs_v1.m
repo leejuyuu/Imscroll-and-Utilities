@@ -29,39 +29,39 @@ function pc=Remove_Close_AOIs_v1(aoiinfo2,Unique_Landing_Radius)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-frm=aoiinfo2(1,1);      
+frm=aoiinfo2(1,1);
 ave=aoiinfo2(1,2);      % Pick off frame, average and pixnum
 pixnum=aoiinfo2(1,5);
 xytot=aoiinfo2(:,3:4);                  % [ x y ] list of aoi centers
 
 [landingcount colmn]=size(xytot);       % landingcount = starting # of aois in list
-                                        % colmn = 2
+% colmn = 2
 xytotaccum=zeros(landingcount,2);       % [x y] list that we will be outputing
-                                        % of max length of landingcount
+% of max length of landingcount
 ListIndx=1;
 for indx=1:landingcount
-                        % Test each aoi against all the others
+    % Test each aoi against all the others
     tstaoi=xytot(indx,:);           % AOI under test
     dtest=sqrt( (xytot(:,1)-tstaoi(1,1)).^2 + (xytot(:,2)-tstaoi(1,2)).^2 );
     logik=dtest~=0;             % Pick all AOIs other than the one under test
     xytotdum=xytot(logik,:);
-                                % Distance of test aoi to all others
+    % Distance of test aoi to all others
     dtest=sqrt( (xytotdum(:,1)-tstaoi(1,1)).^2 + (xytotdum(:,2)-tstaoi(1,2)).^2 );
     logik=dtest>(Unique_Landing_Radius);     % Keep only aois that are not too close together
     if sum(logik)==landingcount-1
-                    % Here if aoi under test is not close to any others
+        % Here if aoi under test is not close to any others
         xytotaccum(ListIndx,:)=tstaoi;  % In which case we keep the current tstaoi
-                                        % and add it to the output list
+        % and add it to the output list
         ListIndx=ListIndx+1;
     end
 end
 
 
-        % Now eliminate all the empty entries in the output list
+% Now eliminate all the empty entries in the output list
 logik=(xytotaccum(:,1)~=0)&(xytotaccum(:,2)~=0);
 xytotaccum=xytotaccum(logik,:);         % Keep only nonzero elements (zero from initialization
 [rose colm]=size(xytotaccum);
-                        % Construct the output aoiinfo2 list
-pc=[ones(rose,1)*frm  ones(rose,1)*ave    xytotaccum  ones(rose,1)*pixnum  [1:rose]' ]; 
+% Construct the output aoiinfo2 list
+pc=[ones(rose,1)*frm  ones(rose,1)*ave    xytotaccum  ones(rose,1)*pixnum  [1:rose]' ];
 
 
