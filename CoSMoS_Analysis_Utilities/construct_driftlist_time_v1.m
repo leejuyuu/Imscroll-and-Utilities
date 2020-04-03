@@ -41,10 +41,7 @@ function pc=construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLeng
 %         correction occurs over just a subset of the frames in the file
 % SequenceLength == e.g. 3606 the total number of images in the glimpse
 %         image file for which we will construct a driftlist
-% PolyOrderxy == [n m] where n and m are integers specifying the polynomial
-%         order of fit respectively applied to the x (n) and y (m) drift curves
-% SG_Smooth == OPTIONAL parameter for Savitsky-Golay smoothing instead
-%               of polynomial smoothing of drift.
+% SG_Smooth == parameters for Savitsky-Golay smoothing.
 %                =[ SG_PolyOrderX   SG_FrameX  SG_PolyOrderY    SG_FrameY]
 %                where:
 % SG_PolyOrder==   parameter specifying the order of polynomial (X or Y drift)
@@ -56,41 +53,15 @@ function pc=construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLeng
 % See B21p53
 %
 % Usage:
-%(1) drifts_time= construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLength,Polyorderxy,<SG_Smooth>)
+%(1) drifts_time= construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLength,SG_Smooth)
 %(2) drifts=driftlist_time_interp(drifts_time.cumdriftlist,vid);
 % OR if using gui_drift_correction as the step (1)
 % (2) drifts=driftlist_time_interp(Drift.drift_correction_cumfit_glimpse,vid);
 %foldstruc.DriftList=drifts.diffdriftlist;
 
-% V1:  LJF 12/6/2013  Add option to use Savitsky-Golay smoothing rather
-%                    than just a single polynomial fit.
-%  alternatively:
-% dat_cell == cell array of dat matrices.  Each dat matrix contains the x
-%         y coordinates of one spot tracked with a gaussian fit in imscroll.
-%         Each cell array is of the form
-%         obtained by processing an aoifits structure with the
-%         dat=draw_aoifits_aois(aoifits,'y') function.  For example
-%         we might have dat_cell{1}=dat(:,:,2), dat_cell{2}=dat(:,:,5) etc
-%         where the different dat() matrices could originate from different
-%         aoifits structures.
-% datrange_cell== cell array listing the frame range overwhich each
-%         dat_cell entry covers.  For example we might have
-%         datrange_cell{1}=[50 300] for the dat_cell{1} input,
-%         datrange_cell{2}=[100 600] for the dat_cell{2} input, etc
-% userange_cell== cell array listing the useable frame range over which
-%         each dat_cell entry x-y coordinates may be used for drift correction.
-%         e.g. datrange_cell{1}=[100 250], datrange_cell{2}=[150 575], etc
-% dat_cell, datrange_cell and userange_cell should all have the same number
-% of matching entries.
-%
-%
-%  form the various variables as xcell, ycell, dxcell, dycell, dx, dy,
-%  cumx,cumy, fitx, valx fity, valy, ddx, ddy, driftlist
-%
-
-[diffx1, diffy1] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength);
-cumx = calculateAverageCumulativeDisplacement(diffx1);
-cumy = calculateAverageCumulativeDisplacement(diffy1);
+[deltaX, deltaY] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength);
+cumAvgDeltaX = calculateAverageCumulativeDisplacement(deltaX);
+cumAvgDeltaY = calculateAverageCumulativeDisplacement(deltaY);
 
 crange=CorrectionRange(1):CorrectionRange(2);
 
@@ -100,33 +71,26 @@ SG_PolyOrderX=SG_Smooth(1);
 SG_FrameX=SG_Smooth(2);
 SG_PolyOrderY=SG_Smooth(3);
 SG_FrameY=SG_Smooth(4);
-valx=sgolayfilt(cumx(crange),SG_PolyOrderX,SG_FrameX);
-valy=sgolayfilt(cumy(crange),SG_PolyOrderY,SG_FrameY);
+filteredCumDeltaX = sgolayfilt(cumAvgDeltaX(crange),SG_PolyOrderX,SG_FrameX);
+filteredCumDeltaY = sgolayfilt(cumAvgDeltaY(crange),SG_PolyOrderY,SG_FrameY);
+
+% Initialize array to store driftlist
+initialDriftlist = zeros(SequenceLength,4);
+initialDriftlist(:,1) = 1:SequenceLength;
+initialDriftlist(:, 4) = vid.ttb;
 
 % Construct the cumulative driftlist from the filtered position
-cumdriftlist=zeros(SequenceLength,4);
-cumdriftlist(:,1)=1:SequenceLength;
-cumdriftlist(crange,2)=valx;
-cumdriftlist(crange,3)=valy;
+cumdriftlist = initialDriftlist;
+cumdriftlist(crange,2) = filteredCumDeltaX;
+cumdriftlist(crange,3) = filteredCumDeltaY;
 
-cumdriftlist(1:SequenceLength,4)=vid.ttb;          % Place the time base into the 4th column
-% (time base of the glimpse file used for
-% constructing this drift list.
 
 % Construct the difference driftlist from the filtered position
+diffdriftlist = initialDriftlist;
+diffdriftlist(crange(2:end), 2) = diff(filteredCumDeltaX);
+diffdriftlist(crange(2:end), 3) = diff(filteredCumDeltaY);
 
-ddx=diff(valx);
-ddy=diff(valy);
-drange=CorrectionRange(1)+1:CorrectionRange(2);
-diffdriftlist=zeros(SequenceLength,4);
-diffdriftlist(:,1)=1:SequenceLength;
-diffdriftlist(drange,2)=ddx;
-diffdriftlist(drange,3)=ddy;
-diffdriftlist(1:SequenceLength,4)=vid.ttb;             % Place the time base into the 4th column
-% (time base of the glimpse file used for
-% constructing this drift list.
 % Output the driftlist
-%
 pc.cumdriftlist=cumdriftlist;
 pc.diffdriftlist=diffdriftlist;
 
