@@ -4213,12 +4213,10 @@ switch MenuValue
     case 9
         % Here to remove Close AOIs
         % Grab radius off of editable text region
-        Unique_Landing_Radius=str2num(get(handles.EditUniqueRadius,'String'));
-        % Alter list of AOIs
-        handles.FitData=removeCloseAOIs(handles.FitData,Unique_Landing_Radius);
-        guidata(gcbo,handles);      % Update the handles structure
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated aoiset
-        
+        Unique_Landing_Radius = str2double(get(handles.EditUniqueRadius,'String'));        
+        handles.FitData = removeCloseAOIs(handles.FitData,Unique_Landing_Radius);
+        guidata(gcbo,handles);  % Update the handles structure
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
         
     case 10
         % Here to remove an AOI by clicking on the figure(21) X2 plot
