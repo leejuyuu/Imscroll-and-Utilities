@@ -1,4 +1,4 @@
-function pc=construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLength,Polyorderxy,varargin)
+function pc=construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLength,SG_Smooth)
 %
 % function    construct_driftlist_time_v1(xy_cell, vid, CorrectionRange, SequenceLength, Polyorderxy,<SG_Smooth>)
 %
@@ -87,40 +87,23 @@ function pc=construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,SequenceLeng
 %  form the various variables as xcell, ycell, dxcell, dycell, dx, dy,
 %  cumx,cumy, fitx, valx fity, valy, ddx, ddy, driftlist
 %
-inlength=length(varargin);
-% Grab the Savitsky-Golay
-% parameters, if present
-if inlength>0
-    SG_Smooth=varargin{1}(:);                   %[ SG_PolyOrder   SG_Frame]
-    SG_PolyOrderX=SG_Smooth(1);                  %
-    SG_FrameX=SG_Smooth(2);                      %
-    SG_PolyOrderY=SG_Smooth(3);                  %
-    SG_FrameY=SG_Smooth(4);                      %
-    
-end
+
 [diffx1, diffy1] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength);
 cumx = calculateAverageCumulativeDisplacement(diffx1);
 cumy = calculateAverageCumulativeDisplacement(diffy1);
 
-% Fit the cumulative traces to polynomials
 crange=CorrectionRange(1):CorrectionRange(2);
-% Note that the fit is to the time, not the frame number
-if inlength>0
-    % Here to apply Savitsky-Golay smoothing to the
-    % cumulative drift
-    valx=sgolayfilt(cumx(crange),SG_PolyOrderX,SG_FrameX);
-    valy=sgolayfilt(cumy(crange),SG_PolyOrderY,SG_FrameY);
-else
-    % Here to use a simple polynomial fit to the
-    % cumulative drift.
-    mn=mean(vid.ttb(crange));
-    fitx=polyfit((vid.ttb(crange)-mn)',cumx(crange),Polyorderxy(1));
-    valx=polyval(fitx,vid.ttb(crange)-mn);
-    fity=polyfit((vid.ttb(crange)-mn)',cumy(crange),Polyorderxy(2));
-    valy=polyval(fity,vid.ttb(crange)-mn);
-end
 
-% Construct the cumulative driftlist from the polynomial fits
+% Here to apply Savitsky-Golay smoothing to the
+% cumulative drift
+SG_PolyOrderX=SG_Smooth(1);
+SG_FrameX=SG_Smooth(2);
+SG_PolyOrderY=SG_Smooth(3);
+SG_FrameY=SG_Smooth(4);
+valx=sgolayfilt(cumx(crange),SG_PolyOrderX,SG_FrameX);
+valy=sgolayfilt(cumy(crange),SG_PolyOrderY,SG_FrameY);
+
+% Construct the cumulative driftlist from the filtered position
 cumdriftlist=zeros(SequenceLength,4);
 cumdriftlist(:,1)=1:SequenceLength;
 cumdriftlist(crange,2)=valx;
@@ -130,7 +113,7 @@ cumdriftlist(1:SequenceLength,4)=vid.ttb;          % Place the time base into th
 % (time base of the glimpse file used for
 % constructing this drift list.
 
-% Construct the difference driftlist from the polynomial fits
+% Construct the difference driftlist from the filtered position
 
 ddx=diff(valx);
 ddy=diff(valy);

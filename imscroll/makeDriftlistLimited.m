@@ -21,7 +21,7 @@ for i = 1:numAOI
     xy_cell{i}.range = range;
     xy_cell{i}.userange = userange;
 end
-drifts_time = construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,sequenceLength,[8 8],poly);
+drifts_time = construct_driftlist_time_v1(xy_cell,vid,CorrectionRange,sequenceLength,poly);
 drifts = driftlist_time_interp(drifts_time.cumdriftlist,vid);
 driftlist = drifts.diffdriftlist;
 
