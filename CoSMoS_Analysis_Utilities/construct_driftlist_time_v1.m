@@ -155,73 +155,60 @@ pc.SequenceLentgh=SequenceLength;
 pc.CorrectionRange=CorrectionRange;
 end
 
-function [diffx, diffy] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength)
+function [deltaX, deltaY] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength)
 nAOIs = length(xy_cell);
 
-% First form the x1 and y1 coordinate lists for the
-% various aois
-% These will run from frame 1 out to
-% frame=SequenceLength, filling in zeros where there
-% is no coordinate tracked for that aoi
-
-diffx=zeros(SequenceLength,nAOIs);
-diffy=zeros(SequenceLength,nAOIs);
-for iAOI=1:nAOIs
-    lolimit=xy_cell{iAOI}.range(1);
-    hilimit=xy_cell{iAOI}.range(2);
+deltaX = zeros(SequenceLength, nAOIs);
+deltaY = zeros(SequenceLength, nAOIs);
+for iAOI = 1:nAOIs
+    % This deals with the case that the tracked range is not the whole
+    % sequence.
+    trackedRange = xy_cell{iAOI}.range(1):xy_cell{iAOI}.range(2);
     
-    % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
-    dat=xy_cell{iAOI}.dat;
+    % dat=[frm#, (),  (), xcoor, ycoord ...]    
+    xyCoord = zeros(SequenceLength, 2);
+    xyCoord(trackedRange, :) = xy_cell{iAOI}.dat(:, 4:5);    
     
+    % Form the deltaX and deltaX lists
+    % deltaX(i, iAOI) is x position difference between frame i and frame i - 1
+    deltaX(2:end, iAOI) = diff(xyCoord(:, 1));
+    deltaY(2:end, iAOI) = diff(xyCoord(:, 2));
     
-    x1(lolimit:hilimit) = dat(:,4);
-    y1(lolimit:hilimit) = dat(:,5);
-    
-    % And form the deltax and deltay lists
-    diffx(2:end, iAOI)= diff(x1);             % [(dx between frames)]
-    diffy(2:end, iAOI)= diff(y1);             % [(dy between frames)]
-
-    % Now we must zero out the dx1 and dy1 entries that
-    % are at unuseable frame numbers
-    % Remove diff outside useRange
-    lowuserange=xy_cell{iAOI}.userange(1);
-    hiuserange=xy_cell{iAOI}.userange(2);    
-    diffx(1:lowuserange, iAOI)=0;
-    diffx(hiuserange+1:SequenceLength, iAOI)=0;
-    diffy(1:lowuserange, iAOI)=0;
-    diffy(hiuserange+1:SequenceLength, iAOI)=0;
-
+    % Assigning deltaX and deltaY outside useRange to 0. So not using them to
+    % produce average drift.
+    lowuserange = xy_cell{iAOI}.userange(1);
+    hiuserange = xy_cell{iAOI}.userange(2);    
+    deltaX(1:lowuserange, iAOI) = 0;
+    deltaX(hiuserange+1:SequenceLength, iAOI) = 0;
+    deltaY(1:lowuserange, iAOI) = 0;
+    deltaY(hiuserange+1:SequenceLength, iAOI) = 0;
 end
 end
 
-function cumx = calculateAverageCumulativeDisplacement(diffx1)
-% initialize numerator and denominator of dx, dy
+function cumAvgDeltaX = calculateAverageCumulativeDisplacement(deltaX)
 
-% dx and dy entries from frame M represent the difference in
-% spot coordinates between the frame M-1 and M
+% deltaX(i, iAOI) is x position difference between frame i and frame i - 1
 
-% Each entry in denominator will equal the number
-% of nonzero elements in the dx or dy cell arrays
-% so that we average only over those regions with
-% multiple tracked aois (if only one element exists
-% the denominator will be 1, and if no elements
-% exit we should be at a frame number in a range we
-% are not correcting drift)
+% Summing the displacements over all AOIs
+sumDeltaX = sum(deltaX, 2);
 
-dxnum = sum(diffx1, 2);
+% Summing the number of AOIs used in each displacement. This is necessary
+% that the original program allows stitched drift fits, eg. AOI1 is usable
+% from frame 1~100, and AOI2 is available for frame 80~200. This way the
+% available displacement that can be averaged differs for each frame.
+numAvailableDeltaxInEachFrame = sum((deltaX~=0), 2);
 
-dxdenom = sum(diffx1~=0, 2);
-
-dx=dxnum.*dxdenom.^(-1);
+% Calculate the mean. Divide by the number of available displacements.
+% To-do: change this to ./
+avgDeltaX = sumDeltaX .* (numAvailableDeltaxInEachFrame.^(-1));
 
 % At various places we divided by zero, resulting
-% in NaN.  We now zero out those entries
-dx(isnan(dx))=0;
+% in NaN. We now zero out those entries.
+avgDeltaX(isnan(avgDeltaX))=0;
 
 % Sum the frame differences to a cumulative track
 % of the exemplary x and y coordinate drifting in
 % the file
-cumx=cumsum(dx);
-
+cumAvgDeltaX = cumsum(avgDeltaX);
 end
 
