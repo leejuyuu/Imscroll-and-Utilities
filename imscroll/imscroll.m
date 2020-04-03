@@ -1353,35 +1353,6 @@ else
 end
 
 
-% --- Executes on button press in MakeAVI.
-function MakeAVI_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to MakeAVI (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Will create an avi in 'p:\matlab12\larry\avis\guiavi.avi'
-% according to all the settings on the gui panel (frame limit,
-% magnification, frame average, intensity scale)
-set(handles.MakeAVI,'String','In Process')
-images=varargin{1};
-Max_Display_String=get(handles.MaxScale,'String');
-Min_Display_String=get(handles.MinScale,'String');
-dispscale=[ round(str2num(Min_Display_String)) round(str2num(Max_Display_String)) ];
-%avifolder='p:\matlab12\larry\avis\guiavi.avi';
-%avifolder=[handles.FileLocations.avis '\guiavi.avi'];
-avifolder=[handles.FileLocations.avis 'guiavi.avi'];
-frms=eval(get(handles.FrameRange,'String'));        % Range of frames for which aois are
-% fit.  Here we use them to define
-% the avi frame limits
-
-loindx=min(frms);
-hiindx=max(frms);
-frmave=str2double(get(handles.FrameAve,'String'));     % Number of frames in running ave to use in
-%display, here we use as running ave in avi
-guimacavi(images,loindx,hiindx,dispscale,avifolder,frmave,handles);
-set(handles.MakeAVI,'String','avi')
-
-
 % --- Executes on button press in Mapping.
 function Mapping_Callback(hObject, eventdata, handles, varargin)
 % hObject    handle to Mapping (see GCBO)
