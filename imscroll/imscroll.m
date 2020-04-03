@@ -1327,18 +1327,6 @@ else
 end
 
 
-% --- Executes on button press in Mapping.
-function Mapping_Callback(hObject, eventdata, handles, varargin)
-% hObject    handle to Mapping (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.Mapping_fig=mapping(handles.figure1);            % Output should be figure from Mapping gui
-guidata(hObject,handles);                                % Place Mapping Figure into handles structure
-%  Retrieve the Mapping handle structure using
-%  MappingHandles=guidata(handles.Mapping_fig)
-%
-
 % --- Executes on button press in GoButton.
 function GoButton_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to GoButton (see GCBO)
@@ -2521,6 +2509,7 @@ function MoveAoi_Callback(hObject, eventdata, handles,varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Move the AOI closest to the mouse picked position to that position
 %dum=varargin{1};
 %images=varargin{2};
 %folder=varargin{3};
@@ -2576,6 +2565,8 @@ function Keyboard_Callback(hObject, eventdata, handles)
 % hObject    handle to Keyboard (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% Call keyboard for debugging
 keyboard
 
 
