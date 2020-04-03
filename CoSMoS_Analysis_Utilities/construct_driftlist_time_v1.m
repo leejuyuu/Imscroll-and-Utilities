@@ -98,72 +98,10 @@ if inlength>0
     SG_FrameY=SG_Smooth(4);                      %
     
 end
-nAOIs = length(xy_cell);
+[diffx1, diffy1] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength);
+cumx = calculateAverageCumulativeDisplacement(diffx1);
+cumy = calculateAverageCumulativeDisplacement(diffy1);
 
-% First form the x1 and y1 coordinate lists for the
-% various aois
-% These will run from frame 1 out to
-% frame=SequenceLength, filling in zeros where there
-% is no coordinate tracked for that aoi
-
-diffx1=zeros(SequenceLength,nAOIs);
-diffy1=zeros(SequenceLength,nAOIs);
-for iAOI1=1:nAOIs
-    lolimit=xy_cell{iAOI1}.range(1);
-    hilimit=xy_cell{iAOI1}.range(2);
-    
-    % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
-    dat=xy_cell{iAOI1}.dat;
-    
-    x1 = zeros(SequenceLength, 1);
-    y1 = zeros(SequenceLength, 1);
-    x1(lolimit:hilimit) = dat(:,4);
-    y1(lolimit:hilimit) = dat(:,5);
-    
-    % And form the deltax and deltay lists
-    diffx1(2:end, iAOI1)= diff(x1);             % [(dx between frames)]
-    diffy1(2:end, iAOI1)= diff(y1);             % [(dy between frames)]
-
-    % Now we must zero out the dx1 and dy1 entries that
-    % are at unuseable frame numbers
-    % Remove diff outside useRange
-    lowuserange=xy_cell{iAOI1}.userange(1);
-    hiuserange=xy_cell{iAOI1}.userange(2);    
-    diffx1(1:lowuserange, iAOI1)=0;
-    diffx1(hiuserange+1:SequenceLength, iAOI1)=0;
-    diffy1(1:lowuserange, iAOI1)=0;
-    diffy1(hiuserange+1:SequenceLength, iAOI1)=0;
-
-end
-
-% initialize numerator and denominator of dx, dy
-
-% dx and dy entries from frame M represent the difference in
-% spot coordinates between the frame M-1 and M
-
-% Each entry in denominator will equal the number
-% of nonzero elements in the dx or dy cell arrays
-% so that we average only over those regions with
-% multiple tracked aois (if only one element exists
-% the denominator will be 1, and if no elements
-% exit we should be at a frame number in a range we
-% are not correcting drift)
-
-dxnum = sum(diffx1, 2);
-dynum = sum(diffy1, 2);
-dxdenom = sum(diffx1~=0, 2);
-dydenom = sum(diffy1~=0, 2);
-dx=dxnum.*dxdenom.^(-1);
-dy=dynum.*dydenom.^(-1);
-% At various places we divided by zero, resulting
-% in NaN.  We now zero out those entries
-dx(isnan(dx))=0;
-dy(isnan(dy))=0;
-% Sum the frame differences to a cumulative track
-% of the exemplary x and y coordinate drifting in
-% the file
-cumx=cumsum(dx);
-cumy=cumsum(dy);
 % Fit the cumulative traces to polynomials
 crange=CorrectionRange(1):CorrectionRange(2);
 % Note that the fit is to the time, not the frame number
@@ -215,6 +153,75 @@ pc.xy_cell=xy_cell;
 pc.vid=vid;
 pc.SequenceLentgh=SequenceLength;
 pc.CorrectionRange=CorrectionRange;
+end
 
+function [diffx, diffy] = calculateDisplacementBetweenFrames(xy_cell, SequenceLength)
+nAOIs = length(xy_cell);
 
+% First form the x1 and y1 coordinate lists for the
+% various aois
+% These will run from frame 1 out to
+% frame=SequenceLength, filling in zeros where there
+% is no coordinate tracked for that aoi
+
+diffx=zeros(SequenceLength,nAOIs);
+diffy=zeros(SequenceLength,nAOIs);
+for iAOI=1:nAOIs
+    lolimit=xy_cell{iAOI}.range(1);
+    hilimit=xy_cell{iAOI}.range(2);
+    
+    % dat=[(frm#)  ()  () (xcoor) (ycoord) ...]
+    dat=xy_cell{iAOI}.dat;
+    
+    
+    x1(lolimit:hilimit) = dat(:,4);
+    y1(lolimit:hilimit) = dat(:,5);
+    
+    % And form the deltax and deltay lists
+    diffx(2:end, iAOI)= diff(x1);             % [(dx between frames)]
+    diffy(2:end, iAOI)= diff(y1);             % [(dy between frames)]
+
+    % Now we must zero out the dx1 and dy1 entries that
+    % are at unuseable frame numbers
+    % Remove diff outside useRange
+    lowuserange=xy_cell{iAOI}.userange(1);
+    hiuserange=xy_cell{iAOI}.userange(2);    
+    diffx(1:lowuserange, iAOI)=0;
+    diffx(hiuserange+1:SequenceLength, iAOI)=0;
+    diffy(1:lowuserange, iAOI)=0;
+    diffy(hiuserange+1:SequenceLength, iAOI)=0;
+
+end
+end
+
+function cumx = calculateAverageCumulativeDisplacement(diffx1)
+% initialize numerator and denominator of dx, dy
+
+% dx and dy entries from frame M represent the difference in
+% spot coordinates between the frame M-1 and M
+
+% Each entry in denominator will equal the number
+% of nonzero elements in the dx or dy cell arrays
+% so that we average only over those regions with
+% multiple tracked aois (if only one element exists
+% the denominator will be 1, and if no elements
+% exit we should be at a frame number in a range we
+% are not correcting drift)
+
+dxnum = sum(diffx1, 2);
+
+dxdenom = sum(diffx1~=0, 2);
+
+dx=dxnum.*dxdenom.^(-1);
+
+% At various places we divided by zero, resulting
+% in NaN.  We now zero out those entries
+dx(isnan(dx))=0;
+
+% Sum the frame differences to a cumulative track
+% of the exemplary x and y coordinate drifting in
+% the file
+cumx=cumsum(dx);
+
+end
 
