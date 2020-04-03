@@ -685,32 +685,6 @@ function FrameRange_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of FrameRange as a double
 
 
-% --- Executes on button press in FitSpotxy.
-function varargout=FitSpotxy_Callback(hObject, eventdata, handles, varargin)
-%PUSHBUTTON: User pushes button in order to fit the selected spot over the designated
-% frame range with a gaussian that has adjustable sigma width for both x and y
-
-% hObject    handle to FitSpotxy (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-folder=varargin{1}
-pixnum=str2double(get(handles.PixelNumber,'String')); % Fetch the pixel number (aoi width)
-frms=eval(get(handles.FrameRange,'String')); % Fetch the frame range to fit
-
-xypt=zeros(1,2);
-xypt(1)=str2double(get(handles.Xspot,'String'));    % Fetch the center location for the AOI
-xypt(2)=str2double(get(handles.Yspot,'String'));    % (set earlier through ginput)
-argouts=gauss2dxy_seq(folder,frms,xypt,pixnum);        % Fit the spot
-% Save the data
-%save p:\matlab12\larry\data\argout.dat argouts
-eval(['save ' handles.dataDir.String 'argout.dat argouts']);
-axes(handles.axes2);
-plot(argouts(:,1),argouts(:,4),'r',argouts(:,1),argouts(:,6),'b')
-
-
-
-
-
 % --- Executes on button press in Magnify.
 function Magnify_Callback(hObject, eventdata, handles)
 % TOGGLE SWITCH: User pushes in order to magnify the display according to
