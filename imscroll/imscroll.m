@@ -549,32 +549,6 @@ disp('figure1 ResizeFcn not implemented yet.')
 % --------------------------------------------------------------------
 
 
-
-% --------------------------------------------------------------------
-function varargout = ginput_spot_Callback(h, eventdata, handles, varargin)
-%PUSHBUTTON: Allows user to input one coordinate by mouse clicking.  Right
-%click to end.
-% Stub for Callback of the uicontrol handles.ginput_spot.
-flag=0;
-while flag==0
-    [a b but]=ginput(1);
-    axes(handles.axes1)
-    xlabel(['coordinates are x=' num2str(a) 'y=' num2str(b)])
-    if but ==3
-        flag=1;
-    else
-        set(handles.Xspot,'String',num2str(a));         % Store the last clicked point
-        set(handles.Yspot,'String',num2str(b));
-    end
-end
-
-
-
-
-
-%
-
-
 % --- Executes during object creation, after setting all properties.
 function PixelNumber_CreateFcn(hObject, eventdata, handles)
 % EDITABLE TEXT:  Sets the full width of the AOI that will be fit (or
