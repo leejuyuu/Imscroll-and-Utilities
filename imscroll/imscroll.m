@@ -3,7 +3,7 @@ function varargout = imscroll(varargin)
 %    FIG = IMSCROLL launch imscroll GUI.
 %    IMSCROLL('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 30-Aug-2019 20:14:16
+% Last Modified by GUIDE v2.5 04-Apr-2020 18:12:01
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -1922,9 +1922,7 @@ function RemoveAois_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to RemoveAois (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
+
 if get(handles.ImageSource,'Value')==4
     % Here to remove AOI from aoiImageSet
     % Get the current AOI number
@@ -1946,50 +1944,27 @@ if get(handles.ImageSource,'Value')==4
     
 else
     % Here to have user click on AOIs shown in Glimpse or Tiff image
-    aoiinfo=[];
-    framenumber=str2num(get(handles.ImageNumberValue,'String'));
-    ave=round(str2double(get(handles.FrameAve,'String')));
-    pixnum=str2double(get(handles.PixelNumber,'String'));
-    flag=0;
     axes(handles.axes1)
     
-    
-    while flag==0
+    while true
         % User picking and removing spots until user right clicks
-        [a b but]=ginput(1);
-        if but==3
-            flag=1;
-        else
-            % Get the aoi number for the
-            % aoi closest to where user
-            % clicked
-            
-            num_closest=aoicompare([a b],handles);
-            
-            
-            % logical array, =1 when it
-            % matches the aoi number
-            
-            logik=(handles.FitData(:,6)==num_closest);
-            
-            handles.FitData(logik,:)=[];          % remove information for that aoi
-            % Refresh display
-            
-            handles.FitData=update_FitData_aoinum(handles.FitData);
-            guidata(gcbo,handles) ;
-            %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-            slider1_Callback(handles.ImageNumber, eventdata, handles)
-            
+        [a, b, button]=ginput(1);
+        
+        if button == 3  % mouse right click
+            break
         end
         
-        handles.FitData=[handles.FitData; aoiinfo];        % Update the existin list of aoi
-        % information so that no
-        % aoi numbers are skipped
+        % Get the aoi number for the aoi closest to where user clicked        
+        num_closest = aoicompare([a b],handles);
         
-        handles.FitData=update_FitData_aoinum(handles.FitData);
+        isClosestAOI = (handles.FitData(:,6) == num_closest);
         
+        handles.FitData(isClosestAOI,:) = [];          % remove information for that aoi
+        
+        % Refresh display
+        handles.FitData = update_FitData_aoinum(handles.FitData);
         guidata(gcbo,handles);
-        
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
     end                 % end of while
 end
 
