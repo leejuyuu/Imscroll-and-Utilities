@@ -80,7 +80,7 @@ AllSpots = FindAllSpots(imageFileProperty,...
     region,aoiProcessParameters,spotPickingParameters);
 radius = str2double(get(handles.EditUniqueRadius,'String'));
 
-new_aoiinfo = removeEmptyAOIs(handles.FitData, AllSpots, radius);
+new_aoiinfo = removeEmptyOrSpotAOIs(handles.FitData, AllSpots, radius, 'empty');
 
 verifyEqual(testCase, new_aoiinfo, correct_aoiinfo);
 close all

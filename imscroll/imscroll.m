@@ -4418,7 +4418,7 @@ switch MenuValue
             region,aoiProcessParameters,spotPickingParameters);
         radius = str2double(get(handles.EditUniqueRadius,'String'));
 
-        handles.FitData = removeEmptyAOIs(handles.FitData, AllSpots, radius);
+        handles.FitData = removeEmptyOrSpotAOIs(handles.FitData, AllSpots, radius, 'empty');
         guidata(gcbo,handles);  % Update the handle varialbes
         UpdateGraph_Callback(handles.ImageNumber, eventdata, handles);
         
