@@ -39,10 +39,13 @@ AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
 % as containing a spot by marking
 % AOIspots(N,2) = 1
 
+xyCoord = zeros(rose, 2, 1);
+xyCoord(:, :, 1) = aoiinfo2(:, 3:4);
 for indx=1:rose
     
     % Cycle through all the aois
-    AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
+    AOIspots(indx,:)=AOISpotLanding2(aoiinfo2(indx,6),radius,radius_hys, handles.AllSpots, ...
+        handles.AllSpotsLow, xyCoord);
     
 end
 % We have now found all the AOIs w/ and w/o spots and need
