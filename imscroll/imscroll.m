@@ -1481,19 +1481,10 @@ elseif argnum==8
     error('Error in Imscroll:\nDrift Correction (Driftinfo.dat) is now deprecated%s','');
     
 elseif argnum==9
-    % Here to change the jump value of the jumpVary button
-    % We will take the new value of jumpVary from the editable
-    % text written in the FrameAve editable text region
-    new_jumpVary_string=get(handles.FrameAve,'String');
-    set(handles.FrameAve,'String','1');
-    % Change the string written on the jumpVary button
-    set(handles.jumpVary,'String',new_jumpVary_string);
-    % Change the value of jumpVary so the jump will now match
-    % the value written on the button
-    new_jumpVary_value=round(str2num(new_jumpVary_string));
-    set(handles.jumpVary,'Value',new_jumpVary_value);
-    set(handles.jumpVary,'UserData',new_jumpVary_value);
-    guidata(gcbo,handles);
+    % Set variable jump
+    % Removed %%
+    error('Error in Imscroll:\nVariable jump button is now removed%s','');
+    
 elseif argnum==10
     % Generate the background AOIs
     % Get the image on which to base the AOI placement
@@ -2181,30 +2172,6 @@ end
 
 %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-
-% --- Executes on button press in jumpVary.
-function jumpVary_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to jumpVary (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
-
-valnow=get(handles.ImageNumber,'Value');    % Present value of the frame index
-jumpVary_value=get(handles.jumpVary,'UserData');
-% Change the value of the frame
-% index by jumpVary_value
-if get(handles.PlusMinus,'Value')==0
-    set(handles.ImageNumber,'Value',valnow+jumpVary_value);
-elseif get(handles.PlusMinus,'Value')==1
-    set(handles.ImageNumber,'Value',valnow-jumpVary_value);
-end
-% Call the slider subroutine that will alter the frame index
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
 
 
 function GlimpseNumber_Callback(hObject, eventdata, handles)
