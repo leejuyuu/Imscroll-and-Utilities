@@ -59,7 +59,29 @@ loaded = load('imscroll/test/test_data/removeEmptyAOI_handles.mat');
 handles = loaded.handles;
 loaded = load('imscroll/test/test_data/removeEmptyAOI_result_aoiinfo.mat');
 correct_aoiinfo = loaded.aoiinfo;
-new_aoiinfo = removeEmptyAOIs(handles);
+
+% Retrieve the value of the slider
+currentFrameNumber = get(handles.ImageNumber,'value');
+
+imagePath = getImagePathFromHandles(handles);
+imageFileProperty = getImageFileProperty(imagePath);
+aoiProcessParameters = getAoiProcessParameters(handles);
+aoiProcessParameters.frameRange = currentFrameNumber;
+spotPickingParameters = getSpotPickingParameters(handles);
+
+%  Check whether the image is magnified (restrict range for finding spots)
+if get(handles.Magnify,'Value')
+    region = eval(get(handles.MagRangeYX,'String'));
+    region = num2cell(region);
+else
+    region = {1, imageFileProperty.width, 1, imageFileProperty.height};
+end
+AllSpots = FindAllSpots(imageFileProperty,...
+    region,aoiProcessParameters,spotPickingParameters);
+radius = str2double(get(handles.EditUniqueRadius,'String'));
+
+new_aoiinfo = removeEmptyAOIs(handles.FitData, AllSpots, radius);
+
 verifyEqual(testCase, new_aoiinfo, correct_aoiinfo);
 close all
 end

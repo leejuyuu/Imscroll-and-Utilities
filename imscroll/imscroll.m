@@ -4395,7 +4395,33 @@ switch MenuValue
             MapButton_Callback(handles.MapButton, eventdata, handles) % Invoke the MapButton so that
         end                            % we make a mapping again, this time with the bad point deleted
     case 12
-        removeEmptyAOIs(handles);
+        % Store the present aoi set before removing some of them
+        handles.PreAddition = handles.FitData;
+        
+        % Retrieve the value of the slider
+        currentFrameNumber = get(handles.ImageNumber,'value');
+        
+        imagePath = getImagePathFromHandles(handles);
+        imageFileProperty = getImageFileProperty(imagePath);
+        aoiProcessParameters = getAoiProcessParameters(handles);
+        aoiProcessParameters.frameRange = currentFrameNumber;
+        spotPickingParameters = getSpotPickingParameters(handles);
+        
+        %  Check whether the image is magnified (restrict range for finding spots)
+        if get(handles.Magnify,'Value')
+            region = eval(get(handles.MagRangeYX,'String'));
+            region = num2cell(region);
+        else
+            region = {1, imageFileProperty.width, 1, imageFileProperty.height};
+        end
+        AllSpots = FindAllSpots(imageFileProperty,...
+            region,aoiProcessParameters,spotPickingParameters);
+        radius = str2double(get(handles.EditUniqueRadius,'String'));
+
+        handles.FitData = removeEmptyAOIs(handles.FitData, AllSpots, radius);
+        guidata(gcbo,handles);  % Update the handle varialbes
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles);
+        
     case 13
         % Here to remove AOIs that do not contain a
         % spot  case13
