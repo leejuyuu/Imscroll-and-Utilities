@@ -529,19 +529,18 @@ end
 set(handles.AOInum_Output,'String', int2str(maoi))
 
 % --------------------------------------------------------------------
-function varargout = ImageNumberValue_Callback(h, eventdata, handles, varargin)
+function varargout = ImageNumberValue_Callback(h, eventdata, handles)
 % EDITABLE TEXT: Displays the current frame number being displayed
 % Stub for Callback of the uicontrol handles.ImageNumberValue.
 % Here when user inputs a value to the Frame Number editable text box
 inval=get(handles.ImageNumberValue,'String');
 axes(handles.axes1);title(['input value=' inval]);
-%if inval>get(handles.ImageNumber,'Max')
-set(handles.ImageNumber,'Max',str2num(inval))    % User can set maximum frame number here
-%end
+set(handles.ImageNumber,'Max',str2double(inval))    % User can set maximum frame number here
+
 
 
 % --------------------------------------------------------------------
-function varargout = figure1_ResizeFcn(h, eventdata, handles, varargin)
+function varargout = figure1_ResizeFcn(h, eventdata, handles)
 % Stub for ResizeFcn of the figure handles.figure1.
 
 
@@ -702,7 +701,7 @@ if get(handles.Magnify,'Value')==0
 else
     set(handles.Magnify,'String','Magnified')
 end
-slider1_Callback(handles.ImageNumber, eventdata, handles)
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
 
 
@@ -839,12 +838,9 @@ function MaxIntensity_CreateFcn(hObject, eventdata, handles)
 
 % Hint: slider controls usually have a light gray background, change
 %       'usewhitebg' to 0 to use default.  See ISPC and COMPUTER.
-usewhitebg = 1;
-if usewhitebg
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-else
-    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
-end
+
+set(hObject,'BackgroundColor',[.9 .9 .9]);
+
 
 
 % --- Executes on slider movement.
