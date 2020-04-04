@@ -7,20 +7,25 @@ handles.PreAddition=handles.FitData;                % Store the present aoi set 
 % Pick Spots according to paramters set within
 % the 'Auto Spot Picking' box
 imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
-CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-% Set the frame range to current single value of image number from the slider
-set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
-CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
-CurrentSpotsButtonString=get(handles.SpotsButton,'String');
-set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-% Now execute a detection of AllSpots
-handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-% in just the current frame
-set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
-set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
-set(handles.SpotsButton,'String',CurrentSpotsButtonString);
-%SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
-%FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
+
+imagePath = getImagePathFromHandles(handles);
+
+imageFileProperty = getImageFileProperty(imagePath);
+aoiProcessParameters = getAoiProcessParameters(handles);
+aoiProcessParameters.frameRange = imagenum;
+spotPickingParameters = getSpotPickingParameters(handles);
+
+%  Check whether the image magnified (restrct range for finding spots)
+if get(handles.Magnify,'Value')
+    region = eval(get(handles.MagRangeYX,'String'));
+    region = num2cell(region);
+else
+    region = {1, imageFileProperty.width, 1, imageFileProperty.height};
+end
+AllSpots = FindAllSpots(imageFileProperty,...
+    region,aoiProcessParameters,spotPickingParameters);
+
+
 
 % Remove AOIs that do not contain a detected spot
 % Now the AllSpots structure
@@ -44,8 +49,8 @@ xyCoord(:, :, 1) = aoiinfo2(:, 3:4);
 for indx=1:rose
     
     % Cycle through all the aois
-    AOIspots(indx,:)=AOISpotLanding2(aoiinfo2(indx,6),radius,radius_hys, handles.AllSpots, ...
-        handles.AllSpotsLow, xyCoord);
+    AOIspots(indx,:)=AOISpotLanding2(aoiinfo2(indx,6),radius,radius_hys, AllSpots, ...
+        AllSpots, xyCoord);
     
 end
 % We have now found all the AOIs w/ and w/o spots and need
