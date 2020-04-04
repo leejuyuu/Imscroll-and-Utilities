@@ -52,3 +52,14 @@ verifyEqual(testCase, new_aoiinfo, a);
 
 
 end
+
+
+function testRemoveEmptyAOIs(testCase)
+loaded = load('imscroll/test/test_data/removeEmptyAOI_handles.mat');
+handles = loaded.handles;
+loaded = load('imscroll/test/test_data/removeEmptyAOI_result_aoiinfo.mat');
+correct_aoiinfo = loaded.aoiinfo;
+new_aoiinfo = removeEmptyAOIs(handles);
+verifyEqual(testCase, new_aoiinfo, correct_aoiinfo);
+close all
+end

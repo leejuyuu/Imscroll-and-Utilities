@@ -1,4 +1,4 @@
-function removeEmptyAOIs(handles)
+function new_aoiinfo = removeEmptyAOIs(handles)
 % Here to remove AOIs that do not contain a
 % spot  case12
 % Spots within radius distance
@@ -53,13 +53,13 @@ handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);
 
 
 handles.FitData=update_FitData_aoinum(handles.FitData);
-
+new_aoiinfo = handles.FitData;
 %handles.Field2=[handles.FitData;handles.Field2];
 %[rose2 col2]=size(handles.Field2);
 %handles.Field2(:,6)=[1:rose2]';
 %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
-guidata(gcbo,handles);                              % Update the handle varialbes
-slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+% guidata(gcbo,handles);                              % Update the handle varialbes
+% slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
 
 
 end
