@@ -1474,77 +1474,11 @@ elseif argnum==7
     handles.FitData=aoiinfo2;                 % Put the aoi information into present handles.FitData
     guidata(gcbo,handles);
     UpdateGraph_Callback(handles.ImageNumber, eventdata, handles);
+    
 elseif argnum==8
-    % Here for Drift
-    % correction DriftInfo.dat
-    %eval(['load ' handles.FileLocations.imscroll '\DriftInfo.dat -mat']);
-    %eval(['load ' handles.FileLocations.imscroll 'DriftInfo.dat -mat']);
-    eval(['load ' handles.FileLocations.gui_files 'DriftInfo.dat -mat']);
-    % Load file in 'imscroll' directory containing parameters
-    %DriftInfo.MaxFrames         == largest frame number in the image sequence
-    %DriftInfo.SpotNumber2Track == number of spots we will track for drifting
-    %DriftInfo.InputFrames     ==  vector listing frame numbers we will use for tracking
-    %DriftInfo.PolyOrderx     ==  Order of the polynomial we will use for
-    %                            fitting x drift (=1 or 2 typically)
-    %DriftInfo.PolyOrdery     ==  Order of the polynomial we will use for
-    %                            fitting  y drift (=1 or 2 typically)
-    
-    % see b18p11 for reference
-    
-    %dum=varargin{1};                             % Need dum, images, folder  to
-    %images=varargin{2};                          % pass to the slider1 routine
-    %folder=varargin{3};
-    inputfrms=DriftInfo.InputFrames;
-    spotnumber=DriftInfo.SpotNumber2Track;
-    maxfrm=DriftInfo.MaxFrames;
-    datt=[];                                    % Will contain the list of drifting tracked coordinates
-    for frmindxx=1:length(inputfrms)            %Loop to track spots as they drift
-        %Set the frame number to a
-        %frame number in the list
-        set(handles.ImageNumber,'Value',inputfrms(frmindxx));
-        % Change the gui image displayed
-        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
-        % Click on a number of reference spots
-        [xcoord ycoord]=ginput(spotnumber);
-        % Accumulate the xy coordinate of the average
-        % of all the reference spots
-        datt=[datt; inputfrms(frmindxx) sum(xcoord)/spotnumber sum(ycoord)/spotnumber];
-    end
-    % Now fit the drifting coordinates to a
-    % quadratic polynomial
-    fitx=polyfit(datt(:,1),datt(:,2),DriftInfo.PolyOrderX);
-    fity=polyfit(datt(:,1),datt(:,3),DriftInfo.PolyOrderY);
-    % Generate points for each frame that
-    % fit the average reference spot
-    % location
-    handles.DriftCorrectxy=datt;    % Place the collected xy points into handles
-    valuex=polyval(fitx,1:maxfrm);
-    valuey=polyval(fity,1:maxfrm);
-    % Take slope of this curve to get
-    % changes in the spot locations for
-    % each frame
-    diffx=diff(valuex);
-    diffy=diff(valuey);
-    figure(24);hold off;plot(datt(:,1),datt(:,2),'o',1:maxfrm,valuex,'r');shg
-    figure(25);hold off;plot(datt(:,1),datt(:,3),'o',1:maxfrm,valuey,'r');shg
-    % Generate driftlist that will correct
-    % drifts for all spot in the images
-    
-    driftlist=[1 0 0
-        [2:maxfrm]' diffx' diffy'];
-    handles.DriftList=driftlist;
-    handles.DriftListInput=driftlist;
-    handles.DriftListStored=driftlist;
-    
-    guidata(gcbo,handles);           % Place our new driftlist into handles
-    % Save our driftlist into a file
-    % eval(['save ' handles.FileLocations.imscroll '\DriftList.dat driftlist']);
-    % eval(['save ' handles.FileLocations.imscroll '\DriftListIntermediates.dat datt']);
-    % eval(['save ' handles.FileLocations.imscroll 'DriftList.dat driftlist']);
-    %eval(['save ' handles.FileLocations.imscroll 'DriftListIntermediates.dat datt']);
-    eval(['save ' handles.FileLocations.gui_files 'DriftList.dat driftlist']);
-    eval(['save ' handles.FileLocations.gui_files 'DriftListIntermediates.dat datt']);
+    % Drift Correction (Driftinfo.dat)
+    % Deprecated %%
+    error('Error in Imscroll:\nDrift Correction (Driftinfo.dat) is now deprecated%s','');
     
 elseif argnum==9
     % Here to change the jump value of the jumpVary button
