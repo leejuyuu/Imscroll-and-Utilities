@@ -1814,12 +1814,7 @@ else
 end
 
 
-% --- Executes on button press in AddAois.
-function AddAois_Callback(hObject, eventdata, handles)
-% hObject    handle to AddAois (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
+function aoiinfo = mouseSelectAOIs(handles)
 aoiinfo=[];
 framenumber = str2double(get(handles.ImageNumberValue,'String'));
 frameAverage = round(str2double(get(handles.FrameAve,'String')));
@@ -1853,6 +1848,16 @@ while true
     hold off
     
 end
+
+
+
+% --- Executes on button press in AddAois.
+function AddAois_Callback(hObject, eventdata, handles)
+% hObject    handle to AddAois (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+aoiinfo = mouseSelectAOIs(handles);
 % Append the new AOI list to handles.FitData, and then update the AOI
 % number sequence.
 aoiinfo = update_FitData_aoinum([handles.FitData; aoiinfo]);
