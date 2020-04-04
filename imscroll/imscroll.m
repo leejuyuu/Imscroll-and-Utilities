@@ -1323,24 +1323,31 @@ if argnum ==1                                           % load the Fit Parameter
     set(handles.FitDisplay,'String',[ num2str(fitparmvector(1,:)) '  ' num2str(fitparmvector(2,:))]);
     handles.MappingPoints=mappingpoints;
     guidata(gcbo,handles)
-elseif argnum==2                                        % load an AOI set
+elseif argnum==2
+    % Load AOI from aoifits struct
+    % Note: this loads only the AOIs before fit, not the centered AOIs
+    % after fitting!! Use centering instead.
     filestring=get(handles.OutputFilename,'String');
-    eval(['load ' handles.dataDir.String filestring ' -mat'])    % loads 'aoifits' structure from a prior
-    % fit to aois
-    
+    loaded = load([handles.dataDir.String, filestring], '-mat');
+    aoifits = loaded.aoifits;
     % Reset filename where we store or retrieve the 'aoifits' structure
     
     set(handles.OutputFilename,'String','default.dat');
     
-    [aoirows aoicol]=size(aoifits.centers);
-    onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
-    % Now substitute the AOIs into the present field
-    %[frm#       ave                 x     y             pixnum                aoinum   ]
-    handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
+    nAOIs = length(aoifits.centers(:, 1));    
     
     if isfield(aoifits,'aoiinfo2')
-        handles.FitData=aoifits.aoiinfo2;
+        aoiinfo2 = aoifits.aoiinfo2;
+    else
+        % Construct aoiinfo2 from scratch
+        aoiinfo2 = zeros(nAOIs, 6);
+        aoiinfo2(:, 1) = 1;  % frameNumber
+        aoiinfo2(:, 2) = aoifits.parameter(1);  % frameAverage
+        aoiinfo2(:, 3:4) = aoifits.centers;  % x, y coordinates
+        aoiinfo2(:, 5) = aoifits.parameter(2);  % aoiWidth
+        aoiinfo2(:, 6) = 1:nAOIs;  % aoiNumber
     end
+    handles.FitData = aoiinfo2;
     
     set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
     guidata(gcbo,handles)
