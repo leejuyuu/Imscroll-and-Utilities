@@ -543,7 +543,7 @@ set(handles.ImageNumber,'Max',str2num(inval))    % User can set maximum frame nu
 % --------------------------------------------------------------------
 function varargout = figure1_ResizeFcn(h, eventdata, handles, varargin)
 % Stub for ResizeFcn of the figure handles.figure1.
-disp('figure1 ResizeFcn not implemented yet.')
+
 
 
 % --------------------------------------------------------------------
