@@ -1453,28 +1453,27 @@ elseif argnum==5
     set(handles.PixelNumber,'String',num2str(mappingpoints(1,11)));
     guidata(gcbo,handles)
 elseif argnum==6
-    
-    
-    aoiinfo2=handles.FitData                     % Saving the aoiinfo array so that user may see
-    % the framenumber where each aoi
-    % was clicked (e.g for oligo binding and such
+    % Save AOI information
+    % Save an aoiinfo2 array in to a dat file.
+    aoiinfo2=handles.FitData;
     filestring=get(handles.OutputFilename,'String');
-    %eval(['save p:\matlab12\larry\data\' filestring ' aoiinfo2' ])
-    %eval(['save ' handles.dataDir.String '\' filestring ' aoiinfo2']);
-    eval(['save ' handles.dataDir.String filestring ' aoiinfo2']);
-    
+    save([handles.dataDir.String, filestring], 'aoiinfo2');
     set(handles.OutputFilename,'String','default.dat');
 elseif argnum==7
-    filestring=get(handles.InputParms,'String');    % Get filename from editable text region
+    % Load fitdata: marking spots
+    % Load the aoiinfo2 from a file and put it into handles.FitData
     
-    eval(['load ' handles.dataDir.String filestring ' -mat'])        % Load the aoiinfo2 variable from a prior instance
+    filestring=get(handles.InputParms,'String');    % Get filename from editable text region
+    loaded = load([handles.dataDir.String, filestring], '-mat');
+    aoiinfo2 = loaded.aoiinfo2;
+    % Load the aoiinfo2 variable from a prior instance
     % where the user marked the frm #
     % at which spots appeared.  This allows a user to
     % continue marking spots in a sequence that was
     % being processed previously
     handles.FitData=aoiinfo2;                 % Put the aoi information into present handles.FitData
     guidata(gcbo,handles);
-    slider1_Callback(handles.ImageNumber, eventdata, handles)   % Make the new AOIs appear
+    UpdateGraph_Callback(handles.ImageNumber, eventdata, handles);
 elseif argnum==8
     % Here for Drift
     % correction DriftInfo.dat
