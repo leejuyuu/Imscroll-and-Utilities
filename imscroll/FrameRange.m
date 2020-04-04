@@ -27,7 +27,7 @@ function pc=FrameRange(handles)
 set(handles.FramesPickSpots,'String','...')
 set(handles.SpotsButton,'String','...')
 pause(0.1)
-imagePath = getImagePathFromHandles(handles)
+imagePath = getImagePathFromHandles(handles);
 
 imageFileProperty = getImageFileProperty(imagePath);
 aoiProcessParameters = getAoiProcessParameters(handles);
