@@ -1825,49 +1825,43 @@ function AddAois_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 aoiinfo=[];
-framenumber=str2num(get(handles.ImageNumberValue,'String'));
-ave=round(str2double(get(handles.FrameAve,'String')));
-pixnum=str2double(get(handles.PixelNumber,'String'));
-flag=0;
+framenumber = str2double(get(handles.ImageNumberValue,'String'));
+frameAverage = round(str2double(get(handles.FrameAve,'String')));
+aoiWidth = str2double(get(handles.PixelNumber,'String'));
+
 axes(handles.axes1)
 % Get the last aoi number,
 % add one to assign next aoi number
-aoinumber=1+max(handles.FitData(:,6));
-while flag==0
-    [a b but]=ginput(1);
-    if but==3
-        flag=1;
-    else
-        aoiinfo=[aoiinfo; framenumber ave a b pixnum aoinumber];
-        aoinumber=aoinumber+1;                      %Give each aoi a number
-        axes(handles.axes1);
-        hold on
-        [maoi naoi]=size(aoiinfo);
-        for indx=maoi:maoi
-            if get(handles.FitChoice,'Value')==5
-                % == 5 if we are set to do linear interpolation with
-                % repsect to integrating partial overlap of AOIs and
-                % pixels
-                % draw boxes around all the aois, adding the XYshift to
-                % account for possible drift
-                % Here to draw boxes that fractionally overlaps pixels
-                draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
-                    (pixnum)/2,'b');
-            else
-                % Here to draw aoi boxes only at pixel boundaries
-                draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-                    (pixnum)/2,'b');
-            end
-            % draw boxes around all the aois
-            %draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-            %  (pixnum)/2,'b');
-        end
-        hold off
+
+while true
+    [x, y, button] = ginput(1);
+    if button == 3  % Break when mouse right clicked
+        break
     end
+    
+    aoiinfo = [aoiinfo; framenumber, frameAverage, x, y, aoiWidth, 0];
+    
+    hold on    
+    if get(handles.FitChoice,'Value')==5
+        % == 5 if we are set to do linear interpolation with
+        % repsect to integrating partial overlap of AOIs and
+        % pixels
+        % draw boxes around all the aois, adding the XYshift to
+        % account for possible drift
+        % Here to draw boxes that fractionally overlaps pixels
+        draw_box([x, y],(aoiWidth)/2, (aoiWidth)/2,'b');
+    else
+        % Here to draw aoi boxes only at pixel boundaries
+        draw_box_v1([x, y],(aoiWidth)/2, (aoiWidth)/2,'b');
+    end
+    hold off
+    
 end
-handles.FitData=[handles.FitData; aoiinfo];        % Add the new list onto the enc of the existing
-%in the handles structure
-guidata(gcbo,handles) ;
+% Append the new AOI list to handles.FitData, and then update the AOI
+% number sequence.
+aoiinfo = update_FitData_aoinum([handles.FitData; aoiinfo]);
+handles.FitData = aoiinfo;
+guidata(gcbo,handles);
 
 
 % --- Executes on button press in MarkFolder2SpotsToggle.
