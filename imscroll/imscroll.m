@@ -1114,48 +1114,10 @@ function CollectAOI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-aoiinfo=[];
-framenumber=str2num(get(handles.ImageNumberValue,'String'));
-ave=round(str2double(get(handles.FrameAve,'String')));
-pixnum=str2double(get(handles.PixelNumber,'String'));
-flag=0;
-axes(handles.axes1)
-aoinumber=1;
-while flag==0
-    [a b but]=ginput(1);
-    if but==3
-        flag=1;
-    else
-        aoiinfo=[aoiinfo; framenumber ave a b pixnum aoinumber];
-        aoinumber=aoinumber+1;                      %Give each aoi a number
-        axes(handles.axes1);
-        hold on
-        [maoi naoi]=size(aoiinfo);
-        for indx=maoi:maoi
-            if get(handles.FitChoice,'Value')==5
-                % == 5 if we are set to do linear interpolation with
-                % repsect to integrating partial overlap of AOIs and
-                % pixels
-                % draw boxes around all the aois, adding the XYshift to
-                % account for possible drift
-                % Here to draw boxes that fractionally overlaps pixels
-                draw_box(aoiinfo(indx,3:4),(pixnum)/2,...
-                    (pixnum)/2,'b');
-            else
-                % Here to draw aoi boxes only at pixel boundaries
-                draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-                    (pixnum)/2,'b');
-            end
-            % draw boxes around all the aois
-            %draw_box_v1(aoiinfo(indx,3:4),(pixnum)/2,...
-            %                 (pixnum)/2,'b');
-        end
-        hold off
-    end
-end
-handles.FitData=aoiinfo;                            % Store the list in the handles structure
-guidata(gcbo,handles) ;
+aoiinfo = mouseSelectAOIs(handles);
+% Refresh the AOI number sequence and store in handles.FitData
+handles.FitData = update_FitData_aoinum(aoiinfo); 
+guidata(gcbo,handles);
 
 
 % --- Executes on button press in FitAOIs.
