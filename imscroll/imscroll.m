@@ -962,7 +962,7 @@ handles.MappingPoints=fitparm.mappingpoints;
 guidata(gcbo,handles)
 
 % --- Executes on button press in GoButton.
-function GoButton_Callback(hObject, eventdata, handles,varargin)
+function GoButton_Callback(hObject, eventdata, handles)
 % hObject    handle to GoButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -1055,126 +1055,11 @@ elseif argnum==9
 elseif argnum==10
     % Generate the background AOIs
     % Get the image on which to base the AOI placement
-    avefrm=getframes_v1(handles);
-    % handles.FitData=[framenumber ave x y pixnum aoinumber];
-    [aoinumber argnumber]=size(handles.FitData);
-    % Generate large aoi for each existing AOI
-    pixnum1=handles.Pixnums(2); % Width of intermediate AOI
-    pixnum2=handles.Pixnums(3); % Width of large AOI
-    % Add column 7 to FitData (aoiinfo2) to
-    % identify which of the three aois we
-    % are dealing with
-    
-    handles.FitData=[handles.FitData(:,1:6) zeros(aoinumber,1)];
-    
-    % Create a matrix to temporarily hold
-    % new aois of
-    % size pixnum1 and pixnum2
-    aoiinfo2extra=[];
-    for indxaoi=1:aoinumber
-        aoix=handles.FitData(indxaoi,3);    % aoi x and y coord
-        aoiy=handles.FitData(indxaoi,4);
-        % Vary center of large AOI, compute its integral
-        intlist=integration_list(aoix,aoiy,pixnum1,pixnum2,avefrm);
-        % Pick the location with minimum integral
-        logik=intlist(:,3)==min(intlist(:,3));
-        % Pick median in the list
-        
-        %intlistlength=length(intlist(:,3));
-        %[Y I]=sort(intlist(:,3));
-        %logik=intlist(:,3)==intlist(I(round(intlistlength/2)),3);
-        
-        % Move the AOI to new location x y
-        %**handles.FitData(indxaoi,3:4)=intlist(logik,1:2);
-        % Set size of AOI to match Pixnum2 value for large aoi
-        %**handles.FitData(indxaoi,5)=pixnum2;
-        %
-        
-        % Make entry for aoi of size pixnum2
-        pixnum2Entry=handles.FitData(indxaoi,:);
-        % Column 7 will contain the original aoi#
-        pixnum2Entry(1,7)=pixnum2Entry(1,6);
-        % AOI size will equal pixnum2=Pixnums(3)
-        pixnum2Entry(1,5)=pixnum2;
-        % Place the aoi according to th above
-        % minimization protocol (median, or min)
-        Ix=find(logik,1);   % The 'logik' is true for the xy position with minimum integral, but
-        % it is possible to get more than one
-        % locaion with the same integral.
-        % Since we only want one location, we just grab the first xy location
-        % in the list having the minimum integral.
-        pixnum2Entry(3:4)=intlist(Ix,1:2);
-        %pixnum2Entry(3:4)=intlist(logik,1:2);
-        
-        % Make entry for aoi of size pixnum1
-        pixnum1Entry=handles.FitData(indxaoi,:);
-        % column 7 will contain the original aoi #
-        pixnum1Entry(1,7)=pixnum1Entry(1,6);
-        % AOI size will equal pixnum1=Pixnums(2);
-        
-        % Make entry for original aoi
-        pixnumOrigEntry=handles.FitData(indxaoi,:);
-        % Column 7 will contain the original aoi #
-        pixnumOrigEntry(1,7)=pixnumOrigEntry(1,6);
-        % AOI size will equal Pixnums(1)
-        pixnumOrigEntry(1,5)=handles.Pixnums(1);
-        % Now add the extra AOIs to our list
-        pixnum1Entry(1,5)=pixnum1;
-        
-        aoiinfo2extra=[aoiinfo2extra
-            pixnumOrigEntry
-            pixnum1Entry
-            pixnum2Entry];
-        
-        
-        
-    end
-    % update the list of AOIs to include all three
-    % sizes
-    
-    handles.FitData=aoiinfo2extra;
-    % update the aoi numbers in the list (column 6)
-    handles.FitData=update_FitData_aoinum(handles.FitData);
-    
-    % Write AOI width in pixnum field of gui
-    set(handles.PixelNumber,'String',num2str(pixnum2));
-    % Once all aois are generated, rewrite field of aois
-    guidata(gcbo,handles);
-    slider1_Callback(handles.ImageNumber, eventdata, handles)
+    error('Error in Imscroll:\nCreate background AOIs is now removed%s','');
 elseif argnum==11                                        % load an AOI set
     % and recenter the aois with the gaussian
     % fit centers from a single frame fit
-    filestring=get(handles.OutputFilename,'String');
-    % Load aoifits from same directory where
-    % we store it
-    eval(['load ' handles.dataDir.String filestring ' -mat']);
-    %eval(['load ' filestring ' -mat'])              % loads 'aoifits' structure from a prior
-    % fit to aois
-    % Reset filename where we store or retrieve the 'aoifits' structure
-    %keyboard
-    set(handles.OutputFilename,'String','default.dat');
-    
-    %[aoirows aoicol]=size(aoifits.centers);
-    %onecol=ones(aoirows,1);                            % column of ones (length= # of aois)
-    % Now substitute the AOIs into the present field
-    %[frm#       ave                 x     y             pixnum                aoinum   ]
-    %handles.FitData=[onecol aoifits.parameter(1)*onecol aoifits.centers aoifits.parameter(2)*onecol [1:aoirows]'];
-    handles.FitData=aoifits.aoiinfo2;                  % Replace the current aoiinfo2
-    % data set with that from aoifits
-    % (they are likely the same)
-    
-    %handles.FitData(:,3:4)=aoifits.data(:,4:5)+1;   % Replace the center positions
-    % with the gaussian fit centers
-    [AOInum col]=size(handles.FitData);    % AOInum will be the number of AOIs
-    handles.FitData(:,3:4)=aoifits.data(1:AOInum,4:5);    % Drop the +1 after our change in
-    % gauss2d_mapstruc_v2.m line 64 for the
-    % pc.ImageData= definition
-    % Also save the frame number from the Gaussian fit
-    handles.FitData(:,1)=aoifits.data(1,2);
-    handles.FitData(:,2)=aoifits.parameter(1);     % match 'ave' with Gaussian fit data
-    set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
-    guidata(gcbo,handles)
-    slider1_Callback(handles.ImageNumber, eventdata, handles)
+    Centering_Callback(hObject, eventdata, handles);
 elseif argnum==12
     % Here to shadow map the aois from field 1 to field 2
     % This will place just a visual copy (not added to aoi list)of
@@ -1296,8 +1181,7 @@ elseif argnum==13
                 (pixnum)/2,'y');
         end
     end
-elseif argnum==14
-    
+
     
 end
 
@@ -1317,6 +1201,8 @@ function FitDisplay_Callback(hObject, eventdata, handles)
 display_fitparms=( ['[ ' get(handles.FitDisplay,'String') ' ]' ]);
 
 set(handles.FitDisplay,'UserData',str2num(display_fitparms)');
+
+
 % --- Executes during object creation, after setting all properties.
 function FitDisplay_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to FitDisplay (see GCBO)
