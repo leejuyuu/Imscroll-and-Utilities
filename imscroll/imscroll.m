@@ -76,32 +76,17 @@ if nargin <= 1  % LAUNCH GUI
             set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
             
         end
-        if isfield(foldstruc,'gfolder2')
-            handles.gfolder2=foldstruc.gfolder2;        % The path to the second glimpse folder (for mapping, (maybe) defined by
-            eval(['load ' foldstruc.gfolder2 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader2=vid;            
-            handles.GlimpseMax=2;
-            
+        for i = 2:5
+            gfolderStr = sprintf('gfolder%d', i);
+            if isfield(foldstruc, gfolderStr)
+                handles.(gfolderStr) = foldstruc.(gfolderStr);
+                header = load([foldstruc.(gfolderStr), 'header.mat']);
+                handles.(sprintf('gheader%d', i)) = header.vid;
+            else
+                handles.GlimpseMax = i - 1;
+                break
+            end
         end
-        if isfield(foldstruc,'gfolder3')
-            handles.gfolder3=foldstruc.gfolder3;        % The path to the second glimpse folder (for mapping, (maybe) defined by
-            eval(['load ' foldstruc.gfolder3 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader3=vid;            
-            handles.GlimpseMax=3;
-        end
-        if isfield(foldstruc,'gfolder4')
-            handles.gfolder4=foldstruc.gfolder4;        % The path to the second glimpse folder (for mapping, (maybe) defined by
-            eval(['load ' foldstruc.gfolder4 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader4=vid;            
-            handles.GlimpseMax=4;
-        end
-        if isfield(foldstruc,'gfolder5')
-            handles.gfolder5=foldstruc.gfolder5;        % The path to the second glimpse folder (for mapping, (maybe) defined by
-            eval(['load ' foldstruc.gfolder5 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader5=vid;            
-            handles.GlimpseMax=5;
-        end
-        
         
         if isfield(foldstruc,'folder')
             handles.TiffMax=1;
@@ -112,25 +97,17 @@ if nargin <= 1  % LAUNCH GUI
             handles.TiffFolder=[];                  % We will have a handles.TiffFolder regardless of whether the user
             % inputs a foldstruc.folder arguement (formerly picked up from command mode)
         end
-        if isfield(foldstruc,'folder2')
-            handles.TiffMax=2;
-            handles.TiffFolder2=foldstruc.folder2;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-        else
-            handles.TiffFolder2=[];                 % We will always have a handles.TiffFolder2 regardless of input, use as folder2 replacement
-            % formerly picked up from command mode
+        for i = 2:5
+            folderStr = sprintf('folder%d', i);
+            tiffFolderStr = sprintf('TiffFolder%d', i);
+            if isfield(foldstruc, folderStr)
+                handles.(tiffFolderStr) = foldstruc.(folderStr);
+            else
+                handles.TiffMax = i - 1;
+                break
+            end
         end
-        if isfield(foldstruc,'folder3')
-            handles.TiffMax=3;
-            handles.TiffFolder3=foldstruc.folder3;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-        end
-        if isfield(foldstruc,'folder4')
-            handles.TiffMax=4;
-            handles.TiffFolder4=foldstruc.folder4;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-        end
-        if isfield(foldstruc,'folder5')
-            handles.TiffMax=5;
-            handles.TiffFolder5=foldstruc.folder5;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-        end
+        
         if isfield(foldstruc,'images')
             handles.images=foldstruc.images;        % array of images already stored in RAM
             
@@ -216,6 +193,7 @@ if nargin <= 1  % LAUNCH GUI
     %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
     %     mapping:'p:\matlab12\larry\fig-files\imscroll'
     handles.FileLocations=loaded.FileLocations;
+    FileLocations = loaded.FileLocations;
     
     set(handles.dataDir,'String', FileLocations.data)
     % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings
