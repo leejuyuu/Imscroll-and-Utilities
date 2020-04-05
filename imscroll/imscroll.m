@@ -3896,18 +3896,17 @@ switch MenuValue
         fitparmvector=mp.fitparmvector;
         aoiinfo2_1=handles.Field1;      % Mapping point list
         aoiinfo2_2=handles.Field2;
-        mappingpointlist=[handles.Field1 handles.Field2];
+        mappingpointlist=[handles.Field1, handles.Field2];
         %size(mappingpointlist)
-        [rosenow colnow]=size(aoiinfo2_1);
+        [rosenow, ~]=size(aoiinfo2_1);
         
         mapped2=zeros(rosenow,2);
         for indx=1:rosenow
-            % Prox map each aoiinfo2_1 point to field 2
-            %mapped2(indx,:)=proximity_mapping_v1(handles.MappingPoints,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
+            % Prox map each aoiinfo2_1 point to field 2            
             mapped2(indx,:)=proximity_mapping_v1(mappingpointlist,aoiinfo2_1(indx,3:4),15,fitparmvector,2);
         end
-        %keyboard
-        [rose coll]=size(aoiinfo2_2);
+        
+        [rose, ~]=size(aoiinfo2_2);
         figure(21);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,3)-mapped2(:,1),'o');shg
         xlabel('gaussian fit x2 coordinate');ylabel('gaussian-proxmapped x2 coordinate');title(['std = ' num2str(std(aoiinfo2_2(:,3)-mapped2(:,1))) 'mean = ' num2str(mean(aoiinfo2_2(:,3)-mapped2(:,1))) ' length=' num2str(rose)]);
         figure(22);plot(aoiinfo2_2(:,4),aoiinfo2_2(:,4)-mapped2(:,2),'o');shg
@@ -3915,49 +3914,44 @@ switch MenuValue
         figure(23);plot(aoiinfo2_2(:,3),aoiinfo2_2(:,4),'o');shg
         xlabel('gaussian x2 coordinate');ylabel('gaussian y2 coordinate');
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     case 5
         % Here to restore the AOI set that was present just before adding another AOI set to it
         handles.FitData=handles.PreAddition;
         guidata(gcbo,handles);
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % Update the image
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)   % Update the image
     case 6
-        % Here to import a map: Use the field1 and field2
-        % aois in the map to define field1 and field2
-        [fn fp]=uigetfile('*.*','Import a mapping file');      % Promt user for filename
-        eval( ['load ' [fp fn]  ' -mat'] );                         % Load the fitparmvector and mappingpoints
-        handles.Field1=mappingpoints(:,1:6);                        % Assign field 1 of the mapping points
-        handles.Field2=mappingpoints(:,7:12);                       % Assign field 2 of the mapping points
-        handles.Field1=update_FitData_aoinum(handles.Field1);       % Update the numbering of the AOIs in the map
-        handles.Field2=update_FitData_aoinum(handles.Field2);
+        % Import the mapping points from a fitParm file into field1 and field2
+        [fn, fp] = uigetfile('*.dat', 'Import a mapping file');
+        fitparm = load([fp, fn],  '-mat');
+        % Assign field1 and field2 from the loaded mappingpoints variable
+        handles.Field1 = fitparm.mappingpoints(:,1:6);
+        handles.Field2 = fitparm.mappingpoints(:,7:12);
+        % Update AOI number sequence
+        handles.Field1 = update_FitData_aoinum(handles.Field1);
+        handles.Field2 = update_FitData_aoinum(handles.Field2);
         guidata(gcbo,handles);
     case 7
-        % Here to add the current aois to Field1
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set
-        handles.Field1=[handles.FitData;handles.Field1];
-        [rose1 col1]=size(handles.Field1);
-        handles.Field1(:,6)=[1:rose1]';
-        handles.FitData=handles.Field1;                     % Place the summed aoi sets also into current FitData
-        guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+        % Add the current aois to Field1
+        
+        % Store the present aoi set before adding with another set
+        handles.PreAddition = handles.FitData;
+        handles.Field1 = [handles.FitData;handles.Field1];
+        handles.Field1 = update_FitData_aoinum(handles.Field1);
+        handles.FitData = handles.Field1;
+        guidata(gcbo,handles);
+        % Showing user the summed AOI set
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
     case 8
-        % Here to add the current aois to Field2
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before adding with another set
-        handles.Field2=[handles.FitData;handles.Field2];
-        [rose2 col2]=size(handles.Field2);
-        handles.Field2(:,6)=[1:rose2]';
-        handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
-        guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+        % Add the current aois to Field2
+        
+        % Store the present aoi set before adding with another set
+        handles.PreAddition = handles.FitData;
+        handles.Field2 = [handles.FitData; handles.Field2];
+        handles.Field2 = update_FitData_aoinum(handles.Field2);
+        handles.FitData = handles.Field2;
+        guidata(gcbo, handles);
+        % Showing user the summed AOI set
+        UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
     case 9
         % Here to remove Close AOIs
         % Grab radius off of editable text region
