@@ -1569,7 +1569,7 @@ function GlimpseNumber_Callback(hObject, eventdata, handles)
 % insure that a folder exists for the number entered
 sourcenum=get(handles.ImageSource,'Value');
 
-if (sourcenum==4)&(get(handles.MagChoice,'Value')==13)
+if (sourcenum==4)&&(get(handles.MagChoice,'Value')==13)
     % Here if ImageSource value is 4, so the aoiImageSet must exist
     % Also MagChoice is 13 so we display only calibration images
     % near to the chosen AOI.  We use the AOI displayed in the
@@ -1584,66 +1584,46 @@ if (sourcenum==4)&(get(handles.MagChoice,'Value')==13)
 end
 if sourcenum==3
     % here for glimpse files
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
+    presentnum=str2double(get(handles.GlimpseNumber,'String'));
     if presentnum>handles.GlimpseMax
         presentnum=handles.GlimpseMax;
     elseif presentnum<1
         presentnum=1;
     end
     set(handles.GlimpseNumber,'String',num2str(presentnum));
-    switch str2num(get(handles.GlimpseNumber,'String'))
-        case 1
-            handles.gfolder=handles.gfolder1;
-            handles.gheader=handles.gheader1;
-        case 2
-            handles.gfolder=handles.gfolder2;
-            handles.gheader=handles.gheader2;
-        case 3
-            handles.gfolder=handles.gfolder3;
-            handles.gheader=handles.gheader3;
-        case 4
-            handles.gfolder=handles.gfolder4;
-            handles.gheader=handles.gheader4;
-        case 5
-            handles.gfolder=handles.gfolder5;
-            handles.gheader=handles.gheader5;
-    end
+    gfolderStr = sprintf('gfolder%d', presentnum);
+    gheaderStr = sprintf('gheader%d', presentnum);
+    handles.gfolder=handles.(gfolderStr);
+    handles.gheader=handles.(gheaderStr);
+    
     gname=handles.gfolder;
     lengthgname=length(gname);
     set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
     handles.imageInfo = getImageInfo(handles.gfolder,3);
     set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrames))
-    guidata(gcbo,handles);
+    
     
 end
 if sourcenum==1
     % here for using tiff files
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
+    presentnum=str2double(get(handles.GlimpseNumber,'String'));
     if presentnum>handles.TiffMax
         presentnum=handles.TiffMax;
     elseif presentnum<1
         presentnum=1;
     end
     set(handles.GlimpseNumber,'String',num2str(presentnum));
-    switch str2num(get(handles.GlimpseNumber,'String'))
-        case 1
-            handles.TiffFolder=handles.TiffFolder1;
-        case 2
-            handles.TiffFolder=handles.TiffFolder2;
-        case 3
-            handles.TiffFolder=handles.TiffFolder3;
-        case 4
-            handles.TiffFolder=handles.TiffFolder4;
-        case 5
-            handles.TiffFolder=handles.TiffFolder5;
-    end
+    tiffFolderStr = sprintf('TiffFolder%d', presentnum);
+    handles.TiffFolder=handles.(tiffFolderStr);
+    
     tiffname=handles.TiffFolder;
     lengthtiffname=length(tiffname);
     set(handles.GlimpseFolderName,'String',tiffname(lengthtiffname-14:lengthtiffname));
     handles.imageInfo = getImageInfo(handles.TiffFolder,1);
     set(handles.nFrameDisplay,'String', int2str(handles.imageInfo.nFrames))
-    guidata(gcbo,handles);
 end
+guidata(gcbo,handles);
+UpdateGraph_Callback(hObject, eventdata, handles);
 
 
 
@@ -1667,44 +1647,16 @@ function IncreaseGlimpseNumber_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Get the current glimpse folder number
-sourcenum=get(handles.ImageSource,'Value');
-if sourcenum==3
-    % here for using glimpse file
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
-    if presentnum < handles.GlimpseMax
-        % If we are not at the max glimpse folder
-        % number, then increase it
-        presentnum=presentnum+1;
-        % Update the text showing glimpse folder #
-        set(handles.GlimpseNumber,'String',num2str(presentnum));
-    end
-    % Invoke callback to update the glimpse folder
-    % number used in displaying the images
-    GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
-end
-if sourcenum==1
-    % here for using tiff file
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
-    if presentnum < handles.TiffMax
-        % If we are not at the max glimpse folder
-        % number, then increase it
-        presentnum=presentnum+1;
-        % Update the text showing glimpse folder #
-        set(handles.GlimpseNumber,'String',num2str(presentnum));
-    end
-    % Invoke callback to update the glimpse folder
-    % number used in displaying the images
-    GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
-end
-if sourcenum==4
-    presentnum=str2num(get(handles.GlimpseNumber,'String'));
-    presentnum=presentnum+1;
-    % Update the text showing number (in this case
-    % the nearest calibration image number)
-    set(handles.GlimpseNumber,'String',num2str(presentnum));
-    % Invoke callback to display nearest calibration image
-    GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
-end
+
+currentImageSet = str2double(get(handles.GlimpseNumber,'String'));
+currentImageSet = currentImageSet + 1;
+% Update the text showing image set number
+set(handles.GlimpseNumber,'String', num2str(currentImageSet));
+
+% Invoke callback to update the glimpse folder number used in displaying the 
+% images
+GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
+
 
 % --- Executes on button press in DecreaseGlimpseNumber.
 function DecreaseGlimpseNumber_Callback(hObject, eventdata, handles)
@@ -1712,16 +1664,13 @@ function DecreaseGlimpseNumber_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-presentnum=str2num(get(handles.GlimpseNumber,'String'));
-if presentnum > 1
-    % If we are not at the min glimpse folder
-    % number, then decrease it
-    presentnum=presentnum-1;
-    % Update the text showing glimpse folder #
-    set(handles.GlimpseNumber,'String',num2str(presentnum));
-end
-% Invoke callback to update the glimpse folder
-% number used in displaying the images
+currentImageSet = str2double(get(handles.GlimpseNumber,'String'));
+currentImageSet = currentImageSet - 1;
+% Update the text showing image set number
+set(handles.GlimpseNumber,'String', num2str(currentImageSet));
+
+% Invoke callback to update the glimpse folder number used in displaying the 
+% images
 GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 
 
