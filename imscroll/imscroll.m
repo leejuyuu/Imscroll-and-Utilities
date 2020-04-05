@@ -258,6 +258,7 @@ if nargin <= 1  % LAUNCH GUI
     % 'Remove AOIs Near AOIs
     set(handles.ImageSource,'Value',3)
     guidata(fig, handles);
+    UpdateGraph_Callback(handles.ImageNumber, 0, handles)
     
     if nargout > 0
         varargout{1} = fig;
