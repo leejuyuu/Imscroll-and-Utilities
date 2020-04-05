@@ -338,7 +338,7 @@ set(handles.ImageNumber,'Max',str2double(inval))    % User can set maximum frame
 
 
 % --- Executes during object creation, after setting all properties.
-function PixelNumber_CreateFcn(hObject, eventdata, handles)
+function PixelNumber_CreateFcn(hObject, ~, ~)
 % EDITABLE TEXT:  Sets the full width of the AOI that will be fit (or
 % displayed when a mesh plot is asked for)
 % hObject    handle to PixelNumber (see GCBO)
@@ -355,7 +355,7 @@ end
 
 
 % --- Executes on button press in PlotContent.
-function PlotContent_Callback(hObject, eventdata, handles)
+function PlotContent_Callback(~, ~, handles)
 % TOGGLE SWITCH: User presses to switch between image (grayscale) and mesh
 % plot of the AOI
 % hObject    handle to PlotContent (see GCBO)
@@ -371,7 +371,7 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function Xspot_CreateFcn(hObject, eventdata, handles)
+function Xspot_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: Displays the x coordinate of the selected spot (center of
 %the AOI that will be gaussian fit or displayed as a mesh plot)
 % hObject    handle to Xspot (see GCBO)
@@ -389,7 +389,7 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function Yspot_CreateFcn(hObject, eventdata, handles)
+function Yspot_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: Displays the y coordinate of the selected spot (center of
 %the AOI that will be gaussian fit or displayed as a mesh plot)
 
@@ -407,7 +407,7 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function FrameRange_CreateFcn(hObject, eventdata, handles)
+function FrameRange_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: Displays the range of frames that will be fit with the
 %gaussian function
 % hObject    handle to FrameRange (see GCBO)
@@ -424,7 +424,7 @@ end
 
 
 % --- Executes on button press in Magnify.
-function Magnify_Callback(hObject, eventdata, handles)
+function Magnify_Callback(~, eventdata, handles)
 % TOGGLE SWITCH: User pushes in order to magnify the display according to
 % the pixel range set in the editable text box labeled 'Magnify Range' on
 % the display (has MagRangeXY handle)
@@ -445,7 +445,7 @@ UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes during object creation, after setting all properties.
-function MagRangeYX_CreateFcn(hObject, eventdata, handles)
+function MagRangeYX_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: User specifies the pixel range that will be displayed
 %whenever the (full screen)/Magnify toggle switch is pressed
 % hObject    handle to MagRangeYX (see GCBO)
@@ -462,7 +462,7 @@ end
 
 
 
-function MagRangeYX_Callback(hObject, eventdata, handles)
+function MagRangeYX_Callback(~, eventdata, handles)
 %EDITABLE TEXT: User specifies the pixel range that will be displayed
 %whenever the (full screen)/Magnify toggle switch is pressed
 % hObject    handle to MagRangeYX (see GCBO)
@@ -502,7 +502,7 @@ slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes during object creation, after setting all properties.
-function FrameAve_CreateFcn(hObject, eventdata, handles)
+function FrameAve_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: User specifies the number of frames that will be averaged
 %for the purpose of the display
 % hObject    handle to FrameAve (see GCBO)
@@ -519,7 +519,7 @@ end
 
 
 % --- Executes on button press in ImageScale.
-function ImageScale_Callback(hObject, eventdata, handles)
+function ImageScale_Callback(~, ~, handles)
 %TOGGLE BUTTON: press to manually scale the image intensity
 % hObject    handle to ImageScale (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -539,7 +539,7 @@ end
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over ImageScale.
-function ImageScale_ButtonDownFcn(hObject, eventdata, handles)
+function ImageScale_ButtonDownFcn(~, eventdata, handles)
 %TOGGLE BUTTON: press to manually scale the image intensity
 % hObject    handle to ImageScale (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -4712,7 +4712,7 @@ UpdateGraph_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in changeDataDirButton.
-function changeDataDirButton_Callback(hObject, eventdata, handles)
+function changeDataDirButton_Callback(~, ~, handles)
 % hObject    handle to changeDataDirButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
