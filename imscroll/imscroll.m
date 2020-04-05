@@ -67,11 +67,8 @@ if nargin <= 1  % LAUNCH GUI
             handles.gheader=vid;
             handles.gheader1=vid;
             handles.MaxFrames=vid.nframes;               % Get number of frames in the file from vid structure
-            dum=uint32(glimpse_image(handles.gfolder,vid,1));
-            handles.DumGfolder=dum-dum;             % zeroed array the same size as the images
-            handles.DumGfolder1=dum-dum;
+            
             handles.GlimpseMax=1;
-            %handles.Dum=handles.DumGfolder;          % Will be used as replacement for 'dum' variable formerly
             % picked up from command mode
             gname=handles.gfolder;
             lengthgname=length(gname);
@@ -82,34 +79,26 @@ if nargin <= 1  % LAUNCH GUI
         if isfield(foldstruc,'gfolder2');
             handles.gfolder2=foldstruc.gfolder2;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder2 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader2=vid;
-            dum=uint32(glimpse_image(handles.gfolder2,vid,1));
-            handles.DumGfolder2=dum-dum;             % zeroed array the same size as the images
+            handles.gheader2=vid;            
             handles.GlimpseMax=2;
             
         end
         if isfield(foldstruc,'gfolder3');
             handles.gfolder3=foldstruc.gfolder3;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder3 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader3=vid;
-            dum=uint32(glimpse_image(handles.gfolder3,vid,1));
-            handles.DumGfolder3=dum-dum;             % zeroed array the same size as the images
+            handles.gheader3=vid;            
             handles.GlimpseMax=3;
         end
         if isfield(foldstruc,'gfolder4');
             handles.gfolder4=foldstruc.gfolder4;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder4 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader4=vid;
-            dum=uint32(glimpse_image(handles.gfolder4,vid,1));
-            handles.DumGfolder4=dum-dum;             % zeroed array the same size as the images
+            handles.gheader4=vid;            
             handles.GlimpseMax=4;
         end
         if isfield(foldstruc,'gfolder5');
             handles.gfolder5=foldstruc.gfolder5;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder5 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
-            handles.gheader5=vid;
-            dum=uint32(glimpse_image(handles.gfolder5,vid,1));
-            handles.DumGfolder5=dum-dum;             % zeroed array the same size as the images
+            handles.gheader5=vid;            
             handles.GlimpseMax=5;
         end
         
@@ -118,10 +107,6 @@ if nargin <= 1  % LAUNCH GUI
             handles.TiffMax=1;
             handles.TiffFolder=foldstruc.folder;      % Will replace the 'folder' arguement formerly picked up from command mode
             handles.TiffFolder1=foldstruc.folder;   % The path to the tiff file, (maybe) defined by user in command mode
-            dum=uint32(imread(handles.TiffFolder, 'tif', 1));
-            handles.DumTiffFolder=dum-dum;             % zeroed array the same size as the images
-            
-            handles.DumTiffFolder1=dum-dum;
             
         else
             handles.TiffFolder=[];                  % We will have a handles.TiffFolder regardless of whether the user
@@ -130,9 +115,6 @@ if nargin <= 1  % LAUNCH GUI
         if isfield(foldstruc,'folder2')
             handles.TiffMax=2;
             handles.TiffFolder2=foldstruc.folder2;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-            dum=uint32(imread(handles.TiffFolder2, 'tif', 1));
-            handles.DumTiffFolder2=dum-dum;              % zeroed array the same size as the images
-            
         else
             handles.TiffFolder2=[];                 % We will always have a handles.TiffFolder2 regardless of input, use as folder2 replacement
             % formerly picked up from command mode
@@ -140,41 +122,28 @@ if nargin <= 1  % LAUNCH GUI
         if isfield(foldstruc,'folder3')
             handles.TiffMax=3;
             handles.TiffFolder3=foldstruc.folder3;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-            dum=uint32(imread(handles.TiffFolder3, 'tif', 1));
-            handles.DumTiffFolder3=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'folder4')
             handles.TiffMax=4;
             handles.TiffFolder4=foldstruc.folder4;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-            dum=uint32(imread(handles.TiffFolder4, 'tif', 1));
-            handles.DumTiffFolder4=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'folder5')
             handles.TiffMax=5;
             handles.TiffFolder5=foldstruc.folder5;   % The path to the tiff file #2 (for mapping), (maybe) defined by user in command mode
-            dum=uint32(imread(handles.TiffFolder5, 'tif', 1));
-            handles.DumTiffFolder5=dum-dum;              % zeroed array the same size as the images
         end
         if isfield(foldstruc,'images')
             handles.images=foldstruc.images;        % array of images already stored in RAM
-            dum=uint32(handles.images(:,:,1));
-            handles.DumImages=dum-dum;               % zeroed array the same size as the images
-            handles.Dum=handles.DumImages;           % Will be used as replacement for 'dum' variable formerly picked up
+            
             % from command mode
         else
             handles.images=[];                  % We will have a handles.images even if the user does NOT input a foldstruc.images arguement
-            handles.Dum=[];                         % We also have a handles.Dum from above
             
         end
         if isfield(foldstruc,'images2')
             handles.images2=foldstruc.images2;        % array of images already stored in RAM
-            dum2=uint32(handles.images2(:,:,1));
-            handles.DumImages2=dum2-dum2;               % zeroed array the same size as the images2
-            handles.Dum2=handles.DumImages2;           % Will be used as replacement for 'dum2' variable formerly picked up
             % from command mode
         else
             handles.images2=[];                  % We will have a handles.images2 even if the user does NOT input a foldstruc.images arguement
-            handles.Dum2=[];                                     % We also always have a handles.Dum2 from above (from foldstruc.gfolder2 above)
             
             
         end
@@ -290,7 +259,7 @@ if nargin <= 1  % LAUNCH GUI
     % AllSpots{m,1}= [x y] list of spots, {m,2}= # of spots in list, {m,3}= frame#
     % {1,4}=vector of all frame numbers stored in this cell array
     % Holds the AllSpots with a high threshold for spot detection
-    handles.AllSpots.AllSpotsCellsDescription='{m,1}= [x y] list of spots in frm m, {m,2}= # of spots in list, {m,3}= frame#]';
+    handles.AllSpots.AllSpotsCellsDescription='{m,1}= [x y] list of spots in frm m, {m,2}= # of spots in list, {m,3}= frame#';
     handles.AllSpots.FrameVector=[];         % Vector of frames whose spots are stored in AllSpotsCells
     handles.AllSpots.Parameters=[ 1 5 50];  % [NoiseDiameter  SpotDiameter  SpotBrightness] used for picking spots
     handles.AllSpots.ParametersDescripton='[NoiseDiameter  SpotDiameter  SpotBrightness] used for picking spots';
@@ -946,11 +915,7 @@ function FitChoice_Callback(hObject, eventdata, handles,varargin)
 
 % --- Executes on button press in CollectAOI.
 
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 if get(handles.FitChoice,'Value')==7
     set(handles.SigmaValueString,'Visible','on')
     set(handles.SigmaLabel,'Visible','on')
@@ -1029,14 +994,10 @@ function StartParameters_Callback(hObject, eventdata, handles,varargin)
 
 % Hints: contents = get(hObject,'String') returns StartParameters contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from StartParameters
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 argnum=get(handles.StartParameters,'Value');
 switch argnum
     case 1
         % Here if we are not using drift correction
-        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 2
         % Here if we measured the drift in field # 1 or # 2 and we
@@ -1044,7 +1005,6 @@ switch argnum
         % the drift was measured
         handles.DriftList=handles.DriftListInput;
         guidata(gcbo,handles);
-        % slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 3
         % Here if we measured the drift in field # 1 but we are now
@@ -1064,7 +1024,6 @@ switch argnum
         dy2=f21*dx1 + f22*dy1;
         handles.DriftList=[handles.DriftListInput(:,1) dx2 dy2];
         guidata(gcbo,handles);
-        %        slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     case 4
         % Here if we measured the drift in field # 2 but we are now
@@ -1089,7 +1048,6 @@ switch argnum
         dy1=denom*(-f21)*dx2 + denom*f11*dy2;
         handles.DriftList=[handles.DriftListInput(:,1) dx1 dy1];
         guidata(gcbo,handles);
-        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
 end
 
@@ -1212,7 +1170,6 @@ elseif argnum==9
 elseif argnum==10
     % Generate the background AOIs
     % Get the image on which to base the AOI placement
-    %avefrm=getframes(dum,images,folder,handles);
     avefrm=getframes_v1(handles);
     % handles.FitData=[framenumber ave x y pixnum aoinumber];
     [aoinumber argnumber]=size(handles.FitData);
@@ -1298,7 +1255,6 @@ elseif argnum==10
     set(handles.PixelNumber,'String',num2str(pixnum2));
     % Once all aois are generated, rewrite field of aois
     guidata(gcbo,handles);
-    %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
     slider1_Callback(handles.ImageNumber, eventdata, handles)
 elseif argnum==11                                        % load an AOI set
     % and recenter the aois with the gaussian
@@ -1333,7 +1289,6 @@ elseif argnum==11                                        % load an AOI set
     handles.FitData(:,2)=aoifits.parameter(1);     % match 'ave' with Gaussian fit data
     set(handles.PixelNumber,'String',num2str(aoifits.parameter(2)));
     guidata(gcbo,handles)
-    %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder
     slider1_Callback(handles.ImageNumber, eventdata, handles)
 elseif argnum==12
     % Here to shadow map the aois from field 1 to field 2
@@ -1600,10 +1555,6 @@ function MarkFolder2SpotsToggle_Callback(hObject, eventdata, handles,varargin)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of MarkFolder2SpotsToggle
-%dum=varargin{3};
-%images=varargin{4};
-%folder1=varargin{1};
-%folder2=varargin{2};
 
 folder1=handles.TiffFolder;
 folder2=handles.TiffFolder2;
@@ -1637,7 +1588,6 @@ end
 userdat=get(handles.ImageNumber,'UserData');
 set(handles.ImageNumber,'value',userdat);
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes on button press in RemoveAois.
@@ -1786,9 +1736,6 @@ function jump1000_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to jump1000 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
     set(handles.ImageNumber,'Value',valnow+1000);
@@ -1796,7 +1743,6 @@ elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-1000);
 end
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -1819,9 +1765,6 @@ function jump100_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to jump100 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
     set(handles.ImageNumber,'Value',valnow+100);
@@ -1829,7 +1772,6 @@ elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-100);
 end
 
-%   slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -1839,9 +1781,6 @@ function jump10_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to jump10 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
     set(handles.ImageNumber,'Value',valnow+10);
@@ -1849,7 +1788,6 @@ elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-10);
 end
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -1858,9 +1796,6 @@ function jump1_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to jump1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 valnow=get(handles.ImageNumber,'Value');
 if get(handles.PlusMinus,'Value')==0
     set(handles.ImageNumber,'Value',valnow+1);
@@ -1868,7 +1803,6 @@ elseif get(handles.PlusMinus,'Value')==1
     set(handles.ImageNumber,'Value',valnow-1);
 end
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -1909,28 +1843,18 @@ if sourcenum==3
         case 1
             handles.gfolder=handles.gfolder1;
             handles.gheader=handles.gheader1;
-            handles.DumGfolder=handles.DumGfolder1;
-            %handles.Dum=handles.DumGfolder1;
         case 2
             handles.gfolder=handles.gfolder2;
             handles.gheader=handles.gheader2;
-            handles.DumGfolder=handles.DumGfolder2;
-            %handles.Dum=handles.DumGfolder2;
         case 3
             handles.gfolder=handles.gfolder3;
             handles.gheader=handles.gheader3;
-            handles.DumGfolder=handles.DumGfolder3;
-            %handles.Dum=handles.DumGfolder3;
         case 4
             handles.gfolder=handles.gfolder4;
             handles.gheader=handles.gheader4;
-            handles.DumGfolder=handles.DumGfolder4;
-            %handles.Dum=handles.DumGfolder4;
         case 5
             handles.gfolder=handles.gfolder5;
             handles.gheader=handles.gheader5;
-            handles.DumGfolder=handles.DumGfolder5;
-            %handles.Dum=handles.DumGfolder5;
     end
     gname=handles.gfolder;
     lengthgname=length(gname);
@@ -1952,24 +1876,14 @@ if sourcenum==1
     switch str2num(get(handles.GlimpseNumber,'String'))
         case 1
             handles.TiffFolder=handles.TiffFolder1;
-            handles.DumTiffFolder=handles.DumTiffFolder1;
-            %handles.Dum=handles.DumTiffFolder1;
         case 2
             handles.TiffFolder=handles.TiffFolder2;
-            handles.DumTiffFolder=handles.DumTiffFolder2;
-            %handles.Dum=handles.DumTiffFolder2;
         case 3
             handles.TiffFolder=handles.TiffFolder3;
-            handles.DumTiffFolder=handles.DumTiffFolder3;
-            %handles.Dum=handles.DumTiffFolder3;
         case 4
             handles.TiffFolder=handles.TiffFolder4;
-            handles.DumTiffFolder=handles.DumTiffFolder4;
-            %handles.Dum=handles.DumTiffFolder4;
         case 5
             handles.TiffFolder=handles.TiffFolder5;
-            handles.DumTiffFolder=handles.DumTiffFolder5;
-            %handles.Dum=handles.DumTiffFolder5;
     end
     tiffname=handles.TiffFolder;
     lengthtiffname=length(tiffname);
@@ -2089,9 +2003,6 @@ function MoveAoi_Callback(hObject, eventdata, handles,varargin)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Move the AOI closest to the mouse picked position to that position
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 [rosed col_danny]=size(handles.FitData);
 aoiinfo=[];
 framenumber=str2num(get(handles.ImageNumberValue,'String'));
@@ -2133,7 +2044,6 @@ while flag==0
         % Update the handles structure
         
         guidata(gcbo,handles);
-        %slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
         slider1_Callback(handles.ImageNumber, eventdata, handles)
     end
 end
@@ -2220,7 +2130,7 @@ if (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')~=13)
     % Write the Image Properties as well: Bkgnd Xmean Ymean X2moment Y2moment
     %text(1,3,['bk/xy/x2y2:' BkInt '  ' Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
     text(1,3,['xy/x2y2:   '  Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
-    %{M}.aoiinfo2_output =[frm#  1  newx  newy  pixnum  aoi#] provides the
+    % {M}.aoiinfo2_output =[frm#  1  newx  newy  pixnum  aoi#] provides the
     aoicoordinates=handles.aoiImageSet.centeredImage{aoinumber}.aoiinfo2_output(3:4);
     text(aoicoordinates(1),aoicoordinates(2),'x','Color','y')
 elseif   (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')==13)
@@ -2513,9 +2423,6 @@ function BackgroundChoice_Callback(hObject, eventdata, handles,varargin)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of BackgroundChoice
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 % Make + and - controls visible for Radius if we
 % are looking at background
 if any(get(handles.BackgroundChoice,'Value')==[2 3])
@@ -2558,7 +2465,6 @@ else
 end
 guidata(gcbo,handles);
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -2571,13 +2477,9 @@ function EditRollingBallRadius_Callback(hObject, eventdata, handles,varargin)
 % Hints: get(hObject,'String') returns contents of EditRollingBallRadius as text
 %        str2double(get(hObject,'String')) returns contents of EditRollingBallRadius as a double
 
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallRadius=str2num(get(handles.EditRollingBallRadius,'String'));
 guidata(gcbo,handles);
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -2599,30 +2501,22 @@ function IncrementRollingBallRadius_Callback(hObject, eventdata, handles,varargi
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallRadius=round(handles.RollingBallRadius+1);
 set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
 guidata(gcbo,handles);
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 % --- Executes on button press in DecrementRollingBallRadius.
 function DecrementRollingBallRadius_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to DecrementRollingBallRadius (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallRadius=round(handles.RollingBallRadius-1);
 if handles.RollingBallRadius<1
     handles.RollingBallRadius=1;
 end
 set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
 guidata(gcbo,handles);
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
@@ -2634,14 +2528,10 @@ function EditRollingBallHeight_Callback(hObject, eventdata, handles,varargin)
 
 % Hints: get(hObject,'String') returns contents of EditRollingBallHeight as text
 %        str2double(get(hObject,'String')) returns contents of EditRollingBallHeight as a double
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallHeight=str2num(get(handles.EditRollingBallHeight,'String'));
 guidata(gcbo,handles);
 
 
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -2662,13 +2552,9 @@ function IncrementRollingBallHeight_Callback(hObject, eventdata, handles,varargi
 % hObject    handle to IncrementRollingBallHeight (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallHeight=round(handles.RollingBallHeight+1);
 set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
 guidata(gcbo,handles);
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes on button press in DecrementRollingBallHeight.
@@ -2676,16 +2562,12 @@ function DecrementRollingBallHeight_Callback(hObject, eventdata, handles,varargi
 % hObject    handle to DecrementRollingBallHeight (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 handles.RollingBallHeight=round(handles.RollingBallHeight-1);
 if handles.RollingBallHeight<1
     handles.RollingBallHeight=1;
 end
 set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
 guidata(gcbo,handles);
-%slider1_Callback(handles.ImageNumber, eventdata, handles, dum,images,folder)
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
