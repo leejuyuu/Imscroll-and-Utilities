@@ -337,15 +337,6 @@ set(handles.ImageNumber,'Max',str2double(inval))    % User can set maximum frame
 
 
 
-% --------------------------------------------------------------------
-function varargout = figure1_ResizeFcn(h, eventdata, handles)
-% Stub for ResizeFcn of the figure handles.figure1.
-
-
-
-% --------------------------------------------------------------------
-
-
 % --- Executes during object creation, after setting all properties.
 function PixelNumber_CreateFcn(hObject, eventdata, handles)
 % EDITABLE TEXT:  Sets the full width of the AOI that will be fit (or
@@ -361,19 +352,6 @@ if ispc
 else
     set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
 end
-
-
-
-function PixelNumber_Callback(hObject, eventdata, handles)
-% EDITABLE TEXT:  Sets the full width of the AOI that will be fit (or
-% displayed when a mesh plot is asked for)
-
-% hObject    handle to PixelNumber (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of PixelNumber as text
-%        str2double(get(hObject,'String')) returns contents of PixelNumber as a double
 
 
 % --- Executes on button press in PlotContent.
@@ -409,17 +387,6 @@ else
 end
 
 
-function Xspot_Callback(hObject, eventdata, handles)
-%EDITABLE TEXT: Displays the x coordinate of the selected spot (center of
-%the AOI that will be gaussian fit or displayed as a mesh plot)
-
-% hObject    handle to Xspot (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of Xspot as text
-%        str2double(get(hObject,'String')) returns contents of Xspot as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function Yspot_CreateFcn(hObject, eventdata, handles)
@@ -439,19 +406,6 @@ else
 end
 
 
-
-function Yspot_Callback(hObject, eventdata, handles)
-%EDITABLE TEXT: Displays the y coordinate of the selected spot (center of
-%the AOI that will be gaussian fit or displayed as a mesh plot)
-
-% hObject    handle to Yspot (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of Yspot as text
-%        str2double(get(hObject,'String')) returns contents of Yspot as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function FrameRange_CreateFcn(hObject, eventdata, handles)
 %EDITABLE TEXT: Displays the range of frames that will be fit with the
@@ -467,19 +421,6 @@ if ispc
 else
     set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
 end
-
-
-
-function FrameRange_Callback(hObject, eventdata, handles)
-%EDITABLE TEXT: Displays the range of frames that will be fit with the
-%gaussian function
-
-% hObject    handle to FrameRange (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of FrameRange as text
-%        str2double(get(hObject,'String')) returns contents of FrameRange as a double
 
 
 % --- Executes on button press in Magnify.
@@ -577,19 +518,6 @@ else
 end
 
 
-
-function FrameAve_Callback(hObject, eventdata, handles)
-%EDITABLE TEXT: User specifies the number of frames that will be averaged
-%for the purpose of the display
-
-% hObject    handle to FrameAve (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of FrameAve as text
-%        str2double(get(hObject,'String')) returns contents of FrameAve as a double
-
-
 % --- Executes on button press in ImageScale.
 function ImageScale_Callback(hObject, eventdata, handles)
 %TOGGLE BUTTON: press to manually scale the image intensity
@@ -662,6 +590,7 @@ axes(handles.axes1);
 caxis([clowval chival]);                            % changes the current display to match
 % the new hi/lo intensity settings
 
+
 % --- Executes during object creation, after setting all properties.
 function MaxScale_CreateFcn(hObject, eventdata, handles)
 %EDITABLE TEXT;  Value of the highest intensity displayed
@@ -714,17 +643,6 @@ if ispc
 else
     set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
 end
-
-
-
-function MinScale_Callback(hObject, eventdata, handles)
-%EDITABLE TEXT;  Value of the lowest intensity displayed
-% hObject    handle to MinScale (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of MinScale as text
-%        str2double(get(hObject,'String')) returns contents of MinScale as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -936,16 +854,6 @@ if ispc
 else
     set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
 end
-
-
-
-function OutputFilename_Callback(hObject, eventdata, handles)
-% hObject    handle to OutputFilename (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of OutputFilename as text
-%        str2double(get(hObject,'String')) returns contents of OutputFilename as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1424,16 +1332,6 @@ else
 end
 
 
-
-function InputParms_Callback(hObject, eventdata, handles)
-% hObject    handle to InputParms (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of InputParms as text
-%        str2double(get(hObject,'String')) returns contents of InputParms as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function InputParms_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to InputParms (see GCBO)
@@ -1447,16 +1345,6 @@ if ispc
 else
     set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
 end
-
-
-% --- Executes on selection change in ButtonChoice.
-function ButtonChoice_Callback(hObject, eventdata, handles)
-% hObject    handle to ButtonChoice (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns ButtonChoice contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from ButtonChoice
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1949,15 +1837,6 @@ end
 % number used in displaying the images
 GlimpseNumber_Callback(handles.GlimpseNumber, eventdata, handles)
 
-
-
-function GlimpseFolderName_Callback(hObject, eventdata, handles)
-% hObject    handle to GlimpseFolderName (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of GlimpseFolderName as text
-%        str2double(get(hObject,'String')) returns contents of GlimpseFolderName as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -2831,23 +2710,6 @@ end
 
 
 
-
-% --- Executes on scroll wheel click while the figure is in focus.
-function figure1_WindowScrollWheelFcn(hObject, eventdata, handles)
-% hObject    handle to figure1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in ProximityMappingToggle.
-function ProximityMappingToggle_Callback(hObject, eventdata, handles)
-% hObject    handle to ProximityMappingToggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ProximityMappingToggle
-
-
 % --- Executes on button press in MapSpots.
 function MapSpots_Callback(hObject, eventdata, handles)
 % hObject    handle to MapSpots (see GCBO)
@@ -3145,25 +3007,6 @@ if round(pixnum)>1
     pixnum=round(pixnum-1);                     % decrease by 1 only if pixnum >=2
 end
 set(handles.PixelNumber,'String',num2str(pixnum))   % Write new number
-
-
-% --- Executes on button press in TrackAOIs.
-function TrackAOIs_Callback(hObject, eventdata, handles)
-% hObject    handle to TrackAOIs (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of TrackAOIs
-
-
-
-function SigmaValueString_Callback(hObject, eventdata, handles)
-% hObject    handle to SigmaValueString (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of SigmaValueString as text
-%        str2double(get(hObject,'String')) returns contents of SigmaValueString as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -4095,18 +3938,6 @@ switch MenuValue
 end                                         % End of switch
 
 
-
-
-
-function EditUniqueRadius_Callback(hObject, eventdata, handles)
-% hObject    handle to EditUniqueRadius (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditUniqueRadius as text
-%        str2double(get(hObject,'String')) returns contents of EditUniqueRadius as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function EditUniqueRadius_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to EditUniqueRadius (see GCBO)
@@ -4419,14 +4250,6 @@ PG8_S=get(handles.PresetGo8,'String');
 set(handles.ImageNumber,'value',str2num(PG8_S))
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
-function EditUniqueRadiusX_Callback(hObject, eventdata, handles)
-% hObject    handle to EditUniqueRadiusX (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditUniqueRadiusX as text
-%        str2double(get(hObject,'String')) returns contents of EditUniqueRadiusX as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function EditUniqueRadiusX_CreateFcn(hObject, eventdata, handles)
@@ -4499,25 +4322,6 @@ else
 end
 
 
-
-function EditUniqueRadiusXLo_Callback(hObject, eventdata, handles)
-% hObject    handle to EditUniqueRadiusXLo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditUniqueRadiusXLo as text
-%        str2double(get(hObject,'String')) returns contents of EditUniqueRadiusXLo as a double
-
-% Impose that RadiusX and RadiusXlo are same sign
-%RadiusX=str2num(get(handles.EditUniqueRadiusX,'String'));
-%srX=sign(RadiusX);
-%RadiusXLo=str2num(get(handles.EditUniqueRadiusXLo,'String'));
-%srXLo=sign(RadiusXLo);
-%if srX~=srXLo
-%    RadiusXLo=-RadiusXLo;
-%    set(handles.EditUniqueRadiusXLo,'String',num2str(RadiusXLo))
-%end
-
 % --- Executes during object creation, after setting all properties.
 function EditUniqueRadiusXLo_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to EditUniqueRadiusXLo (see GCBO)
@@ -4529,16 +4333,6 @@ function EditUniqueRadiusXLo_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-function EditUniqueRadiusLo_Callback(hObject, eventdata, handles)
-% hObject    handle to EditUniqueRadiusLo (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditUniqueRadiusLo as text
-%        str2double(get(hObject,'String')) returns contents of EditUniqueRadiusLo as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -4660,16 +4454,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in ImageClass.
-function ImageClass_Callback(hObject, eventdata, handles)
-% hObject    handle to ImageClass (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns ImageClass contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from ImageClass
-
-
 % --- Executes during object creation, after setting all properties.
 function ImageClass_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to ImageClass (see GCBO)
@@ -4759,25 +4543,6 @@ if FPC_Value<5
     set(handles.FramePresetChoice,'Value',FPC_Value+1)
     FramePresetChoice_Callback(handles.FramePresetChoice, eventdata, handles)
 end
-
-
-% --- Executes on button press in BackgroundAOIs.
-function BackgroundAOIs_Callback(hObject, eventdata, handles)
-% hObject    handle to BackgroundAOIs (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of BackgroundAOIs
-
-
-
-function Filter_Callback(hObject, eventdata, handles)
-% hObject    handle to Filter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of Filter as text
-%        str2double(get(hObject,'String')) returns contents of Filter as a double
 
 
 % --- Executes during object creation, after setting all properties.
