@@ -40,24 +40,10 @@ function pc=proximity_mapping_v1(mappingpoints,xyin,numpoints,fitparmvector0,out
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-[nMappingPoints, ~]=size(mappingpoints);
-if nMappingPoints < numpoints
-    % If the number of points in mappingpoints is smaller than numpoints,
-    % we use the entire mappingpoints array
-    numpoints = nMappingPoints;
-end
-if outfield==1
-    % Here if our output field is field 1 (xyin is from field2)
-    % Calculate distances from field2 points:
-    distance=( mappingpoints(:,9)-xyin(1) ).^2 + (mappingpoints(:,10)-xyin(2) ).^2;
-elseif outfield==2
-    % Here if our output field is field 2 (xyin is from field1)
-    % Calculate distances from field1 points:
-    distance=( mappingpoints(:,3)-xyin(1) ).^2 + (mappingpoints(:,4)-xyin(2) ).^2;
-end
-[~, I]=sort(distance);
-% Just keep a number 'numpoints' of points closest to xyin
-mappingpoints_subset=mappingpoints(I(1:numpoints),:);
+
+mappingpoints_subset = selectClosest_N_MappingPoints(...
+    numpoints, mappingpoints, xyin, outfield);
+
 % At this point the mappingpoints_subset list contains those points we
 % will use for mapping xyin to the output field.  Regarless of the
 % value of outfield we form the fitparmvector with the standard
@@ -110,14 +96,13 @@ if outfield ==1
     % Next, obtain the fitting for the y coordinate
     % Form a cell array, first member is a
     % matrix of the x2y2 pairs
-
+    
     % second member is a vector of the output
     % y1 points
     inarray{2} = mappingpoints_subset(:,4);
     % Input guess is [myx12 myy12 by] with
     % from invmapmat above
     fitparmy12=mappingfit(inarray,invmapmat(2,:));
-    
     
     
     
@@ -129,12 +114,33 @@ elseif outfield ==2
     % field #2 e.g. x1 -> x2
     % (output is x2y2  coordinates)
     % Now map to the x2
-   
+    
     pc(1)=mappingfunc(fitparmx21',xyin);
     % Now map to the y2
-   
+    
     pc(2)=mappingfunc(fitparmy21',xyin);
+    
 end
 end
 
+function mappingpoints_subset = selectClosest_N_MappingPoints(numpoints, mappingpoints, xyin, outfield)
+[nMappingPoints, ~]=size(mappingpoints);
+if nMappingPoints < numpoints
+    % If the number of points in mappingpoints is smaller than numpoints,
+    % we use the entire mappingpoints array
+    numpoints = nMappingPoints;
+end
+if outfield==1
+    % Here if our output field is field 1 (xyin is from field2)
+    % Calculate distances from field2 points:
+    distance=( mappingpoints(:,9)-xyin(1) ).^2 + (mappingpoints(:,10)-xyin(2) ).^2;
+elseif outfield==2
+    % Here if our output field is field 2 (xyin is from field1)
+    % Calculate distances from field1 points:
+    distance=( mappingpoints(:,3)-xyin(1) ).^2 + (mappingpoints(:,4)-xyin(2) ).^2;
+end
+[~, I]=sort(distance);
+% Just keep a number 'numpoints' of points closest to xyin
+mappingpoints_subset=mappingpoints(I(1:numpoints),:);
+end
 
