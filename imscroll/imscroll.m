@@ -1259,28 +1259,27 @@ else
 end
 
 
+function writeFitparmToHandles(fitparm, handles)
+fitparmvector = fitparm.fitparmvector;
+set(handles.FitDisplay,'UserData',fitparmvector)
+set(handles.FitDisplay,'String',[ num2str(fitparmvector(1,:)) '  ' num2str(fitparmvector(2,:))]);
+handles.MappingPoints=fitparm.mappingpoints;
+guidata(gcbo,handles)
+
 % --- Executes on button press in GoButton.
 function GoButton_Callback(hObject, eventdata, handles,varargin)
 % hObject    handle to GoButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 argnum=get(handles.ButtonChoice,'Value');
-%dum=varargin{1};
-%images=varargin{2};
-%folder=varargin{3};
 if argnum ==1                                           % load the Fit Parameters for mapping
-    
     filestring=get(handles.InputParms,'String');
-    
-    load(['./data/mapping/', filestring], '-mat')
+    fitparm = load(['./data/mapping/', filestring], '-mat');
     % loads 'fitparmvector', 2x3
     % [mxx21 mxy21 bx21; myx21 myy21 by21]'
     % and mappingpoints =
     % [frm#1   ave1  x1  y1  pixnum1  aoinum1   frm#2  ave2 x2 y2 pixnum2 aoinum2]
-    set(handles.FitDisplay,'UserData',fitparmvector)    %
-    set(handles.FitDisplay,'String',[ num2str(fitparmvector(1,:)) '  ' num2str(fitparmvector(2,:))]);
-    handles.MappingPoints=mappingpoints;
-    guidata(gcbo,handles)
+    writeFitparmToHandles(fitparm, handles)
 elseif argnum==2
     % Load AOI from aoifits struct
     % Note: this loads only the AOIs before fit, not the centered AOIs
@@ -3884,22 +3883,17 @@ switch MenuValue
         filename=[handles.FileLocations.mapping 'FitParms.dat'];
         mp=MakeMappingFile(handles.Field1, handles.Field2, filename);
         % Save the two aoi lists in field1 and field2
-        aoiinfo2=handles.Field1;        %[frm  ave  x  y  pixnum  aoi#]
-        
-        eval(['save ' handles.FileLocations.mapping 'field1.dat aoiinfo2'])
+        aoiinfo2=handles.Field1;        
+        save([handles.FileLocations.mapping, 'field1.dat'], 'aoiinfo2');
         aoiinfo2=handles.Field2;
-        eval(['save ' handles.FileLocations.mapping 'field2.dat aoiinfo2'])
-        % Load the new mapping file into imscroll
-        set(handles.ButtonChoice,'Value',1)     % Set ButtonChoice to 'Load Fitparms
-        set(handles.InputParms,'String','FitParms.dat');    % Input filename set to newly made mapping file
-        guidata(gcbo,handles);
-        GoButton_Callback(handles.GoButton, eventdata, handles) % Invoke the GoButton so that
-        % the new mapping file is loaded
+        save([handles.FileLocations.mapping, 'field2.dat'], 'aoiinfo2');
         
+        % Load the new mapping file into imscroll
+        writeFitparmToHandles(mp, handles);
         
         % Now make plots that enable user to tell if any points in mapping list are bad
         % Map 1-->2 and compare the proxmapped locations in 2 to the original x2y2 list
-        fitparmvector=get(handles.FitDisplay,'UserData');
+        fitparmvector=mp.fitparmvector;
         aoiinfo2_1=handles.Field1;      % Mapping point list
         aoiinfo2_2=handles.Field2;
         mappingpointlist=[handles.Field1 handles.Field2];
