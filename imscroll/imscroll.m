@@ -365,53 +365,19 @@ end
 
 
 % --------------------------------------------------------------------
-function varargout = slider1_Callback(h, eventdata, handles,varargin)
+function slider1_Callback(~, eventdata, handles)
 % SLIDER SWITCH: Controls the frame number being displayed
 % Stub for Callback of the uicontrol handles.slider1.
-disableDefaultInteractivity(handles.axes1);
-imagenum = get(handles.ImageNumber,'value');        % Retrieve the value of the slider
-val = round(imagenum);
 
-userdat = get(handles.ImageNumber,'UserData');      % userdata contains last value of slider
+% Retrieve the value of the slider
+newFrameNumber = round(get(handles.ImageNumber,'value'));
 
-% handles.CurrentField should be [1:100000] at this point
+% Reset UserData to reflect newest value
+set(handles.ImageNumber,'UserData',newFrameNumber)
+% Force slider value to reflect current frame#
+set(handles.ImageNumber,'value',newFrameNumber)
 
-% Ilast will be the element index of
-% handles.CurrentField that corresponds to the last
-% value of the slider,  Icurrent the index of the
-% current frame value of the slider
-[~, Ilast] = min(abs(handles.CurrentField-userdat));
-[~, Icurrent] = min(abs(handles.CurrentField-val));
-
-if imagenum>userdat                                      % userdata contains last value of slider
-    
-    
-    if Icurrent-Ilast <1
-        Icurrent=Icurrent+1;                              % Must increment frame index by at least 1
-        % Check for max limit
-        Icurrent=min(Icurrent,length(handles.CurrentField));
-        val=handles.CurrentField(Icurrent);
-    end
-elseif imagenum < userdat
-    
-    if Ilast-Icurrent <1
-        Icurrent=Icurrent-1;                              % Must decrement frame index by at least 1
-        Icurrent=max(Icurrent,1);       % Check for min limit
-        val=handles.CurrentField(Icurrent);
-    end
-end
-
-%val=round(val);
-[~, I] = min(abs(handles.CurrentField-val));       % Find the index I of the element of handles.CurrentField
-% that is closest to the frame number
-val=handles.CurrentField(I);            % Current slider value will now be an element of the restrictive
-% set of frames listed in
-% handles.CurrentField
-set(handles.ImageNumber,'UserData',val) % Reset UserData to reflect newest value
-set(handles.ImageNumber,'value',val)    % Force slider value to reflect current frame#
-
-
-set(handles.ImageNumberValue,'String',num2str(val ) );
+set(handles.ImageNumberValue,'String',num2str(newFrameNumber));
 UpdateGraph_Callback(handles.ImageNumber, eventdata, handles);
 
 % --------------------------------------------------------------------
