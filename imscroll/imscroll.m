@@ -3653,29 +3653,7 @@ switch MenuValue
         set(handles.EditUniqueRadius,'String',num2str(UniqueRadius));
     case 13
         set(handles.MapButton,'String','Remove MTXY AOIs')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset and class controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
+        
     case 14
         set(handles.MapButton,'String','Remove Spot AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -3687,29 +3665,7 @@ switch MenuValue
         
     case 15
         set(handles.MapButton,'String','Remove SpotXY AOIs')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
+        
     case 16
         set(handles.MapButton,'String','Define aoiImageSet')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -4171,84 +4127,7 @@ switch MenuValue
         % spot  case13
         % Spots within X distance radiusX and
         % Y distance radiusY
-        % see AOISpotLandingXY(  )
-        
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-        % Pick Spots according to paramters set within
-        % the 'Auto Spot Picking' box
-        imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
-        CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-        % Set the frame range to current single value of image number from the slider
-        set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
-        CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
-        CurrentSpotsButtonString=get(handles.SpotsButton,'String');
-        set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-        % Now execute a detection of AllSpots
-        handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-        % in just the current frame
-        set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
-        set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
-        set(handles.SpotsButton,'String',CurrentSpotsButtonString);
-        %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
-        %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-        
-        % Remove AOIs that do not contain a detected spot
-        % Now the AllSpots structure
-        % contains a list of all spots in the current
-        % frame.  We next want to remove all the current
-        % AOIs that do not contain one of these spots
-        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
-        %        radius=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to  be retained
-        radiusY=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max  Y pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to  be retained
-        % see
-        % AOISpotLandingXY
-        radiusX=str2num(get(handles.EditUniqueRadiusX,'String'));     % Use as max X pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to be retained
-        % see AOISpotLandingXY(  )
-        radiusXLo = str2num(get(handles.EditUniqueRadiusXLo,'String'));     % Use as min  X pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to  be retained
-        % see
-        % AOISpotLandingXY
-        radiusYLo =str2num(get(handles.EditUniqueRadiusLo,'String'));     % Use as min Y pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to be retained
-        % see AOISpotLandingXY(  )
-        radius_hys = 1;     % A multiplicative constant not used here
-        aoiinfo2=handles.FitData;       % Contains list of current AOIs
-        % [framenumber ave x y pixnum aoinumber];
-        [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
-        % as containing a spot by marking
-        % AOIspots(N,2) = 1
-        
-        for indx=1:rose
-            
-            % Cycle through all the aois
-            %            AOIspots(indx,:)=AOISpotLanding(aoiinfo2(indx,6),radius,handles,aoiinfo2,radius_hys);
-            AOIspots(indx,:)=AOISpotLandingXY(aoiinfo2(indx,6),radiusX, radiusY , radiusXLo, radiusYLo, handles,aoiinfo2,radius_hys);
-            
-        end
-        % We have now found all the AOIs w/ and w/o spots and need
-        % to remove those AOIs without spots
-        % Keep only those rows i for which AOIspots(i,2) = 1
-        handles.FitData=handles.FitData(logical(AOIspots(:,2)),:);
-        
-        
-        
-        handles.FitData=update_FitData_aoinum(handles.FitData);
-        
-        %handles.Field2=[handles.FitData;handles.Field2];
-        %[rose2 col2]=size(handles.Field2);
-        %handles.Field2(:,6)=[1:rose2]';
-        %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
-        guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+        error('Error in imscroll:\nRemove MTXY AOIs is now removed%s', '');
     case 14
         % Remove AOIs that contain a spot
         
@@ -4283,83 +4162,7 @@ switch MenuValue
         % specified the X and Y range
         % Here to remove AOIs that contain a
         % spot  case14
-        
-        handles.PreAddition=handles.FitData;                % Store the present aoi set before removing some of them
-        % Pick Spots according to paramters set within
-        % the 'Auto Spot Picking' box
-        imagenum=get(handles.ImageNumber,'value');        % Retrieve the value of the slider
-        CurrentFrameRange=get(handles.FrameRange,'String');  % Fetch current frame range
-        % Set the frame range to current single value of image number from the slider
-        set(handles.FrameRange,'String',['[' num2str(imagenum) ']'])
-        CurrentSpotsPopup=get(handles.SpotsPopup,'Value');  % Fetch current value of SpotsPopup dropdown menu
-        CurrentSpotsButtonString=get(handles.SpotsButton,'String');
-        set(handles.SpotsPopup,'Value',2)          % Set to 'FrameRange'
-        % Now execute a detection of AllSpots
-        handles=FrameRange(handles);    % Invokes the Frame Range choice of finding AllSpots
-        % in just the current frame
-        set(handles.FrameRange,'String',CurrentFrameRange)  % Returns the editable text handles.FrameRange to prior string
-        set(handles.SpotsPopup,'Value',CurrentSpotsPopup);
-        set(handles.SpotsButton,'String',CurrentSpotsButtonString);
-        %SpotsButton_Callback(handles.SpotsButton, eventdata, handles)
-        %FramesPickSpots_Callback(handles.FramesPickSpots, eventdata, handles)
-        
-        % Remove AOIs that do not contain a detected spot
-        % Now the AllSpots structure
-        % contains a list of all spots in the current
-        % frame.  We next want to remove all the current
-        % AOIs that do not contain one of these spots
-        %  AOISpotLanding(AOInum,radius,handles,aoiinfo2,radius_hys)
-        
-        radiusY=str2num(get(handles.EditUniqueRadius,'String'));     % Use as max  Y pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to  be retained
-        % see
-        % AOISpotLandingXY
-        radiusX=str2num(get(handles.EditUniqueRadiusX,'String'));     % Use as max X pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to be retained
-        % see AOISpotLandingXY(  )
-        radiusXLo = str2num(get(handles.EditUniqueRadiusXLo,'String'));     % Use as min  Y pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to  be retained
-        % see
-        % AOISpotLandingXY
-        radiusYLo =str2num(get(handles.EditUniqueRadiusLo,'String'));     % Use as min X pixel distance to a spot.
-        % A spot must be this close to an AOI center
-        % for that AOI to be retained
-        % see AOISpotLandingXY(  )
-        radius_hys = 1;     % A multiplicative constant not used here
-        % radiusX and radiusXlo must be the same sign
-        % radiusY and radiusYlo must be the same sign
-        aoiinfo2=handles.FitData;       % Contains list of current AOIs
-        % [framenumber ave x y pixnum aoinumber];
-        [rose col]=size(aoiinfo2);  % rose = number of AOIs currently
-        AOIspots=zeros(rose,2);     % We will denote the AOI spot number N
-        % as containing a spot by marking
-        % AOIspots(N,2) = 1
-        
-        for indx=1:rose
-            
-            % Cycle through all the aois
-            AOIspots(indx,:)=AOISpotLandingXY(aoiinfo2(indx,6),radiusX, radiusY, radiusXLo, radiusYLo ,handles,aoiinfo2,radius_hys);
-            
-        end
-        % We have now found all the AOIs w/ and w/o spots and need
-        % to remove those AOIs without spots
-        % Keep only those rows i for which
-        % AOIspots(i,2) = 0
-        handles.FitData=handles.FitData(~logical(AOIspots(:,2)),:);
-        
-        
-        
-        handles.FitData=update_FitData_aoinum(handles.FitData);
-        
-        %handles.Field2=[handles.FitData;handles.Field2];
-        %[rose2 col2]=size(handles.Field2);
-        %handles.Field2(:,6)=[1:rose2]';
-        %handles.FitData=handles.Field2;                     % Place the summed aoi sets also into current FitData
-        guidata(gcbo,handles);                              % Update the handle varialbes
-        slider1_Callback(handles.ImageNumber, eventdata, handles)   % And show the user the updated summed aoiset
+        error('Error in imscroll:\nRemove Spot XY AOIs is now removed%s', '');
     case 16
         % Define aoiImageSet
         % Here to create an aoiImageSet as examples of a
