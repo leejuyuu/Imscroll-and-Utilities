@@ -203,9 +203,7 @@ if nargin <= 1  % LAUNCH GUI
     % Different set of presets in each row
     eval(['load ' handles.FileLocations.gui_files 'FilterListCell.dat -mat'])   % Load list of filter names in a cell array
     handles.FilterListCell=FilterListCell;      % e.g. handles.FilterListCell{4}='633 LP'
-    % Different set of presets in each row
-    handles.aoiinfo2Cell=aoiinfo2Cell;
-    handles.FitData=aoiinfo2Cell{1};
+    
     handles.MappingPoints=[];                % Points used to map the two fields (gathered in 'mapping' gui)
     % =[framenumber1 ave1 x1pt y1pt pixnum1 aoinumber framenumber2 ave2 x2pt y2pt pixnum2 aoinumber]
     handles.Time1=[];
