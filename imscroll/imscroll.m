@@ -57,9 +57,9 @@ if nargin <= 1  % LAUNCH GUI
     % 100000 (should be enough)
     
     
-    
-    if exist('foldstruc')                   % if foldstruc is defined, put its members into the handles structrue
-        if isfield(foldstruc,'gfolder');
+    % if foldstruc is defined, put its members into the handles structrue
+    if exist('foldstruc', 'var')
+        if isfield(foldstruc,'gfolder')
             
             handles.gfolder=foldstruc.gfolder;        % The path to the glimpse folder, (maybe) defined by user in command mode
             handles.gfolder1=foldstruc.gfolder;      % Storing gfolder as gfolder1 so we can switch between gfolders
@@ -76,26 +76,26 @@ if nargin <= 1  % LAUNCH GUI
             set(handles.GlimpseFolderName,'String',gname(lengthgname-14:lengthgname));
             
         end
-        if isfield(foldstruc,'gfolder2');
+        if isfield(foldstruc,'gfolder2')
             handles.gfolder2=foldstruc.gfolder2;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder2 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
             handles.gheader2=vid;            
             handles.GlimpseMax=2;
             
         end
-        if isfield(foldstruc,'gfolder3');
+        if isfield(foldstruc,'gfolder3')
             handles.gfolder3=foldstruc.gfolder3;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder3 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
             handles.gheader3=vid;            
             handles.GlimpseMax=3;
         end
-        if isfield(foldstruc,'gfolder4');
+        if isfield(foldstruc,'gfolder4')
             handles.gfolder4=foldstruc.gfolder4;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder4 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
             handles.gheader4=vid;            
             handles.GlimpseMax=4;
         end
-        if isfield(foldstruc,'gfolder5');
+        if isfield(foldstruc,'gfolder5')
             handles.gfolder5=foldstruc.gfolder5;        % The path to the second glimpse folder (for mapping, (maybe) defined by
             eval(['load ' foldstruc.gfolder5 'header.mat'])  % user in command modeloads the vid structure of the glimpse folder
             handles.gheader5=vid;            
@@ -203,7 +203,7 @@ if nargin <= 1  % LAUNCH GUI
     % with handles.Dum2, handles.TiffFolder2 and
     % handles.images2 repsectively
     % Using handles.DumGFolder1,2,3,4,5, handles.DumTiffFolder1,2,3,4,5, and handles.Dum1,2
-    load filelocations.dat -mat;                % Load the FileLocations stucture whose members list
+    loaded = load('filelocations.dat', '-mat');                % Load the FileLocations stucture whose members list
     % file locations to place
     % and retrieve files
     % dataDir.String
@@ -215,11 +215,12 @@ if nargin <= 1  % LAUNCH GUI
     %     avis: 'p:\matlab12\larry\avis'
     %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
     %     mapping:'p:\matlab12\larry\fig-files\imscroll'
-    handles.FileLocations=FileLocations;
+    handles.FileLocations=loaded.FileLocations;
     
     set(handles.dataDir,'String', FileLocations.data)
     % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings
-    load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat')
+    loaded = load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat');
+    MagxyCoord = loaded.MagxyCoord;
     set(handles.MagChoice,'UserData',MagxyCoord);
     set(handles.MagRangeYX,'String',['[' num2str(MagxyCoord(1,:)) ']' ]);
     % Load presets for the XY regions of
@@ -282,8 +283,7 @@ if nargin <= 1  % LAUNCH GUI
     
     if nargout > 0
         varargout{1} = fig;
-    end
-    
+    end   
 elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
     
     try
@@ -291,7 +291,6 @@ elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
     catch
         disp(lasterr);
     end
-    
 end
 
 
