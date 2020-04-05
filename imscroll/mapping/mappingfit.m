@@ -1,4 +1,4 @@
-function pc=mappingfit(indata,varargin)
+function pc=mappingfit(indata,inputarg0)
 %
 % function mappingfit(indata,<inputarg0>)
 %
@@ -13,14 +13,14 @@ function pc=mappingfit(indata,varargin)
 %                          indata{2} = n x 1 list of x2 (or y2) points in
 %                                      the image2 field
 % inputarg0  == optional starting parameters for the fit
-%                 [ mxx21 mxy21 bx](mapping x1y1 to x2) or 
+%                 [ mxx21 mxy21 bx](mapping x1y1 to x2) or
 %                  [myx21 myy21 by] (mapping x1y1 to y2)
 %
 % The form of the fit will be:
 %                 x2 = mxx21*x1 + mxy21*y1 + bx
 %                 y2 = myx21*x1 + myy21*y1 + by
 %
-% 
+%
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -35,18 +35,7 @@ function pc=mappingfit(indata,varargin)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-inlength=length(varargin);
-                                                % Grab the starting
-                                                % parameters if they are
-                                                % present
-if inlength>0
-    inputarg0=varargin{1}(:);                   %mxx21=varargin{1}(1);
-                                                %mxy21=varargin{1}(2);
-                                                %bx=varargin{1}(3);
-                                                
-end
-options=optimset('Display','off');              % suppress the screen printing 
-                                                %during the lsqcurvefit()
-                                                %call
-                                             
-pc =lsqcurvefit('mappingfunc',inputarg0,indata{1},indata{2},-10000*ones(1,3),10000*ones(1,3),options);
+% Suppress the screen printing during the lsqcurvefit() call
+options=optimset('Display','off');
+fun = @(coeff, xdata) mappingfunc(coeff, xdata);
+pc = lsqcurvefit(fun,inputarg0,indata{1},indata{2},-10000*ones(1,3),10000*ones(1,3),options);

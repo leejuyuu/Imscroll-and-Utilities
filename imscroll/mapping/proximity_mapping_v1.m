@@ -87,7 +87,7 @@ inarray{2} = mappingpoints_subset(:,10);
 fitparmy21=mappingfit(inarray,fitparmvector0(2,:));
 
 % We now have our fitting parameters:
-fitparmvector=[fitparmx21';fitparmy21'];
+fitparmvector=[fitparmx21;fitparmy21];
 
 % Now we must map xyin to the appropriate output field (following imscroll gobutton callback)
 if outfield ==1
