@@ -19,7 +19,7 @@ loaded = load('imscroll/test/test_data/map_handles.mat', '-mat');
 handles = loaded.handles;
 loaded = load('imscroll/test/test_data/L2_map.dat', '-mat');
 correct_aoiinfo = loaded.aoiinfo2;
-mapAOIsOut(handles);
+mapAOIsOut(handles, 2);
 
 loaded = load('imscroll/test/test_data/postmapAOIs.dat', '-mat');
 new_aoiinfo = loaded.aoiinfo2;
@@ -32,7 +32,7 @@ loaded = load('imscroll/test/test_data/map_handles.mat', '-mat');
 handles = loaded.handles;
 loaded = load('imscroll/test/test_data/L2_inv_map.dat', '-mat');
 correct_aoiinfo = loaded.aoiinfo2;
-invMapAOIsOut(handles);
+mapAOIsOut(handles, 1);
 
 loaded = load('imscroll/test/test_data/postmapAOIs.dat', '-mat');
 new_aoiinfo = loaded.aoiinfo2;
@@ -45,7 +45,7 @@ loaded = load('imscroll/test/test_data/prox_map_handles.mat', '-mat');
 handles = loaded.handles;
 loaded = load('imscroll/test/test_data/L2_prox_map.dat', '-mat');
 correct_aoiinfo = loaded.aoiinfo2;
-mapAOIsOut(handles);
+mapAOIsOut(handles, 2);
 
 loaded = load('imscroll/test/test_data/postmapAOIs.dat', '-mat');
 new_aoiinfo = loaded.aoiinfo2;
@@ -58,7 +58,7 @@ loaded = load('imscroll/test/test_data/prox_map_handles.mat', '-mat');
 handles = loaded.handles;
 loaded = load('imscroll/test/test_data/L2_prox_inv_map.dat', '-mat');
 correct_aoiinfo = loaded.aoiinfo2;
-invMapAOIsOut(handles);
+mapAOIsOut(handles, 1);
 
 loaded = load('imscroll/test/test_data/postmapAOIs.dat', '-mat');
 new_aoiinfo = loaded.aoiinfo2;

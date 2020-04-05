@@ -1311,9 +1311,9 @@ elseif argnum==2
     guidata(gcbo,handles)
     
 elseif argnum==3 
-    mapAOIsOut(handles);
-elseif argnum==4
-    invMapAOIsOut(handles);
+    mapAOIsOut(handles, 2);
+elseif argnum==4    
+    mapAOIsOut(handles, 1);
 elseif argnum==5
     filestring='Fitparms.dat';
     eval(['load ' filestring ' -mat'])          % Loads 'mappingpoints' mx12 stored by 'mapping' routine
