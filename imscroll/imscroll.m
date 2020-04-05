@@ -284,6 +284,13 @@ if nargin <= 1  % LAUNCH GUI
     if nargout > 0
         varargout{1} = fig;
     end   
+elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
+    
+    try
+        [varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
+    catch
+        disp(lasterr);
+    end
 end
 
 
