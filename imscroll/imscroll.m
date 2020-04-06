@@ -703,32 +703,6 @@ eval(['save ' handles.FileLocations.gui_files 'MagxyCoord.dat MagxyCoord'])
 slider1_Callback(handles.ImageNumber, eventdata, handles)
 
 
-
-
-
-
-
-
-
-% --- Executes on button press in PixVal.
-function PixVal_Callback(hObject, eventdata, handles)
-%TOGGLE SWITCH: User pushes to turn on the cursor/xy/value function
-% hObject    handle to PixVal (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of PixVal
-
-axes(handles.axes1)
-dm=gca;
-if get(handles.PixVal,'Value')==1
-    %pixval('on')
-    impixelinfo(dm)
-else
-    %pixval('off')
-end
-
-
 % --- Executes on button press in ImageSource.
 function ImageSource_Callback(hObject, eventdata, handles)
 % hObject    handle to ImageSource (see GCBO)
