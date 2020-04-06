@@ -335,58 +335,6 @@ else
 end
 
 
-% --- Executes on button press in PlotContent.
-function PlotContent_Callback(~, ~, handles)
-% TOGGLE SWITCH: User presses to switch between image (grayscale) and mesh
-% plot of the AOI
-% hObject    handle to PlotContent (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of PlotContent
-if get(handles.PlotContent,'Value')==0
-    set(handles.PlotContent,'String','Image')
-else
-    set(handles.PlotContent,'String','AOI Mesh')
-end
-
-
-% --- Executes during object creation, after setting all properties.
-function Xspot_CreateFcn(hObject, ~, ~)
-%EDITABLE TEXT: Displays the x coordinate of the selected spot (center of
-%the AOI that will be gaussian fit or displayed as a mesh plot)
-% hObject    handle to Xspot (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc
-    set(hObject,'BackgroundColor','white');
-else
-    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
-end
-
-
-
-% --- Executes during object creation, after setting all properties.
-function Yspot_CreateFcn(hObject, ~, ~)
-%EDITABLE TEXT: Displays the y coordinate of the selected spot (center of
-%the AOI that will be gaussian fit or displayed as a mesh plot)
-
-% hObject    handle to Yspot (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc
-    set(hObject,'BackgroundColor','white');
-else
-    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
-end
-
-
 % --- Executes during object creation, after setting all properties.
 function FrameRange_CreateFcn(hObject, ~, ~)
 %EDITABLE TEXT: Displays the range of frames that will be fit with the
@@ -3871,9 +3819,6 @@ else
     set(handles.MinScale,'String',num2str(clowval));
     
 end
-
-
-if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or mesh (0)
     
     if get(handles.Magnify,'Value')==0      % check whether to plot full screen (0) or mag (1)
         if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
@@ -3927,21 +3872,6 @@ if get(handles.PlotContent,'Value')==0      % check whether to plot image (1) or
         % InputParms editable text
         % region
     end
-    
-else                                        %Here to plot mesh
-    pixnum=str2double(get(handles.PixelNumber,'String'));
-    xypt(1)=str2double(get(handles.Xspot,'String'));
-    xypt(2)=str2double(get(handles.Yspot,'String'));
-    
-    xlow=round(xypt(1)-pixnum/2);xhi=xlow+pixnum-1;
-    ylow=round(xypt(2)-pixnum/2);yhi=ylow+pixnum-1;
-    aoi=averagedImage(ylow:yhi,xlow:xhi);
-    if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
-        figure(23);mesh(double(aoi));
-    end
-    axes(handles.axes1);                            % active figure is now the in the gui
-    mesh(double(aoi));
-end
 set(handles.AOInum_Output,'String', int2str(maoi))
 
 
