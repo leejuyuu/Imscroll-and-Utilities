@@ -3808,58 +3808,58 @@ else
     
 end
     
-    if get(handles.Magnify,'Value')==0      % check whether to plot full screen (0) or mag (1)
-        if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
-            figure(23);imagesc(averagedImage,[clowval chival] );colormap(gray(256));axis('equal');axis('off');
-        end
-        axes(handles.axes1);                        % sets the active figure to bthe gui
-        imagesc(averagedImage,[clowval chival] );colormap(gray(256));axis('equal')
-    else                                    % Here to magnify image
-        
-        
-        % ALSO SEE AOINumberDisplay CALLBACK FOR DISPLAY OF aoiImageSet
-        limitsxy=eval( get(handles.MagRangeYX,'String') );                 % Will be axis limits of magnified FOV
-        if get(handles.ImageFigure,'Value')==1       % =1 if we should make an separate figure
-            figure(23);imagesc(averagedImage,[clowval chival] );axis('equal');axis('off');colormap(gray(256));axis(limitsxy)
-        end
-        axes(handles.axes1);                            % active figure is now the in the gui
-        imagesc(averagedImage,[clowval chival] );axis('equal');colormap(gray(256));axis(limitsxy)
-        end
-    pixnum=str2double(get(handles.PixelNumber,'String'));
-    
-     
-    aoiinfo=handles.FitData;            % [frm#  ave  X   Y   pixnum   AOI#]
-    [maoi naoi]=size(aoiinfo);          % handles.FitData contains the aoiinfo collected
-    % with the 'AOI' button
-    % (tag = CollectAOI)
-    
-    for indx=1:maoi
-        XYshift=[0 0];                  % initialize aoi shift due to drift
-        if any(get(handles.StartParameters,'Value')==[2 3 4])
-            % here to move the aois in order to follow drift
-            XYshift=ShiftAOI(indx,val,aoiinfo,handles.DriftList);
-        end
-        if any(get(handles.FitChoice,'Value')==[5 6])
-            % == 5 or 6 if we are set to do linear interpolation with
-            % repsect to integrating partial overlap of AOIs and
-            % pixels
-            % draw boxes around all the aois, adding the XYshift to
-            % account for possible drift
-            % Here to draw boxes that fractionally overlaps pixels
-            draw_box(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
-                (pixnum)/2,'b');
-        else
-            % Here to draw aoi boxes only at pixel boundaries
-            draw_box_v1(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
-                (pixnum)/2,'b');
-        end
+if get(handles.Magnify,'Value')==0      % check whether to plot full screen (0) or mag (1)
+    if get(handles.ImageFigure,'Value')==1  % =1 if we should also make a separate figure
+        figure(23);imagesc(averagedImage,[clowval chival] );colormap(gray(256));axis('equal');axis('off');
     end
-    if get(handles.MarkFolder2SpotsToggle,'Value')==1   % Test if toggle is depressed
-        
-        MarkFolder2Spots_v1(handles);          % Here to mark the spots that appeared in the
-        % InputParms editable text
-        % region
+    axes(handles.axes1);                        % sets the active figure to bthe gui
+    imagesc(averagedImage,[clowval chival] );colormap(gray(256));axis('equal')
+else                                    % Here to magnify image
+    
+    
+    % ALSO SEE AOINumberDisplay CALLBACK FOR DISPLAY OF aoiImageSet
+    limitsxy=eval( get(handles.MagRangeYX,'String') );                 % Will be axis limits of magnified FOV
+    if get(handles.ImageFigure,'Value')==1       % =1 if we should make an separate figure
+        figure(23);imagesc(averagedImage,[clowval chival] );axis('equal');axis('off');colormap(gray(256));axis(limitsxy)
     end
+    axes(handles.axes1);                            % active figure is now the in the gui
+    imagesc(averagedImage,[clowval chival] );axis('equal');colormap(gray(256));axis(limitsxy)
+end
+pixnum=str2double(get(handles.PixelNumber,'String'));
+
+
+aoiinfo=handles.FitData;            % [frm#  ave  X   Y   pixnum   AOI#]
+[maoi naoi]=size(aoiinfo);          % handles.FitData contains the aoiinfo collected
+% with the 'AOI' button
+% (tag = CollectAOI)
+
+for indx=1:maoi
+    XYshift=[0 0];                  % initialize aoi shift due to drift
+    if any(get(handles.StartParameters,'Value')==[2 3 4])
+        % here to move the aois in order to follow drift
+        XYshift=ShiftAOI(indx,val,aoiinfo,handles.DriftList);
+    end
+    if any(get(handles.FitChoice,'Value')==[5 6])
+        % == 5 or 6 if we are set to do linear interpolation with
+        % repsect to integrating partial overlap of AOIs and
+        % pixels
+        % draw boxes around all the aois, adding the XYshift to
+        % account for possible drift
+        % Here to draw boxes that fractionally overlaps pixels
+        draw_box(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
+            (pixnum)/2,'b');
+    else
+        % Here to draw aoi boxes only at pixel boundaries
+        draw_box_v1(aoiinfo(indx,3:4)+XYshift,(pixnum)/2,...
+            (pixnum)/2,'b');
+    end
+end
+if get(handles.MarkFolder2SpotsToggle,'Value')==1   % Test if toggle is depressed
+    
+    MarkFolder2Spots_v1(handles);          % Here to mark the spots that appeared in the
+    % InputParms editable text
+    % region
+end
 set(handles.AOInum_Output,'String', int2str(maoi))
 
 
