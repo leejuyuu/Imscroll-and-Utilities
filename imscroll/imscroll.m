@@ -2329,24 +2329,6 @@ guidata(gcbo,handles)
 PickSpotsButton_Callback(handles.PickSpotsButton, eventdata, handles)
 
 
-% --- Executes on button press in FramesPickSpots.
-function FramesPickSpots_Callback(hObject, eventdata, handles)
-% hObject    handle to FramesPickSpots (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Run program to find spots in all frames specified by
-% the FrameRange input
-set(handles.FramesPickSpots,'String','...')
-pause(0.1)
-handles.AllSpots=FindAllSpots(handles,3500);     % 500=max # of spots to retain for each frame
-% AllSpots.AllSpotsCells{m,1}=[x y] list of spots, AllSpots{m,2}= # of spots in this frame
-% AllSpots.AllSpotsCells{m,3}= frame #
-%keyboard
-set(handles.FramesPickSpots,'String','Frames')
-set(handles.MapSpots,'Visible','on')
-guidata(gcbo,handles)
-
-
 % --- Executes on mouse motion over figure - except title and menu.
 function figure1_WindowButtonMotionFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -2360,28 +2342,6 @@ if present_value~=get(handles.ImageNumber,'UserData');
     % Update image only if slider position has changed
     slider1_Callback(handles.ImageNumber, eventdata, handles)
 end
-
-
-
-% --- Executes on button press in MapSpots.
-function MapSpots_Callback(hObject, eventdata, handles)
-% hObject    handle to MapSpots (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-frms=handles.AllSpots.FrameVector;      % List of frames over which we found spots
-hold on
-[rose col]=size(frms);
-
-for indx=1:max(rose,col)                           % Cycle through frame range
-    
-    spotnum=handles.AllSpots.AllSpotsCells{indx,2}; % number of spots found in the current frame
-    xy=handles.AllSpots.AllSpotsCells{indx,1}(1:spotnum,:);    % xy pairs of spots in current frame
-    plot(xy(:,1),xy(:,2),'y.');                % Plot the spots for current frame
-end
-hold off
-
-
-
 
 
 % --- Executes on button press in SpotsButton.
@@ -2460,7 +2420,6 @@ switch SpotsButtonChoice
         aoiProcessParameters = getAoiProcessParameters(handles);
         spotPickingParameters = getSpotPickingParameters(handles);
         % Here to find spots over the specified frame range
-        set(handles.FramesPickSpots,'String','...')
         set(handles.SpotsButton,'String','...')
         pause(0.1)
         imageFileProperty = getImageFileProperty(handles.TiffFolder);
@@ -2477,9 +2436,7 @@ switch SpotsButtonChoice
             % => get AllSpots for with low threshold for detection
             handles.AllSpotsLow=AllSpots;
         end
-        set(handles.FramesPickSpots,'String','Frames')
         set(handles.SpotsButton,'String','Frames')
-        set(handles.MapSpots,'Visible','on')
         guidata(gcbo,handles)
         %******************************************************************************************
     case 3
