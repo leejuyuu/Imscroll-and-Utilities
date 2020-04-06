@@ -506,22 +506,6 @@ else
     set(handles.MaxIntensity,'Visible','on')
 end
 
-% --- If Enable == 'on', executes on mouse press in 5 pixel border.
-% --- Otherwise, executes on mouse press in 5 pixel border or over ImageScale.
-function ImageScale_ButtonDownFcn(~, eventdata, handles)
-%TOGGLE BUTTON: press to manually scale the image intensity
-% hObject    handle to ImageScale (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if get(handles.ImageScale,'Value')==0
-    set(handles.ImageScale,'String','Auto Scale')
-    set(handles.MinIntensity,'Visible','off')
-else
-    set(handles.ImageScale,'String','Manual Scale')
-    set(handles.MinIntensity,'Visible','on')
-end
-
-
 
 % --- Executes during object creation, after setting all properties.
 function MaxIntensity_CreateFcn(hObject, eventdata, handles)
