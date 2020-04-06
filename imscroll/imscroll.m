@@ -3,7 +3,7 @@ function varargout = imscroll(varargin)
 %    FIG = IMSCROLL launch imscroll GUI.
 %    IMSCROLL('callback_name', ...) invoke the named callback.
 
-% Last Modified by GUIDE v2.5 04-Apr-2020 18:12:01
+% Last Modified by GUIDE v2.5 06-Apr-2020 11:26:20
 
 % Copyright 2015 Larry Friedman, Brandeis University.
 
@@ -2672,12 +2672,15 @@ if get(handles.MoveAOIs,'Value')==1
     set(handles.MoveAOIsDown,'Visible','on')
     set(handles.MoveAOIsRight,'Visible','on')
     set(handles.MoveAOIsLeft,'Visible','on')
-    set(handles.AOINumberDisplay,'String','1')
+    set(handles.MoveAoisStep, 'Visible', 'on')
+    set(handles.text45, 'Visible', 'on')
 else
     set(handles.MoveAOIsUp,'Visible','off')      % Here if MoveAOIs toggle is not depressed
     set(handles.MoveAOIsDown,'Visible','off')
     set(handles.MoveAOIsRight,'Visible','off')
     set(handles.MoveAOIsLeft,'Visible','off')
+    set(handles.MoveAoisStep, 'Visible', 'off')
+    set(handles.text45, 'Visible', 'off')
 end
 
 
@@ -2686,43 +2689,43 @@ function MoveAOIsUp_Callback(hObject, eventdata, handles)
 % hObject    handle to MoveAOIsUp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%step=round(str2num(get(handles.AOINumberDisplay,'String')));
-step=get(handles.AOINumberDisplay,'UserData');
+step = str2double(handles.MoveAoisStep.String);
 handles.FitData(:,4)=handles.FitData(:,4)-step;    % Move all aois up 1 pixel
 guidata(gcbo,handles);
-slider1_Callback(handles.ImageNumber, eventdata, handles)
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
+
+
 % --- Executes on button press in MoveAOIsDown.
 function MoveAOIsDown_Callback(hObject, eventdata, handles)
 % hObject    handle to MoveAOIsDown (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%step=round(str2num(get(handles.AOINumberDisplay,'String')));
-step=get(handles.AOINumberDisplay,'UserData');
+step = str2double(handles.MoveAoisStep.String);
 handles.FitData(:,4)=handles.FitData(:,4)+step;    % Move all aois up 1 pixel
 guidata(gcbo,handles);
 slider1_Callback(handles.ImageNumber, eventdata, handles)
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes on button press in MoveAOIsRight.
 function MoveAOIsRight_Callback(hObject, eventdata, handles)
 % hObject    handle to MoveAOIsRight (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%step=round(str2num(get(handles.AOINumberDisplay,'String')));
-step=get(handles.AOINumberDisplay,'UserData');
+step = str2double(handles.MoveAoisStep.String);
 handles.FitData(:,3)=handles.FitData(:,3)+step;    % Move all aois up 1 pixel
 guidata(gcbo,handles);
 slider1_Callback(handles.ImageNumber, eventdata, handles)
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
 % --- Executes on button press in MoveAOIsLeft.
 function MoveAOIsLeft_Callback(hObject, eventdata, handles)
 % hObject    handle to MoveAOIsLeft (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%step=round(str2num(get(handles.AOINumberDisplay,'String')));
-step=get(handles.AOINumberDisplay,'UserData');
+step = str2double(handles.MoveAoisStep.String);
 handles.FitData(:,3)=handles.FitData(:,3)-step;    % Move all aois up 1 pixel
 guidata(gcbo,handles);
-slider1_Callback(handles.ImageNumber, eventdata, handles)
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
 
 % --- Executes on selection change in MappingMenu.
@@ -4011,3 +4014,16 @@ function changeDataDirButton_Callback(~, ~, handles)
 % handles    structure with handles and user data (see GUIDATA)
 dir = uigetdir(handles.dataDir.String, 'Choose directory to save data: ');
 set(handles.dataDir,'String', [dir, '/']);
+
+
+% --- Executes during object creation, after setting all properties.
+function MoveAoisStep_CreateFcn(hObject, ~, ~)
+% hObject    handle to MoveAoisStep (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
