@@ -655,17 +655,6 @@ function ImageSource_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of ImageSource
 
-if get(handles.ImageSource,'Value')==4
-    % Here if source is aoiImageSet
-    if ~isfield(handles,'aoiImageSet')
-        % Here is the aoiImageSet field does not exist (not yet defined)
-        set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
-    elseif isempty(handles.aoiImageSet)
-        % Here if the aoiImageSet field exists but is nonetheless empty
-        set(handles.ImageSource,'Value',3)    % Since the aoiImageSet field is undefined, change the source to Glimpse file
-    end
-    
-end
 
 
 
@@ -1234,26 +1223,6 @@ function RemoveAois_Callback(hObject, eventdata, handles,varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if get(handles.ImageSource,'Value')==4
-    % Here to remove AOI from aoiImageSet
-    % Get the current AOI number
-    AOINumber=str2num(get(handles.AOINumberDisplay,'String'));
-    % Now remove that number from the aoiImageSet
-    
-    aoiImageSet=Remove_aoiImageSet(handles,AOINumber);
-    
-    handles.aoiImageSet=aoiImageSet;
-    aoiinfo2=handles.FitData;
-    
-    aoiinfo2=handles.aoiImageSet.aoiinfoTotx(:,1:6);
-    handles.FitData=handles.aoiImageSet.aoiinfoTotx(:,1:6);
-    outputName=get(handles.OutputFilename,'String');            % Get the name of the output file
-    eval(['save ' handles.dataDir.String outputName ' aoiinfo2 aoiImageSet']);      % Save the current parameters in data directory
-    % Then update the image display showing an AOI from the aoiImageSet
-    guidata(gcbo,handles)
-    AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
-    
-else
     % Here to have user click on AOIs shown in Glimpse or Tiff image
     axes(handles.axes1)
     
@@ -1277,7 +1246,6 @@ else
         guidata(gcbo,handles);
         UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
     end                 % end of while
-end
 
 
 % --- Executes on button press in MagChoice.
@@ -1455,19 +1423,6 @@ function GlimpseNumber_Callback(hObject, eventdata, handles)
 % insure that a folder exists for the number entered
 sourcenum=get(handles.ImageSource,'Value');
 
-if (sourcenum==4)&&(get(handles.MagChoice,'Value')==13)
-    % Here if ImageSource value is 4, so the aoiImageSet must exist
-    % Also MagChoice is 13 so we display only calibration images
-    % near to the chosen AOI.  We use the AOI displayed in the
-    % AOINumberDisplay text region, the nearby calibration image number
-    % from the GlimpseNumber text region and the Class ID from the
-    % ImageClass popup menu.
-    % Call the AOINumberDisplay callback to display calibration
-    % AOIs near to the present AOI,-->eventually leads to call of
-    % the slider1 callback and invoking getframes_v1.m
-    
-    AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
-end
 if sourcenum==3
     % here for glimpse files
     presentnum=str2double(get(handles.GlimpseNumber,'String'));
@@ -1661,94 +1616,6 @@ set(handles.AOINumberDisplay,'UserData',aoinumber); % Store the aoinumber prior 
 aoinumber=round(aoinumber);     % Now round the aoinumber to nearest integer
 % and write it in the display area
 set(handles.AOINumberDisplay,'String',num2str(aoinumber));
-if (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')~=13)
-    % If ImageSource value is 4, then the aoiImageSet must exist
-    % Since MagChoice is not eq 13 we are NOT displaying calibration images
-    % near to the chosen AOI, we are instead displaying the entire set of
-    % calibration images
-    %
-    % Here if displaying aoiImageSet => use max and min AOI # from aoiImageSet
-    % We will (1) error check the AOI limits of aoiImageSet for the AOINumberDisplay,
-    % (2) update the image shown from the aoiImageSet, and (3) write AOI information
-    % on the display
-    % Error check the AOI limits
-    maxaoinum=max( handles.aoiImageSet.aoiinfoTotx(:,6));
-    minaoinum=min( handles.aoiImageSet.aoiinfoTotx(:,6));
-    if aoinumber>maxaoinum
-        % Periodic boundry conditions on the AOI number
-        aoinumber=minaoinum;
-        set(handles.AOINumberDisplay,'String',num2str(aoinumber));
-    elseif aoinumber<minaoinum
-        aoinumber=maxaoinum;
-        set(handles.AOINumberDisplay,'String',num2str(aoinumber));
-    end
-    % Update the image shown
-    slider1_Callback(handles.ImageNumber, eventdata, handles)
-    % Write AOI information on image
-    cl={'ROG' 'RO' 'RG' 'OG' 'R' 'O' 'G' 'Z'};     % image Classes
-    ClassN= cl{handles.aoiImageSet.ClassNumber(aoinumber)};    % Class name for this AOI in the aoiImageSet
-    StFrame = num2str(handles.aoiImageSet.ImageFrameStart(aoinumber)); % Starting frame for these images
-    FrmAve=num2str(handles.aoiImageSet.aoiinfoTotx(aoinumber,9));      % Number of frames averaged for this image
-    XYSite=['  (x,y)= ' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,3))) ',' num2str(round(handles.aoiImageSet.aoiinfoTotx(aoinumber,4)))];
-    ImageDescription=[ClassN '  frm/ave: ' StFrame '/' FrmAve XYSite];
-    IPNum=handles.aoiImageSet.centeredImage{aoinumber}.Properties;     %[   Xmean Ymean X2moment Y2moment (background intensity)]
-    % BkInt=num2str(round(IPNum(1)*10)/10);                  % Keep just one digit beyond decimal point
-    Xmean=num2str(round(IPNum(1)*10)/10);
-    Ymean=num2str(round(IPNum(2)*10)/10);
-    X2mom=num2str(round(IPNum(3)*10)/10);
-    Y2mom=num2str(round(IPNum(4)*10)/10);
-    FullFileName=handles.aoiImageSet.filepath{aoinumber};
-    LF=length(FullFileName);
-    FileName=FullFileName(LF-15:LF);
-    FileName=regexprep(FileName,'\\','\\\');                   % Replace each \ with \\ so it will print properly on screen w/o warning
-    FileName=regexprep(FileName,'_','-');
-    Num_mxNum=[num2str(aoinumber) '/' num2str(maxaoinum)];
-    text(1,1,[ FileName '  aoi:' Num_mxNum] ,'Color','y')
-    text(1,2,ImageDescription,'Color','y')
-    % Write the Image Properties as well: Bkgnd Xmean Ymean X2moment Y2moment
-    %text(1,3,['bk/xy/x2y2:' BkInt '  ' Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
-    text(1,3,['xy/x2y2:   '  Xmean '  ' Ymean '  ' X2mom  '  ' Y2mom],'Color','y');
-    % {M}.aoiinfo2_output =[frm#  1  newx  newy  pixnum  aoi#] provides the
-    aoicoordinates=handles.aoiImageSet.centeredImage{aoinumber}.aoiinfo2_output(3:4);
-    text(aoicoordinates(1),aoicoordinates(2),'x','Color','y')
-elseif   (get(handles.ImageSource,'Value')==4)&(get(handles.MagChoice,'Value')==13)
-    % Here if ImageSource value is 4, so the aoiImageSet must exist
-    % Also MagChoice is 13 so we display only calibration images
-    % near to the chosen AOI.  We use the AOI displayed in the
-    % AOINumberDisplay text region, the nearby calibration image number
-    % from the GlimpseNumber text region and the Class ID from the
-    % ImageClass popup menu.
-    % Error check the AOI limits
-    
-    maxaoinum=max( handles.aoiImageSet.aoiinfoTotx(:,6));
-    minaoinum=min( handles.aoiImageSet.aoiinfoTotx(:,6));
-    if aoinumber<minaoinum
-        set(handles.AOINumberDisplay,'String',num2str(minaoinum-1))
-    end
-    if aoinumber>maxaoinum
-        set(handles.AOINumberDisplay,'String',num2str(maxaoinum+1))
-    end
-    % Update the image shown:  the ImageSource and Magchoice
-    % settings will result in the nearby calibration images
-    % being displayed see getframes_v1.m
-    
-    slider1_Callback(handles.ImageNumber, eventdata, handles)
-    % Write AOI information on image
-    
-    NearNumber=str2num(get(handles.GlimpseNumber,'String'));    % =1 for nearest calibration image, =2 for next nearest,etc
-    ClassNumber=get(handles.ImageClass,'Value');         % 1:8=[ROG RO RG OG R O G Z]
-    aoiNum=str2num(get(handles.AOINumberDisplay,'String'));    % AOI # from the AOINumberDisplay
-    aoiXY=handles.FitData(aoiNum,3:4);                  % (x y) of AOI# in AOINumberDisplay
-    NI=Nearest_Images(aoiXY, ClassNumber, handles.aoiImageSet,NearNumber);
-    % Output.xycoords=[ x y newx newy distance]
-    aoiImageSetNumber=NI.indices(NearNumber);           % Index w/in the aoiImageSet for the calibration image
-    % we are now displaying
-    NearX=round(NI.xycoords(NearNumber,1)*10)/10;
-    NearY=round(NI.xycoords(NearNumber,2)*10)/10;
-    NearDistance=round(NI.xycoords(NearNumber,5)*10)/10;
-    text(1,1,['x/y/distance:   '  num2str(NearX) '  ' num2str(NearY) '  ' num2str(NearDistance)  '  '],'Color','y');
-    text(1,2,['aoiImageSet index:  ' num2str(aoiImageSetNumber) '  '],'Color','y');
-else
     % Here to either show magnified AOIs (MagChoice value=13), or
     % just number the AOIs shown in the image
     maxaoinum=max(aoiinfo(:,6));
@@ -1796,7 +1663,8 @@ else
         end
         text(aoiinfo(aoinumber,3)+XYshift(1),aoiinfo(aoinumber,4)+XYshift(2),num2str(aoinumber),'Color','y')
     end
-end     % end of if get(handles.ImageSource,'Value')==4
+    
+    
 function AOINumberDisplay_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to AOINumberDisplay (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -2741,116 +2609,12 @@ switch MenuValue
         
     case 16
         set(handles.MapButton,'String','Define aoiImageSet')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
-        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
-        set(handles.XYRegionPresetMenu,'Value',8)
-        XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 17
         set(handles.MapButton,'String','AddTo aoiImageSet')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
-        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
-        set(handles.XYRegionPresetMenu,'Value',8)
-        XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 18
         set(handles.MapButton,'String','Import/New aoiImageSet')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
-        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
-        set(handles.XYRegionPresetMenu,'Value',8)
-        XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 19
         set(handles.MapButton,'String','Import/Add aoiImageSet')
-        set(handles.EditUniqueRadius,'Visible','on')
-        set(handles.IncrementUniqueRadius,'Visible','on')
-        set(handles.DecrementUniqueRadius,'Visible','on')
-        set(handles.EditUniqueRadiusX,'Visible','on')
-        set(handles.IncrementUniqueRadiusX,'Visible','on')
-        set(handles.DecrementUniqueRadiusX,'Visible','on')
-        set(handles.SignX,'Visible','on')
-        set(handles.SignY,'Visible','on')
-        set(handles.text36,'Visible','on')
-        % Also the Low limit controls
-        set(handles.EditUniqueRadiusLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusLo,'Visible','on')
-        set(handles.EditUniqueRadiusXLo,'Visible','on')
-        set(handles.IncrementUniqueRadiusXLo,'Visible','on')
-        set(handles.DecrementUniqueRadiusXLo,'Visible','on')
-        set(handles.text37,'Visible','on')
-        % Also preset controls
-        set(handles.SetXYRegionPreset,'Visible','on')
-        set(handles.XYRegionPresetMenu,'Visible','on')
-        set(handles.text38,'Visible','on')
-        set(handles.ImageClass,'Visible','on')
-        set(handles.text39,'Visible','on')
-        % Set the XYRegionPresetMenu to 'Image Region' (just so user can see parameters)
-        set(handles.XYRegionPresetMenu,'Value',8)
-        XYRegionPresetMenu_Callback(handles.XYRegionPresetMenu, eventdata, handles)
     case 20
         set(handles.MapButton,'String','Remove AOIs near AOIs')
         set(handles.EditUniqueRadius,'Visible','on')
@@ -3238,56 +3002,17 @@ switch MenuValue
         error('Error in imscroll:\nRemove Spot XY AOIs is now removed%s', '');
     case 16
         % Define aoiImageSet
-        % Here to create an aoiImageSet as examples of a
-        % particular class of images (particular combination of spots
-        % offset from AOI due to prism dispersion)
-        % Here to Save AOIs along with images of regions (for image classification)
-        BeginOrAdd=0;              % Create a new aoiImageSet
-        Update_aoiImageSet(handles,BeginOrAdd);
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        error('Error in imscroll:\nDefine AOI image set is now removed%s', '');
     case 17
         % SaveTo (=add to existing) aoiImageSet
-        % Here to create an aoiImageSet as examples of a
-        % particular class of images (particular combination of spots
-        % offset from AOI due to prism dispersion)
-        % Here to Save AOIs along with images of regions (for image classification)
-        BeginOrAdd=1;              % Create an aoiImageSet, adding it to the
-        % existing aoiImageSet
-        Update_aoiImageSet(handles,BeginOrAdd);
-        
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
+        error('Error in imscroll:\nAdd to AOI image set is now removed%s', '');
+
     case 18
         % Import/New aoiImageSet
-        % User will navigate to file containing an existing aoiImageSet,
-        % and that aoiImageSet will be the new aoiImageSet going forward.
-        % The aoiImageSet are examples of a
-        % particular classes of images (particular combination of spots
-        % offset from AOI due to prism dispersion)
-        
-        BeginOrAdd=0;              % Create a new aoiImageSet (overwrite any existing)
-        Import_aoiImageSet(handles,BeginOrAdd);
-        
-        
-        %keyboard
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
-        
-        
+        error('Error in imscroll:\nImport/New AOI image set is now removed%s', '');
     case 19
         % Import/Add aoiImageSet
-        % User will navigate to file containing an existing aoiImageSet,
-        % and that aoiImageSet will be added to the current aoiImageSet..
-        % The aoiImageSet are examples of a
-        % particular classes of images (particular combination of spots
-        % offset from AOI due to prism dispersion)                % Here to Save AOIs along with images of regions (for image classification)
-        
-        %****Here we need to add aoiImageSet to existing
-        %handles.aoiImageSet
-        BeginOrAdd=1;             % Add the imported aoiImageSet to the existing set
-        Import_aoiImageSet(handles,BeginOrAdd);
-        
-        % Update the AOIs displayed
-        slider1_Callback(handles.ImageNumber, eventdata, handles)
-        
+        error('Error in imscroll:\nImport/Add AOI image set is now removed%s', '');
     case 20
         % Remove AOIs near AOIs
         
