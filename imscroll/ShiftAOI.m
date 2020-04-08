@@ -1,4 +1,4 @@
-function pc=ShiftAOI(AOInumber,FrameNumber,AOIinfo,DriftList)
+function pc=ShiftAOI(AOInumber,targetFrame,aoiinfo,driftList)
 %
 % function ShiftAOI(AOInumber,FrameNumber,AOIinfo,DriftList)
 %
@@ -40,30 +40,20 @@ function pc=ShiftAOI(AOInumber,FrameNumber,AOIinfo,DriftList)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-aoilogic = AOIinfo(:,6)==AOInumber;      
-currentxy = AOIinfo(aoilogic,3:4);       % Pick off original xy coordinates and
-InitialFrame=AOIinfo(aoilogic,1);      % original frame where aoi was marked
+aoilogic = aoiinfo(:,6)==AOInumber;      
+
+InitialFrame=aoiinfo(aoilogic,1);      % original frame where aoi was marked
                     % Get the index of the entries corresponding to the 
                     % (initially chosen)  and (current frame) numbers for the aoi 
 %keyboard
-Iinitial=find(DriftList(:,1)==InitialFrame);
-Icurrent=find(DriftList(:,1)==FrameNumber);
+Iinitial=find(driftList(:,1)==InitialFrame);
+Icurrent=find(driftList(:,1)==targetFrame);
                     % Both Iinitial and Icurrent should be single numbers
                     % (not vectors).
 if Icurrent>Iinitial
-    if Iinitial+1==Icurrent        % needed b/c e.g sum(5,2:3) will give a single number output
-                                   % (summing across the row as opposed to
-                                   % sum(5:10,2:3 giving two outputs that sum down the columns 
-        XYshift=DriftList(Icurrent,2:3);
-    else
-        XYshift=sum( DriftList( (Iinitial+1):Icurrent,2:3) );
-    end
+        XYshift=sum( driftList( (Iinitial+1):Icurrent,2:3), 1 );
 elseif Icurrent<Iinitial
-    if Icurrent+1==Iinitial        
-        XYshift=-DriftList(Iinitial,2:3);
-    else
-        XYshift=-sum( DriftList( (Icurrent+1):Iinitial,2:3) );
-    end
+        XYshift=-sum( driftList( (Icurrent+1):Iinitial,2:3), 1 );
 else 
     XYshift=[0 0];
 end
