@@ -40,24 +40,30 @@ function pc=ShiftAOI(AOInumber,targetFrame,aoiinfo,driftList)
 % You should have received a copy of the GNU General Public License
 % along with this software. If not, see <http://www.gnu.org/licenses/>.
 
-aoilogic = aoiinfo(:,6)==AOInumber;      
+aoilogic = aoiinfo(:,6)==AOInumber;
 
-InitialFrame=aoiinfo(aoilogic,1);      % original frame where aoi was marked
-                    % Get the index of the entries corresponding to the 
-                    % (initially chosen)  and (current frame) numbers for the aoi 
-%keyboard
-Iinitial=find(driftList(:,1)==InitialFrame);
-Icurrent=find(driftList(:,1)==targetFrame);
-                    % Both Iinitial and Icurrent should be single numbers
-                    % (not vectors).
-if Icurrent>Iinitial
+initialFrame=aoiinfo(aoilogic,1);      % original frame where aoi was marked
+% Get the index of the entries corresponding to the
+% (initially chosen)  and (current frame) numbers for the aoi
+
+isInitialFrameInRange = ismember(initialFrame, driftList(:, 1));
+isTargetFrameInRange = ismember(targetFrame, driftList(:, 1));
+if isInitialFrameInRange && isTargetFrameInRange
+    Iinitial=find(driftList(:,1)==initialFrame);
+    Icurrent=find(driftList(:,1)==targetFrame);
+    % Both Iinitial and Icurrent should be single numbers
+    % (not vectors).
+    
+    if Icurrent>Iinitial
         XYshift=sum( driftList( (Iinitial+1):Icurrent,2:3), 1 );
-elseif Icurrent<Iinitial
+    elseif Icurrent<Iinitial
         XYshift=-sum( driftList( (Icurrent+1):Iinitial,2:3), 1 );
-else 
-    XYshift=[0 0];
+    else
+        XYshift=[0, 0];
+    end
+else
+    XYshift = [NaN, NaN];
 end
 pc=XYshift;
 
 
-       

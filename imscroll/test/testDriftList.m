@@ -51,16 +51,16 @@ end
 aoiinfo = [11, 5, 0, 0, 5, 1];
 for i = 1:10
 xy = ShiftAOI(1, i, aoiinfo, driftlist);
-% The function output 0, 0 for anything outside range
-verifyEqual(testCase, xy, [0, 0]);
+% The function output NaN, NaN for anything outside range
+verifyEqual(testCase, xy, [NaN, NaN]);
 end
 
 % Test for the frame we want to shift to is outside the driftlist frame
 % range
 aoiinfo = [5, 5, 0, 0, 5, 1];
 xy = ShiftAOI(1, 11, aoiinfo, driftlist);
-% The function output 0, 0 for anything outside range
-verifyEqual(testCase, xy, [0, 0]);
+% The function output NaN, NaN for anything outside range
+verifyEqual(testCase, xy, [NaN, NaN]);
 
 % Test for driftlist does not start from frame 1
 driftlist(:, 1) = 2:11;
@@ -68,8 +68,8 @@ aoiinfo = [5, 5, 0, 0, 5, 1];
 for i = 1:11
     xy = ShiftAOI(1, i, aoiinfo, driftlist);
     if i == 1
-        % The function output 0, 0 for anything outside range
-        verifyEqual(testCase, xy, [0, 0]);
+        % The function output NaN, NaN for anything outside range
+        verifyEqual(testCase, xy, [NaN, NaN]);
     else
         verifyEqual(testCase, xy, [i-5, i-5]);
     end
