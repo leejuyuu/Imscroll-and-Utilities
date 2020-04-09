@@ -29,28 +29,28 @@ driftlist(:, 1) = 1:10;
 % Test normal case: AOIs are defined in the first frame
 aoiinfo = [1, 1, 0, 0, 5, 1];
 for i = 1:10
-xy = ShiftAOI(1, i, aoiinfo, driftlist);
+xy = shiftAOIs(1, i, aoiinfo, driftlist);
 verifyEqual(testCase, xy, [i-1, i-1]);
 end
 
 % Test if AOIs are defined in the middle of the sequence
 aoiinfo = [5, 1, 0, 0, 5, 1];
 for i = 1:10
-xy = ShiftAOI(1, i, aoiinfo, driftlist);
+xy = shiftAOIs(1, i, aoiinfo, driftlist);
 verifyEqual(testCase, xy, [i-5, i-5]);
 end
 
 % Test if changing frame average affect the result
 aoiinfo = [5, 5, 0, 0, 5, 1];
 for i = 1:10
-xy = ShiftAOI(1, i, aoiinfo, driftlist);
+xy = shiftAOIs(1, i, aoiinfo, driftlist);
 verifyEqual(testCase, xy, [i-5, i-5]);
 end
 
 % Test for defined AOI is outside the driftlist frame range
 aoiinfo = [11, 5, 0, 0, 5, 1];
 for i = 1:10
-xy = ShiftAOI(1, i, aoiinfo, driftlist);
+xy = shiftAOIs(1, i, aoiinfo, driftlist);
 % The function output NaN, NaN for anything outside range
 verifyEqual(testCase, xy, [NaN, NaN]);
 end
@@ -58,7 +58,7 @@ end
 % Test for the frame we want to shift to is outside the driftlist frame
 % range
 aoiinfo = [5, 5, 0, 0, 5, 1];
-xy = ShiftAOI(1, 11, aoiinfo, driftlist);
+xy = shiftAOIs(1, 11, aoiinfo, driftlist);
 % The function output NaN, NaN for anything outside range
 verifyEqual(testCase, xy, [NaN, NaN]);
 
@@ -66,7 +66,7 @@ verifyEqual(testCase, xy, [NaN, NaN]);
 driftlist(:, 1) = 2:11;
 aoiinfo = [5, 5, 0, 0, 5, 1];
 for i = 1:11
-    xy = ShiftAOI(1, i, aoiinfo, driftlist);
+    xy = shiftAOIs(1, i, aoiinfo, driftlist);
     if i == 1
         % The function output NaN, NaN for anything outside range
         verifyEqual(testCase, xy, [NaN, NaN]);
