@@ -43,27 +43,32 @@ function pc=shiftAOIs(AOInumber,targetFrame,aoiinfo,driftList)
 aoilogic = aoiinfo(:,6)==AOInumber;
 
 initialFrame=aoiinfo(aoilogic,1);      % original frame where aoi was marked
-% Get the index of the entries corresponding to the
-% (initially chosen)  and (current frame) numbers for the aoi
 
+pc = calculateXYShiftVector(initialFrame, targetFrame, driftList);
+end
+
+
+function xyShift = calculateXYShiftVector(initialFrame, targetFrame, driftList)
 isInitialFrameInRange = ismember(initialFrame, driftList(:, 1));
 isTargetFrameInRange = ismember(targetFrame, driftList(:, 1));
 if isInitialFrameInRange && isTargetFrameInRange
+    % Get the index of the entries corresponding to the
+    % (initially chosen)  and (current frame) numbers for the aoi
     Iinitial=find(driftList(:,1)==initialFrame);
     Icurrent=find(driftList(:,1)==targetFrame);
     % Both Iinitial and Icurrent should be single numbers
     % (not vectors).
     
     if Icurrent>Iinitial
-        XYshift=sum( driftList( (Iinitial+1):Icurrent,2:3), 1 );
+        xyShift=sum( driftList( (Iinitial+1):Icurrent,2:3), 1 );
     elseif Icurrent<Iinitial
-        XYshift=-sum( driftList( (Icurrent+1):Iinitial,2:3), 1 );
+        xyShift=-sum( driftList( (Icurrent+1):Iinitial,2:3), 1 );
     else
-        XYshift=[0, 0];
+        xyShift=[0, 0];
     end
 else
-    XYshift = [NaN, NaN];
+    xyShift = [NaN, NaN];
 end
-pc=XYshift;
 
+end
 
