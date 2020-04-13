@@ -1,1 +1,0 @@
-allows you to select reference trajectories to drift correct a movie
