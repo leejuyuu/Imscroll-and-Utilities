@@ -54,7 +54,7 @@ if nargin <= 1  % LAUNCH GUI
             
             handles.gfolder=foldstruc.gfolder;        % The path to the glimpse folder, (maybe) defined by user in command mode
             handles.gfolder1=foldstruc.gfolder;      % Storing gfolder as gfolder1 so we can switch between gfolders
-            load([foldstruc.gfolder,'header.mat'])     % loads the vid structure of the glimpse folder
+            vid = load([foldstruc.gfolder,'header.mat']).vid;     % loads the vid structure of the glimpse folder
             handles.gheader=vid;
             handles.gheader1=vid;
             handles.MaxFrames=vid.nframes;               % Get number of frames in the file from vid structure
@@ -71,8 +71,8 @@ if nargin <= 1  % LAUNCH GUI
             gfolderStr = sprintf('gfolder%d', i);
             if isfield(foldstruc, gfolderStr)
                 handles.(gfolderStr) = foldstruc.(gfolderStr);
-                header = load([foldstruc.(gfolderStr), 'header.mat']);
-                handles.(sprintf('gheader%d', i)) = header.vid;
+                vid = load([foldstruc.(gfolderStr), 'header.mat']).vid;
+                handles.(sprintf('gheader%d', i)) = vid;
             else
                 handles.GlimpseMax = i - 1;
                 break
@@ -159,7 +159,7 @@ if nargin <= 1  % LAUNCH GUI
     % with handles.Dum2, handles.TiffFolder2 and
     % handles.images2 repsectively
     % Using handles.DumGFolder1,2,3,4,5, handles.DumTiffFolder1,2,3,4,5, and handles.Dum1,2
-    loaded = load('filelocations.dat', '-mat');                % Load the FileLocations stucture whose members list
+    FileLocations = load('filelocations.dat', '-mat').FileLocations;                % Load the FileLocations stucture whose members list
     % file locations to place
     % and retrieve files
     % dataDir.String
@@ -171,25 +171,23 @@ if nargin <= 1  % LAUNCH GUI
     %     avis: 'p:\matlab12\larry\avis'
     %     mapping: 'p:\matlab12\larry\fig-files\imscroll\mapping'
     %     mapping:'p:\matlab12\larry\fig-files\imscroll'
-    handles.FileLocations=loaded.FileLocations;
-    FileLocations = loaded.FileLocations;
+    handles.FileLocations=FileLocations;
     
     set(handles.dataDir,'String', FileLocations.data)
     % Load 'magxyCoord' variable: 12x4 for 12 [x1 x2 y1 y2] magnification coordinate settings
-    loaded = load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat');
-    MagxyCoord = loaded.MagxyCoord;
+    MagxyCoord = load([handles.FileLocations.gui_files,'MagxyCoord.dat'],'-mat').MagxyCoord;
     set(handles.MagChoice,'UserData',MagxyCoord);
     set(handles.MagRangeYX,'String',['[' num2str(MagxyCoord(1,:)) ']' ]);
     % Load presets for the XY regions of
     % 'Remove SpotXY AOIs', and 'Remove MTXY AOIs'
     
-    load([handles.FileLocations.gui_files,'XYRegionPreset.dat'], '-mat')
+    XYRegionPreset = load([handles.FileLocations.gui_files,'XYRegionPreset.dat'], '-mat').XYRegionPreset;
     handles.XYRegionPreset=XYRegionPreset;       % 9 Cell array of structures
     % with presets values (members)for:
     % EditUniqueRadiusX, EditUniqueRadius, SignX, SignY
     % EditUniqueRadiusXLo, EditUniqueRadiusLo, MappingMenu
     % Different set of presets in each row
-    eval(['load ' handles.FileLocations.gui_files 'FilterListCell.dat -mat'])   % Load list of filter names in a cell array
+    FilterListCell = load([handles.FileLocations.gui_files, 'FilterListCell.dat'], '-mat').FilterListCell;   % Load list of filter names in a cell array
     handles.FilterListCell=FilterListCell;      % e.g. handles.FilterListCell{4}='633 LP'
     
     handles.MappingPoints=[];                % Points used to map the two fields (gathered in 'mapping' gui)
@@ -3324,11 +3322,12 @@ aoiinfo=handles.FitData;            % [frm#  ave  X   Y   pixnum   AOI#]
 % with the 'AOI' button
 % (tag = CollectAOI)
 
+currentFrameNumber = round(get(handles.ImageNumber,'value'));
 for indx=1:maoi
     XYshift=[0 0];                  % initialize aoi shift due to drift
     if any(get(handles.StartParameters,'Value')==[2 3 4])
         % here to move the aois in order to follow drift
-        XYshift=ShiftAOI(indx,val,aoiinfo,handles.DriftList);
+        XYshift=ShiftAOI(indx,currentFrameNumber,aoiinfo,handles.DriftList);
     end
     if any(get(handles.FitChoice,'Value')==[5 6])
         % == 5 or 6 if we are set to do linear interpolation with
@@ -3364,7 +3363,7 @@ function Centering_Callback(hObject, eventdata, handles)
 % fit centers from a single frame fit
 filestring=get(handles.OutputFilename,'String');
 % Load aoifits from same directory where we store it
-load([handles.dataDir.String, filestring], '-mat');
+aoifits = load([handles.dataDir.String, filestring], '-mat').aoifits;
 
 % Reset filename where we store or retrieve the 'aoifits' structure
 set(handles.OutputFilename,'String','default.dat');
