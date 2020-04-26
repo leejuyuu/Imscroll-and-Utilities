@@ -192,8 +192,6 @@ if nargin <= 1  % LAUNCH GUI
     
     handles.MappingPoints=[];                % Points used to map the two fields (gathered in 'mapping' gui)
     % =[framenumber1 ave1 x1pt y1pt pixnum1 aoinumber framenumber2 ave2 x2pt y2pt pixnum2 aoinumber]
-    handles.Time1=[];
-    handles.Time2=[];
     handles.DriftCorrectxy=[];              % xy list collected in DriftInfo.dat routine
     handles.RollingBallRadius=15;           % Default values for R and H
     handles.RollingBallHeight=5;            % in the rolling_ball( ) ave function
@@ -1162,46 +1160,39 @@ guidata(gcbo,handles);
 
 
 % --- Executes on button press in MarkFolder2SpotsToggle.
-function MarkFolder2SpotsToggle_Callback(hObject, eventdata, handles,varargin)
+function MarkFolder2SpotsToggle_Callback(hObject, eventdata, handles)
 % hObject    handle to MarkFolder2SpotsToggle (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of MarkFolder2SpotsToggle
 
-folder1=handles.TiffFolder;
-folder2=handles.TiffFolder2;
-folder=folder1;
-
-
 if get(handles.MarkFolder2SpotsToggle,'Value')==1
     set(handles.MarkFolder2SpotsToggle,'String','Mark Spots')
-    handles.AOIsize=str2num(get(handles.PixelNumber,'String'));
-    handles.Folder1=folder1;
-    handles.Folder2=folder2;
-    handles.Flag=0;                 % Flag used to mark that timing and aoiinfo spots
-    % from the folder2 have already been loaded
-    % (they will be loaded on next call to
-    % 'MarkFolder2Spots()' function )
-    %
-    % Make place for timebase of Folder1,
-    % Folder2 and the aoiinfo file from the
-    % Folder2 sequence
-    handles.Time1=[];
-    handles.Time2=[];
-    handles.Folder2aoiinfo=[];
     guidata(gcbo,handles);
-    MarkFolder2Spots_v1(handles);
+
+    % Load the aoiinfo2 file specified in the InputParams textbox. Store the 
+    % array in handles.Folder2aoiinfo.
+    inputFileName = get(handles.InputParms,'String');
+    aoiinfo2 = load([handles.FileLocations.data, inputFileName], '-mat').aoiinfo2;
+    handles.Folder2aoiinfo=aoiinfo2;
+    guidata(gcbo,handles);
 else
     set(handles.MarkFolder2SpotsToggle,'String','No Spots')
 end
-% Next two lines are needed to prevent the frame number
-% from jumping in the display (I do not know why this
-% occurs)
-userdat=get(handles.ImageNumber,'UserData');
-set(handles.ImageNumber,'value',userdat);
+% Update graph to draw the AOIs
+UpdateGraph_Callback(handles.ImageNumber, eventdata, handles)
 
-slider1_Callback(handles.ImageNumber, eventdata, handles)
+
+function markFolder2Spots(fig_axis, aoiinfo, aoiWidth, currentFrame, varargin)
+axes(fig_axis)
+if length(varargin) == 1
+    driftList = varargin{1};
+    draw_aois(aoiinfo, currentFrame, aoiWidth, driftList);
+elseif isempty(varargin)
+    draw_aois(aoiinfo, 1, aoiWidth, [1 0 0]);
+end
+    
 
 % --- Executes on button press in RemoveAois.
 function RemoveAois_Callback(hObject, eventdata, handles,varargin)
@@ -3345,10 +3336,15 @@ for indx=1:maoi
     end
 end
 if get(handles.MarkFolder2SpotsToggle,'Value')==1   % Test if toggle is depressed
-    
-    MarkFolder2Spots_v1(handles);          % Here to mark the spots that appeared in the
-    % InputParms editable text
-    % region
+    % Mark another set of AOIs imported in handles.Folder2aoiinfo
+    aoiinfo2 = handles.Folder2aoiinfo;
+    aoiWidth = str2double(get(handles.PixelNumber,'String'));
+    currentFrame = round(get(handles.ImageNumber,'Value'));
+    if get(handles.StartParameters,'Value')==2
+        markFolder2Spots(handles.axes1, aoiinfo2, aoiWidth, currentFrame, handles.DriftList)
+    else
+        markFolder2Spots(handles.axes1, aoiinfo2, aoiWidth, 1)
+    end
 end
 set(handles.AOInum_Output,'String', int2str(maoi))
 
