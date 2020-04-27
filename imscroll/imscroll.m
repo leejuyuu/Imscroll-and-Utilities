@@ -193,8 +193,6 @@ if nargin <= 1  % LAUNCH GUI
     handles.MappingPoints=[];                % Points used to map the two fields (gathered in 'mapping' gui)
     % =[framenumber1 ave1 x1pt y1pt pixnum1 aoinumber framenumber2 ave2 x2pt y2pt pixnum2 aoinumber]
     handles.DriftCorrectxy=[];              % xy list collected in DriftInfo.dat routine
-    handles.RollingBallRadius=15;           % Default values for R and H
-    handles.RollingBallHeight=5;            % in the rolling_ball( ) ave function
     handles.NoiseDiameter=1.0;              % For spot picking, starting default value input to bpass() function
     handles.SpotDiameter=5;                 % For spot picking, starting default value, input to bpass(),pkfnd(), cntrd()
     handles.SpotBrightness=50;              % For spot picking, starting default value, input to pkfnd( )
@@ -1676,161 +1674,6 @@ set(handles.AOINumberDisplay,'String',num2str(aoinumber-1))
 AOINumberDisplay_Callback(handles.AOINumberDisplay, eventdata, handles)
 
 
-% --- Executes on button press in BackgroundChoice.
-function BackgroundChoice_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to BackgroundChoice (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of BackgroundChoice
-% Make + and - controls visible for Radius if we
-% are looking at background
-if any(get(handles.BackgroundChoice,'Value')==[2 3])
-    set(handles.EditRollingBallRadius,'Visible','on')
-    set(handles.IncrementRollingBallRadius,'Visible','on')
-    set(handles.DecrementRollingBallRadius,'Visible','on')
-    set(handles.EditRollingBallHeight,'Visible','on')
-    set(handles.IncrementRollingBallHeight,'Visible','on')
-    set(handles.DecrementRollingBallHeight,'Visible','on')
-    set(handles.EditRollingBallRadius,'String',15);
-    handles.RollingBallRadius=5;
-    set(handles.EditRollingBallHeight,'String',5);
-    handles.RollingBallHeight=2;
-    
-elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
-    set(handles.EditRollingBallRadius,'Visible','on')
-    set(handles.IncrementRollingBallRadius,'Visible','on')
-    set(handles.DecrementRollingBallRadius,'Visible','on')
-    set(handles.EditRollingBallHeight,'Visible','on')
-    set(handles.IncrementRollingBallHeight,'Visible','on')
-    set(handles.DecrementRollingBallHeight,'Visible','on')
-    
-    set(handles.EditRollingBallRadius,'String',5);
-    handles.RollingBallRadius=5;
-    set(handles.EditRollingBallHeight,'String',2);
-    handles.RollingBallHeight=2;
-    guidata(gcbo,handles) ;
-else
-    set(handles.EditRollingBallRadius,'String',5);
-    handles.RollingBallRadius=5;
-    set(handles.EditRollingBallHeight,'String',2);
-    handles.RollingBallHeight=2;
-    set(handles.EditRollingBallRadius,'Visible','off')
-    set(handles.IncrementRollingBallRadius,'Visible','off')
-    set(handles.DecrementRollingBallRadius,'Visible','off')
-    set(handles.EditRollingBallHeight,'Visible','off')
-    set(handles.IncrementRollingBallHeight,'Visible','off')
-    set(handles.DecrementRollingBallHeight,'Visible','off')
-    guidata(gcbo,handles) ;
-end
-guidata(gcbo,handles);
-
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-
-
-function EditRollingBallRadius_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to EditRollingBallRadius (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditRollingBallRadius as text
-%        str2double(get(hObject,'String')) returns contents of EditRollingBallRadius as a double
-
-handles.RollingBallRadius=str2num(get(handles.EditRollingBallRadius,'String'));
-guidata(gcbo,handles);
-
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-% --- Executes during object creation, after setting all properties.
-function EditRollingBallRadius_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to EditRollingBallRadius (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in IncrementRollingBallRadius.
-function IncrementRollingBallRadius_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to IncrementRollingBallRadius (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.RollingBallRadius=round(handles.RollingBallRadius+1);
-set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
-guidata(gcbo,handles);
-
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-% --- Executes on button press in DecrementRollingBallRadius.
-function DecrementRollingBallRadius_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to DecrementRollingBallRadius (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-handles.RollingBallRadius=round(handles.RollingBallRadius-1);
-if handles.RollingBallRadius<1
-    handles.RollingBallRadius=1;
-end
-set(handles.EditRollingBallRadius,'String',num2str(handles.RollingBallRadius))
-guidata(gcbo,handles);
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-
-
-function EditRollingBallHeight_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to EditRollingBallHeight (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of EditRollingBallHeight as text
-%        str2double(get(hObject,'String')) returns contents of EditRollingBallHeight as a double
-handles.RollingBallHeight=str2num(get(handles.EditRollingBallHeight,'String'));
-guidata(gcbo,handles);
-
-
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-% --- Executes during object creation, after setting all properties.
-function EditRollingBallHeight_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to EditRollingBallHeight (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in IncrementRollingBallHeight.
-function IncrementRollingBallHeight_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to IncrementRollingBallHeight (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-handles.RollingBallHeight=round(handles.RollingBallHeight+1);
-set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
-guidata(gcbo,handles);
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-% --- Executes on button press in DecrementRollingBallHeight.
-function DecrementRollingBallHeight_Callback(hObject, eventdata, handles,varargin)
-% hObject    handle to DecrementRollingBallHeight (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-handles.RollingBallHeight=round(handles.RollingBallHeight-1);
-if handles.RollingBallHeight<1
-    handles.RollingBallHeight=1;
-end
-set(handles.EditRollingBallHeight,'String',num2str(handles.RollingBallHeight))
-guidata(gcbo,handles);
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-
-
 % --- Executes on button press in PickSpotsButton.
 function PickSpotsButton_Callback(hObject, eventdata, handles)
 % hObject    handle to PickSpotsButton (see GCBO)
@@ -1863,19 +1706,6 @@ ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
 pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
 imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
 avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
-if get(handles.SpotsPopup,'Value')==8
-    % Here if the spots are to be picked from images that have been background
-    % subtracted according to handles.BackgroundChoice
-    if any(get(handles.BackgroundChoice,'Value')==[2 3])
-        % Here to use rolling ball background (subtract off background)
-        
-        avefrm=avefrm-rolling_ball(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-    elseif any(get(handles.BackgroundChoice,'Value')==[4 5])
-        % Here to use Danny's newer background subtraction(subtract off background)
-        
-        avefrm=avefrm-bkgd_image(avefrm,handles.RollingBallRadius,handles.RollingBallHeight);
-    end
-end
 [imageYsize, imageXsize]=size(avefrm);                  % [ysize xsize]
 xlow=1;xhigh=imageXsize;ylow=1;yhigh=imageYsize;         % Initialize frame limits
 if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
@@ -2165,9 +1995,6 @@ switch SpotsButtonChoice
         guidata(gcbo,handles)
         %*******************************************************************************************
     case 2
-        if get(handles.BackgroundChoice,'Value')~=1
-            error('error in SpotsButton_Callback\nBackground choice is not supported in this version%s','')
-        end
         aoiProcessParameters = getAoiProcessParameters(handles);
         spotPickingParameters = getSpotPickingParameters(handles);
         % Here to find spots over the specified frame range
@@ -3185,28 +3012,6 @@ function UpdateGraph_Callback(hObject, eventdata, handles)
 axes(handles.axes1);
 
 averagedImage = getframes_v1(handles);
-
-
-switch get(handles.BackgroundChoice,'Value')
-    case 1
-    case 2
-        % Here to display background
-        averagedImage = rolling_ball(averagedImage,handles.RollingBallRadius,handles.RollingBallHeight);
-    case 3
-        % Here to display image-background
-        averagedImage = double(averagedImage)-double(rolling_ball(averagedImage,handles.RollingBallRadius,handles.RollingBallHeight));
-    case 4
-        % Here to display background with Danny's
-        % latest rolling ball ave,  default rollingballradius==spotsize=5, default rollingballheight==noise radius=2
-        
-        averagedImage = bkgd_image(averagedImage,handles.RollingBallRadius,handles.RollingBallHeight);
-    case 5
-        
-        averagedImage = double(averagedImage)-double(bkgd_image(averagedImage,handles.RollingBallRadius,handles.RollingBallHeight));
-end
-
-
-
 clowval=round(double(min(min(averagedImage))));
 chival=round(double(max(max(averagedImage))));     % Frame max and min values,
 % same as auto values for scaling image
