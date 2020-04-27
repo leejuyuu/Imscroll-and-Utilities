@@ -1961,32 +1961,7 @@ switch SpotsButtonChoice
         guidata(gcbo,handles)
         %******************************************************************************************
     case 3
-        % Here to draw Map all the spots picked into the current field of view
-        frms=handles.AllSpots.FrameVector;      % List of frames over which we found spots
-        hold on
-        [rose col]=size(frms);
-        
-        imval=round(str2num(get(handles.ImageNumberValue,'String')));   % Current frame number
-        for indx=1:max(rose,col)                           % Cycle through frame range
-            XYshift=[0 0];                  % initialize aoi shift due to drift
-            if any(get(handles.StartParameters,'Value')==[2 3 4])
-                % here to move the detected spots:  reference all spots to the current frame number to follow drift
-                % aoiinfo =[(framenumber when marked) ave x y pixnum aoinumber]
-                % Fake aoiinfo structure (one entry) specification frame being the indx (i.e. frame for spot detection)
-                aoiinfo=[indx 1 0 0 5 1];
-                % Get the xy shift that moves each spot detected in frame=indx to the current frame=imval
-                XYshift=ShiftAOI(1,imval,aoiinfo,handles.DriftList);
-            end
-            
-            spotnum=handles.AllSpots.AllSpotsCells{indx,2}; % number of spots found in the current frame
-            xy=handles.AllSpots.AllSpotsCells{indx,1}(1:spotnum,:);     % xy pairs of spots in current frame
-            
-            xy(:,1)=xy(:,1)+XYshift(1);     % Offset all the x coordinates for the detected spots
-            xy(:,2)=xy(:,2)+XYshift(2);     % Offset all the y coordinates for the detected spots
-            plot(xy(:,1),xy(:,2),'ro','MarkerSize',3.0);                % Plot the spots for current frame
-        end
-        hold off
-        %*****************************************************************************************
+        error('Map spots is removed in this version.')
     case 4
         % Here to save a file containing the AllSpots structure
         filestring=get(handles.OutputFilename,'String');
