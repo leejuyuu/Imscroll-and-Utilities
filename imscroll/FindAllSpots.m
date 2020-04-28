@@ -48,15 +48,9 @@ for i = 1:length(frameRange)
     pk = pickSpots(currentFrameImage, spotPickingParameters, region);
     
     [nAOIs,~]=size(pk);
-    if nAOIs~=0       % If there are spots
-        AllSpots.AllSpotsCells{i,1}=pk;
-        AllSpots.AllSpotsCells{i,2}=nAOIs;
-        AllSpots.AllSpotsCells{i,3}=iFrame;
-    else
-        AllSpots.AllSpotsCells{i,1}=[];
-        AllSpots.AllSpotsCells{i,2}=0;
-        AllSpots.AllSpotsCells{i,3}=iFrame;
-    end
+    AllSpots.AllSpotsCells{i,1}=pk;
+    AllSpots.AllSpotsCells{i,2}=nAOIs;
+    AllSpots.AllSpotsCells{i,3}=iFrame;
 end
 
 
