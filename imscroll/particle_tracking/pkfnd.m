@@ -37,51 +37,33 @@ function out=pkfnd(im,th,sz)
 %im=im./max(max(im)); 
 ind=find(im > th);
 [nr,nc]=size(im);
-tst=zeros(nr,nc);
 n=length(ind);
 if n==0
     out=[];
-    display('nothing above threshold');
+    fprintf('nothing above threshold\n');
     return;
 end
-mx=[];
 %convert index from find to row and column
+regionalMax = imregionalmax(im);
+ind=find(im > th & regionalMax);
 rc=[mod(ind,nr),floor(ind/nr)+1];
-for i=1:n
-    r=rc(i,1);c=rc(i,2);
-    %check each pixel above threshold to see if it's brighter than it's neighbors
-    %  THERE'S GOT TO BE A FASTER WAY OF DOING THIS.  I'M CHECKING SOME MULTIPLE TIMES,
-    %  BUT THIS DOESN'T SEEM THAT SLOW COMPARED TO THE OTHER ROUTINES, ANYWAY.
-    if r>1 & r<nr & c>1 & c<nc
-        if im(r,c)>=im(r-1,c-1) & im(r,c)>=im(r,c-1) & im(r,c)>=im(r+1,c-1) & ...
-         im(r,c)>=im(r-1,c)  & im(r,c)>=im(r+1,c) &   ...
-         im(r,c)>=im(r-1,c+1) & im(r,c)>=im(r,c+1) & im(r,c)>=im(r+1,c+1)
-        mx=[mx,[r,c]']; 
-        %tst(ind(i))=im(ind(i));
-        end
-    end
-end
-%out=tst;
-mx=mx';
 
-[npks,crap]=size(mx);
-
-%if size is specified, then get ride of pks within size of boundary
-if nargin==3 & npks>0
-   %throw out all pks within sz of boundary;
-    ind=find(mx(:,1)>sz & mx(:,1)<(nr-sz) & mx(:,2)>sz & mx(:,2)<(nc-sz));
-    mx=mx(ind,:); 
+if nargin == 3
+    %if size is specified, then get ride of pks within size of boundary
+    isNotAtEdge = rc(:, 1)>sz & rc(:, 1)<nr-sz & rc(:, 2)>sz & rc(:, 2)<nc-sz;
+else
+    isNotAtEdge = rc(:, 1)>1 & rc(:, 1)<nr & rc(:, 2)>1 & rc(:, 2)<nc;
 end
+ind = ind(isNotAtEdge);
+mx=[mod(ind,nr),floor(ind/nr)+1];
 
 %prevent from finding peaks within size of each other
-[npks,crap]=size(mx);
+npks = length(ind);
 if npks > 1 
     %CREATE AN IMAGE WITH ONLY PEAKS
     nmx=npks;
-    tmp=0.*im;
-    for i=1:nmx
-        tmp(mx(i,1),mx(i,2))=im(mx(i,1),mx(i,2));
-    end
+    tmp = zeros(size(im));
+    tmp(ind) = im(ind);
     %LOOK IN NEIGHBORHOOD AROUND EACH PEAK, PICK THE BRIGHTEST
     for i=1:nmx
         roi=tmp( (mx(i,1)-floor(sz/2)):(mx(i,1)+(floor(sz/2)+1)),(mx(i,2)-floor(sz/2)):(mx(i,2)+(floor(sz/2)+1))) ;
@@ -94,9 +76,13 @@ if npks > 1
     mx=[mod(ind,nr),floor(ind/nr)+1];
 end
 
-if size(mx)==[0,0]
-    out=[];
-else
+[nPeaks, ~] = size(mx);
+if nPeaks
     out(:,2)=mx(:,1);
     out(:,1)=mx(:,2);
+else
+    out=[];
 end
+
+end
+
