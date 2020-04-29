@@ -55,7 +55,7 @@ function out=cntrd(im,mx,sz,interactive)
 
 
 if nargin==3
-   interactive=0; 
+   interactive=0;
 end
 
 if sz/2 == floor(sz/2)
@@ -80,24 +80,17 @@ for i=1:m
     dst(i,:)=sqrt((i-1-cent)^2+x2);
 end
 
-
-ind=find(dst < r);
-
-msk=zeros([2*r,2*r]);
-msk(ind)=1.0;
-%msk=circshift(msk,[-r,-r]);
+msk = dst < r;
 
 dst2=msk.*(dst.^2);
-ndst2=sum(sum(dst2));
 
 [nr,nc]=size(im);
 %remove all potential locations within distance sz from edges of image
-ind=find(mx(:,2) > 1.5*sz & mx(:,2) < nr-1.5*sz);
-mx=mx(ind,:);
-ind=find(mx(:,1) > 1.5*sz & mx(:,1) < nc-1.5*sz);
-mx=mx(ind,:);
+logik1=(mx(:,2) > 1.5*sz & mx(:,2) < nr-1.5*sz);
+logik2=(mx(:,1) > 1.5*sz & mx(:,1) < nc-1.5*sz);
+mx=mx(logik1 & logik2,:);
 
-[nmx,crap] = size(mx);
+[nmx,~] = size(mx);
 
 %inside of the window, assign an x and y coordinate for each pixel
 xl=zeros(2*r,2*r);
@@ -106,7 +99,7 @@ for i=1:2*r
 end
 yl=xl';
 
-pts=[];
+pts=zeros(nmx, 4);
 %loop through all of the candidate positions
 for i=1:nmx
     %create a small working array around each candidate location, and apply the window function
@@ -122,7 +115,7 @@ for i=1:nmx
     rg=(sum(sum(tmp.*dst2))/norm);
     
     %concatenate it up
-    pts=[pts,[mx(i,1)+xavg-r,mx(i,2)+yavg-r,norm,rg]'];
+    pts(i, :)=[mx(i,1)+xavg-r,mx(i,2)+yavg-r,norm,rg];
     
     %OPTIONAL plot things up if you're in interactive mode
     if interactive==1
@@ -137,7 +130,9 @@ for i=1:nmx
      pause
     end
 
-    
 end
-out=pts';
+out=pts;
+
+
+end
 
