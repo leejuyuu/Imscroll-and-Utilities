@@ -1694,46 +1694,42 @@ if handles.SpotBrightness<=0
     handles.SpotBrightness=1;
     set(handles.EditSpotBrightness,'String',num2str(handles.SpotBrightness))
 end
-FitDataHold=handles.FitData;
-handles.FitData=[];                 % Clear the screen of AOIs by setting handles.Fitdata=[]
-guidata(gcbo,handles)               % and showing the image
-slider1_Callback(handles.ImageNumber, eventdata, handles)
-handles.FitData=FitDataHold;        % Replace the handles.FitData and show the image with
-% the proper AOIs
 guidata(gcbo,handles)
 
-ave=round(str2double(get(handles.FrameAve,'String')));  % Averaging number
-pixnum=str2double(get(handles.PixelNumber,'String'));   % Pixel number
-imagenum=round(get(handles.ImageNumber,'value'));        % Retrieve the value of the slider
-avefrm=getframes_v1(handles);                       % Fetch the current frame(s) displayes
-[imageYsize, imageXsize]=size(avefrm);                  % [ysize xsize]
-xlow=1;xhigh=imageXsize;ylow=1;yhigh=imageYsize;         % Initialize frame limits
-if get(handles.Magnify,'Value')==1                  % Check whether the image magnified (restrct range for finding spots)
-    limitsxy=eval( get(handles.MagRangeYX,'String') );  % Get the limits of the magnified region
-    % [xlow xhi ylow yhi]
-    xlow=limitsxy(1);xhigh=limitsxy(2);            % Define frame limits as those of
-    ylow=limitsxy(3);yhigh=limitsxy(4);            % the magnified region
-    
+spotPickingParameters = getSpotPickingParameters(handles);
+imagePath = getImagePathFromHandles(handles);
+
+imageFileProperty = getImageFileProperty(imagePath);
+frameAverage=round(str2double(get(handles.FrameAve,'String')));
+aoiWidth=str2double(get(handles.PixelNumber,'String'));
+frameNum=round(get(handles.ImageNumber,'value'));
+
+if get(handles.Magnify,'Value')==1
+    % Restrict spot picking to the magnified range
+    region=num2cell(eval(get(handles.MagRangeYX,'String')));
+else
+    region = {1, imageFileProperty.height, 1, imageFileProperty.width};
 end
+
 % Find the spots
+currentFrameImage = getAveragedImage(imageFileProperty,frameNum,frameAverage);
+pk = pickSpots(currentFrameImage, spotPickingParameters, region);
 
-dat=bpass(double(avefrm(ylow:yhigh,xlow:xhigh)),handles.NoiseDiameter,handles.SpotDiameter);
-pk=pkfnd(dat,handles.SpotBrightness,handles.SpotDiameter);
-pk=cntrd(dat,pk,handles.SpotDiameter+2);
-
-[NumOfPeaks, ~]=size(pk);
-% Put the aois into our handles structure handles.FitData = [frm#  ave  x   y  pixnum  aoinum]
-if NumOfPeaks~=0       % If there are spots, put them into handles.FitData and draw them
-    pk(:,1)=pk(:,1)+xlow-1;             % Correct coordinates for case where we used a magnified region
-    pk(:,2)=pk(:,2)+ylow-1;
-    handles.FitData=[imagenum*ones(NumOfPeaks,1) ave*ones(NumOfPeaks,1) pk(:,1) pk(:,2) pixnum*ones(NumOfPeaks,1) [1:NumOfPeaks]'];
-    % Draw the aois
-    for indx=1:NumOfPeaks
-        draw_box_v1(handles.FitData(indx,3:4),(pixnum)/2,(pixnum)/2,'b');
-    end
+[nSpots, ~]=size(pk);
+if nSpots~=0
+    aoiinfo = zeros(nSpots, 6);
+    aoiinfo(:, 1) = frameNum;
+    aoiinfo(:, 2) = frameAverage;
+    aoiinfo(:, 3:4) = pk(:, 1:2);
+    aoiinfo(:, 5) = aoiWidth;
+    aoiinfo(:, 6) = 1:nSpots;
+    handles.FitData = aoiinfo;
+else
+    handles.FitData = [];
 end
-%draw_aois(handles.FitData,imagenum,pixnum,handles.DriftList);
+
 guidata(gcbo,handles)
+UpdateGraph_Callback(hObject, eventdata, handles);
 
 
 
