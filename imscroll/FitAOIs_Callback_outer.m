@@ -25,9 +25,6 @@ if fitChoice == 5
     aoifits.BackgroundData=DataOutput2d.BackgroundData;
 elseif fitChoice == 1    
     isTrackAOI = logical(get(handles.TrackAOIs,'Value'));
-    if get(handles.BackgroundChoice,'Value') ~= 1
-        error('background choice is not supported in this version')
-    end
     
     DataOutput2d = fitAoisTo2dGaussian(...
         handles.FitData,...
@@ -61,3 +58,6 @@ guidata(handles.FitAOIs,handles);
 
 % Start a gui for display of the fit results
 plotargout(handles.figure1)
+
+end
+
