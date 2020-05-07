@@ -100,7 +100,7 @@ end
 
 if lobject  
   boxcar_kernel = normalize(...
-      ones(1,length(-round(lobject):round(lobject))));
+      ones(1,round(lobject)*2+1));
 end
   
 % JWM: Do a 2D convolution with the kernels in two steps each.  It is
@@ -124,6 +124,7 @@ end
 
 gconv = conv2(image_array',gaussian_kernel','same');
 gconv = conv2(gconv',gaussian_kernel','same');
+% gconv = conv2(gaussian_kernel, gaussian_kernel, image_array, 'same');
 
 if lobject
   bconv = conv2(image_array',boxcar_kernel','same');
@@ -153,3 +154,6 @@ filtered(:,(end - lzero + 1):end) = 0;
 % res = filtered;
 filtered(filtered < threshold) = 0;
 res = filtered;
+
+end
+
