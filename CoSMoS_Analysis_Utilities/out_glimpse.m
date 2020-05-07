@@ -29,11 +29,11 @@
 function out_glimpse(user,image,out_path)
 [im_width im_height]=size(image);
 
-if exist([out_path '\header.mat'],'file')      
+if exist([out_path '/header.mat'],'file')
     %use header already in place
-    if exist([out_path '\0.glimpse'],'file')   
+    if exist([out_path '/0.glimpse'],'file')
         %add to image file already in place
-        load([out_path '\header.mat']);
+        load([out_path '/header.mat']);
         vid.nframes=vid.nframes+1; %#ok<NODEF>
         vid.ttb=[vid.ttb,vid.ttb(end)+333];
         if vid.offset(end)+im_width*im_height*2>=2^32
@@ -42,9 +42,9 @@ if exist([out_path '\header.mat'],'file')
         vid.offset=[vid.offset (vid.offset(end)+(im_width*im_height*2))];
         vid.filenumber=[vid.filenumber 0];
         %overwrite old header information
-        save([out_path '\header'],'vid');
+        save([out_path '/header'],'vid');
         %open and append to binary file
-        binary = fopen([out_path '\0.glimpse'],'a');
+        binary = fopen([out_path '/0.glimpse'],'a');
         image=image-2^15;
         fwrite(binary,image,'int16','b');
         fclose(binary);
@@ -57,7 +57,7 @@ if exist([out_path '\header.mat'],'file')
     
 else
     %no header, will create new header
-    if exist([out_path '\0.glimpse'],'file')    
+    if exist([out_path '/0.glimpse'],'file')
         %ABORT, file exists with no header
         'there is a file with no header!'
         'abort!'
@@ -65,16 +65,16 @@ else
     else
         %no file, no header: will make and write to file
         %header = fopen([out_path '\header.m'],'a');
-        binary = fopen([out_path '\0.glimpse'],'a');
+        binary = fopen([out_path '/0.glimpse'],'a');
         %create vid structure
-        vid = struct('moviefile', [out_path '\header.glimpse'], 'username', user, 'description', '', 'nframes',0, 'time1', 32342343, 'ttb', [], 'depth', 1, 'offset', [], 'filenumber', [], 'width', im_width, 'height', im_height);
+        vid = struct('moviefile', [out_path '/header.glimpse'], 'username', user, 'description', '', 'nframes',0, 'time1', 32342343, 'ttb', [], 'depth', 1, 'offset', [], 'filenumber', [], 'width', im_width, 'height', im_height);
         %append an image to header
         vid.nframes=vid.nframes+1;
         vid.ttb=0;
         vid.offset=0;
         vid.filenumber=[vid.filenumber 0];
         %save updated header file
-        save([out_path '\header'],'vid');
+        save([out_path '/header'],'vid');
         %write image to binary file
         image=image-2^15;
         fwrite(binary,image,'int16','b');
@@ -82,3 +82,6 @@ else
     end
     
 end
+
+end
+
