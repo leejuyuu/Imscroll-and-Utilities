@@ -42,10 +42,11 @@ for iFrame = 1:nFrames
         %indicate the current progress
         fprintf('processing frame %d\n',iFrame)
     end
+    frameNum = frameRange(iFrame)
     
     % Get the next averaged frame to process
 %     currentFrameImage = uint32(sum(uint32(tiffObj(:,:,iFrame:iFrame+frameAverage-1)),3))/frameAverage;
-    currentFrameImage = getAveragedImage(imageFileProperty,iFrame,frameAverage);
+    currentFrameImage = getAveragedImage(imageFileProperty,frameNum,frameAverage);
     for iAOI = 1:nAOIs   % Loop through all the aois for this frame
         
         intensity(iAOI,iFrame) = double(linear_AOI_interpolation2(...
