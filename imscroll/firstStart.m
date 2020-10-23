@@ -1,11 +1,12 @@
-function firstStart(mainDirectory)
-cd(mainDirectory);
+function firstStart()
+% cd(mainDirectory);
+mainDirectory = cd;
 path(pathdef,genpath(mainDirectory));
-rename_ref_to_dat
+% rename_ref_to_dat
 FileLocations = struct(...
     'data', [mainDirectory, '\data\'],...
     'mapping', [mainDirectory, '\data\mapping\'],...
-    'gui_files', [mainDirectory, '\figfiles\imscroll\gui_files\']...
+    'gui_files', [mainDirectory, '\imscroll\gui_files\']...
     );
-save([mainDirectory, '\figfiles\imscroll\gui_files\filelocations.dat'], FileLocations);
+save([mainDirectory, '\imscroll\gui_files\filelocations.dat'], 'FileLocations');
 end

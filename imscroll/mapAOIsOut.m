@@ -39,7 +39,7 @@ end
 log=(handles.FitData(:,3)>=1 ) & (handles.FitData(:,4) >=1) & (handles.FitData(:,3) <=1024) & (handles.FitData(:,4) <=1024);
 handles.FitData=handles.FitData(log,:);
 handles.FitData=update_FitData_aoinum(handles.FitData);
-%     guidata(gcbo,handles)
+guidata(gcbo,handles)
 % Save the current AOI locations after mapping
 aoiinfo2=handles.FitData;
 save([handles.dataDir.String, 'postmapAOIs.dat'], 'aoiinfo2');
