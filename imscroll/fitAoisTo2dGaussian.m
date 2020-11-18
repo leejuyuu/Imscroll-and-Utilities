@@ -72,8 +72,18 @@ for iFrame = 1:nFrame
         end
         
         aoiWidth = aoiinfo(iAOI, 5);
-        [currentAoiImage, aoi_origin] = getAOIsubImageAndCenterDuplicate(currentFrameImage, coord, aoiWidth/2);
         
+        try
+        [currentAoiImage, aoi_origin] = getAOIsubImageAndCenterDuplicate(currentFrameImage, coord, aoiWidth/2);
+        catch ME
+            switch ME.identifier
+                case 'MATLAB:badsubscript'
+                    fprintf('Bad aoi: %d\n', iAOI)
+                    return
+                otherwise
+                    rethrow(ME)
+            end
+        end
         startingCoeff = guessStartingParameters(double(currentAoiImage));
         
         % Fit the current aoi
